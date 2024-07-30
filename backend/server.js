@@ -1,20 +1,23 @@
-import express from 'express';
-import bodyParser from 'body-parser';
-import dotenv from 'dotenv';
-import cors from 'cors';
-
-dotenv.config();
+const express = require('express');
+require('dotenv').config();
+const bodyParser = require('body-parser');
+const morgan = require('morgan');
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-app.use(cors());
+const indexRouter = require('./routes/index');
+const productionRouter = require('./routes/production');
+const inventoryRouter = require('./routes/inventory');
+
+app.use(morgan('dev'));
 app.use(bodyParser.json());
 
-app.get('/', (req, res) => {
-  res.send('Backend server is running');
-});
+app.use('/', indexRouter);
+app.use('/production', productionRouter);
+app.use('/inventory', inventoryRouter);
 
 app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
+    console.log(`Server is running on port ${port}`);
 });
+
