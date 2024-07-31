@@ -5,7 +5,7 @@ const CLIENT_SECRET = process.env.COGNITO_CLIENT_SECRET;
 const CLIENT_ID = process.env.COGNITO_CLIENT_ID;
 const USER_POOL_ID = process.env.COGNITO_USER_POOL_ID;
 
-const cognito = new CognitoIdentityProviderClient({ region: 'ap-southeast-2' }); // Replace with your region
+const cognito = new CognitoIdentityProviderClient({ region: 'ap-southeast-2' });
 
 function generateSecretHash(username) {
     const hasher = createHmac('sha256', CLIENT_SECRET);

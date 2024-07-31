@@ -1,10 +1,10 @@
 require('dotenv').config();
-const { signUp } = require('../auth');
+const { signUp } = require('./auth');
 
-const username = 'testuser'; // Replace with your test username
-const password = 'TestPassword123!'; // Replace with your test password
+const username = 'testuser';
+const password = 'TestPassword123!';
 const attributes = {
-    email: 'brodiebowenmorgan76@gmail.com',
+    email: 'enteryouremailhere', // enter your email here
     firstName: 'Test',
     lastName: 'User'
 };

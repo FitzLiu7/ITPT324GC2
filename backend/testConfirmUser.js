@@ -1,8 +1,8 @@
 require('dotenv').config();
-const { confirmUser } = require('../auth');
+const { confirmUser } = require('./auth');
 
-const username = 'testuser'; // Replace with your test username
-const confirmationCode = '335884'; // Replace with the actual confirmation code received
+const username = 'testuser';
+const confirmationCode = '123456'; //enter verification code from your email here
 
 async function testConfirmUser() {
     try {
