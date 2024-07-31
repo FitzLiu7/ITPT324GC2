@@ -10,23 +10,22 @@ app.use(bodyParser.json());
 
 // Add Data
 app.post('/add-data', async (req, res) => {
-    const { RoomNumber, Tubs, Date, FoodType, WaterType } = req.body;
+    const { RoomNumber, Date, FoodType, WaterType } = req.body;
 
     // Ensure all required fields are provided
-    if (RoomNumber === undefined || Tubs === undefined || Date === undefined || FoodType === undefined || WaterType === undefined) {
+    if (RoomNumber === undefined || Date === undefined || FoodType === undefined || WaterType === undefined) {
         return res.status(400).send('Missing required fields');
     }
 
-    // Ensure RoomNumber and Tubs are numbers
-    if (typeof RoomNumber !== 'number' || typeof Tubs !== 'number') {
-        return res.status(400).send('RoomNumber and Tubs must be numbers');
+    // Ensure RoomNumber is a number
+    if (typeof RoomNumber !== 'number') {
+        return res.status(400).send('RoomNumber must be a number');
     }
 
     const params = {
         TableName: 'InsectProductionStock',
         Item: {
             RoomNumber, // Use RoomNumber as the partition key
-            Tubs,
             Date,
             FoodType,
             WaterType
@@ -72,14 +71,14 @@ app.get('/get-data/:roomNumber', async (req, res) => {
 
 // Update Data
 app.put('/update-data', async (req, res) => {
-    const { RoomNumber, Tubs, Date, FoodType, WaterType } = req.body;
+    const { RoomNumber, Date, FoodType, WaterType } = req.body;
 
-    if (RoomNumber === undefined || Tubs === undefined || Date === undefined || FoodType === undefined || WaterType === undefined) {
+    if (RoomNumber === undefined || Date === undefined || FoodType === undefined || WaterType === undefined) {
         return res.status(400).send('Missing required fields');
     }
 
-    if (typeof RoomNumber !== 'number' || typeof Tubs !== 'number') {
-        return res.status(400).send('RoomNumber and Tubs must be numbers');
+    if (typeof RoomNumber !== 'number') {
+        return res.status(400).send('RoomNumber must be a number');
     }
 
     const params = {
@@ -87,14 +86,13 @@ app.put('/update-data', async (req, res) => {
         Key: {
             RoomNumber
         },
-        UpdateExpression: 'set Tubs = :tubs, #d = :date, #f = :foodType, #w = :waterType',
+        UpdateExpression: 'set #d = :date, #f = :foodType, #w = :waterType',
         ExpressionAttributeNames: {
             '#d': 'Date',
             '#f': 'FoodType',
             '#w': 'WaterType'
         },
         ExpressionAttributeValues: {
-            ':tubs': Tubs,
             ':date': Date,
             ':foodType': FoodType,
             ':waterType': WaterType
@@ -139,3 +137,7 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
+
+
+
+

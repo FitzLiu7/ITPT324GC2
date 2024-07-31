@@ -1,58 +1,52 @@
-const { CognitoIdentityProviderClient, SignUpCommand, AdminConfirmSignUpCommand, AdminInitiateAuthCommand } = require('@aws-sdk/client-cognito-identity-provider');
-const { createHmac } = require('crypto');
+const AmazonCognitoIdentity = require('amazon-cognito-identity-js');
+const poolData = {
+    UserPoolId: process.env.COGNITO_USER_POOL_ID,
+    ClientId: process.env.COGNITO_CLIENT_ID
+};
+const userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
 
-const CLIENT_SECRET = process.env.COGNITO_CLIENT_SECRET;
-const CLIENT_ID = process.env.COGNITO_CLIENT_ID;
-const USER_POOL_ID = process.env.COGNITO_USER_POOL_ID;
+const signUp = async (username, password, email) => {
+    const attributeList = [
+        new AmazonCognitoIdentity.CognitoUserAttribute({ Name: 'email', Value: email })
+    ];
 
-const cognito = new CognitoIdentityProviderClient({ region: 'ap-southeast-2' });
+    return new Promise((resolve, reject) => {
+        userPool.signUp(username, password, attributeList, null, (err, result) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(result.user);
+            }
+        });
+    });
+};
 
-function generateSecretHash(username) {
-    const hasher = createHmac('sha256', CLIENT_SECRET);
-    hasher.update(`${username}${CLIENT_ID}`);
-    return hasher.digest('base64');
-}
-
-async function signUp(username, password, attributes) {
-    const secretHash = generateSecretHash(username);
-
-    const command = new SignUpCommand({
-        ClientId: CLIENT_ID,
+const signIn = async (username, password) => {
+    const authenticationDetails = new AmazonCognitoIdentity.AuthenticationDetails({
         Username: username,
-        Password: password,
-        SecretHash: secretHash,
-        UserAttributes: [
-            { Name: 'email', Value: attributes.email },
-            { Name: 'given_name', Value: attributes.firstName },
-            { Name: 'family_name', Value: attributes.lastName },
-        ]
+        Password: password
     });
 
-    return cognito.send(command);
-}
-
-async function confirmUser(username) {
-    const command = new AdminConfirmSignUpCommand({
-        UserPoolId: USER_POOL_ID,
+    const userData = {
         Username: username,
+        Pool: userPool
+    };
+
+    const cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
+
+    return new Promise((resolve, reject) => {
+        cognitoUser.authenticateUser(authenticationDetails, {
+            onSuccess: (result) => {
+                resolve(result);
+            },
+            onFailure: (err) => {
+                reject(err);
+            }
+        });
     });
+};
 
-    return cognito.send(command);
-}
+module.exports = { signUp, signIn };
 
-async function signIn(username, password) {
-    const command = new AdminInitiateAuthCommand({
-        AuthFlow: 'ADMIN_NO_SRP_AUTH',
-        UserPoolId: USER_POOL_ID,
-        ClientId: CLIENT_ID,
-        AuthParameters: {
-            USERNAME: username,
-            PASSWORD: password,
-            SECRET_HASH: generateSecretHash(username),
-        },
-    });
 
-    return cognito.send(command);
-}
 
-module.exports = { signUp, confirmUser, signIn };
