@@ -1,9 +1,10 @@
-PUT http://localhost:3000/update-data
+POST http://localhost:3000/add-data
 Content-Type: application/json
 
 {
     "RoomNumber": 5,
-    "Date": "23-02-2024",
-    "FoodType": "2 Scoops",
-    "WaterType": "Bottle with Ring"
+    "Tubs": 20,
+    "Date": "15-02-2024",
+    "FoodType": "1 Scoop",
+    "WaterType": "Bottle"
 }

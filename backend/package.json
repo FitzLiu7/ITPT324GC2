@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@aws-amplify/auth": "^6.3.11",
+    "@aws-sdk/client-cognito-identity-provider": "^3.621.0",
     "@aws-sdk/client-firehose": "^3.621.0",
     "@aws-sdk/client-kinesis": "^3.621.0",
     "@aws-sdk/client-personalize-events": "^3.621.0",
@@ -20,11 +21,12 @@
     "body-parser": "^1.20.2",
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
+    "jest-mock": "^29.7.0",
     "morgan": "^1.10.0"
   },
   "devDependencies": {
     "aws-sdk-mock": "^6.1.0",
-    "jest": "^27.0.6"
+    "jest": "^27.5.1"
   },
   "author": "Your Name",
   "license": "ISC",

@@ -6,7 +6,8 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "serve:ssr:PiscesWebApp": "node dist/pisces-web-app/server/server.mjs"
   },
   "private": true,
   "dependencies": {
