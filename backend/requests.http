@@ -1,9 +1,16 @@
-PUT http://localhost:3000/update-data
-Content-Type: application/json
+POST https://cognito-idp.ap-southeast-2.amazonaws.com/
+Content-Type: application/x-amz-json-1.1
+X-Amz-Target: AWSCognitoIdentityProviderService.SignUp
 
 {
-    "RoomNumber": 5,
-    "Date": "23-02-2024",
-    "FoodType": "2 Scoops",
-    "WaterType": "Bottle with Ring"
+  "ClientId": "fsklgrvsppomao3savu9397n5",
+  "Username": "testuser",
+  "Password": "TestPassword123!",
+  "UserAttributes": [
+    {
+      "Name": "email",
+      "Value": "testuser@example.com"
+    }
+  ],
+  "SecretHash": "<generated-secret-hash>"
 }
