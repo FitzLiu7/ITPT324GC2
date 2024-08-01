@@ -42,8 +42,8 @@
                 if (response.ok) {
                     const result = await response.json();
                     document.getElementById('confirmationMessage').innerText = 'Confirmation successful. You can now sign in.';
-                    // Optionally redirect to sign-in page
-                    window.location.href = 'signin.html'; // Update with the actual path to your sign-in page
+
+                    window.location.href = 'signin.html';
                 } else {
                     const error = await response.json();
                     document.getElementById('confirmationMessage').innerText = `Error confirming sign-up: ${error.message}`;
