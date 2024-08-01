@@ -1,10 +1,15 @@
+require('dotenv').config();
 const AmazonCognitoIdentity = require('amazon-cognito-identity-js');
+
 const poolData = {
     UserPoolId: process.env.COGNITO_USER_POOL_ID,
-    ClientId: process.env.COGNITO_CLIENT_ID
+    ClientId: process.env.COGNITO_CLIENT_ID,
 };
+
+//initialize userpool
 const userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
 
+//Sign-Up function
 const signUp = async (username, password, email) => {
     const attributeList = [
         new AmazonCognitoIdentity.CognitoUserAttribute({ Name: 'email', Value: email })
@@ -21,6 +26,27 @@ const signUp = async (username, password, email) => {
     });
 };
 
+// Confirm Sign-Up function
+const confirmSignUp = async (username, code) => {
+    const userData = {
+        Username: username,
+        Pool: userPool
+    };
+
+    const cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
+
+    return new Promise((resolve, reject) => {
+        cognitoUser.confirmRegistration(code, true, (err, result) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(result);
+            }
+        });
+    });
+};
+
+//Sign-In
 const signIn = async (username, password) => {
     const authenticationDetails = new AmazonCognitoIdentity.AuthenticationDetails({
         Username: username,
@@ -46,7 +72,7 @@ const signIn = async (username, password) => {
     });
 };
 
-module.exports = { signUp, signIn };
+module.exports = { signUp, confirmSignUp, signIn };
 
 
 

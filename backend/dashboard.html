@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+</head>
+<body>
+    <h1>Inventory Operations</h1>
+
+    <!-- Add Data Form -->
+    <h2>Add Data</h2>
+    <form id="addForm">
+        <label for="addRoomNumber">Room Number:</label>
+        <input type="number" id="addRoomNumber" name="RoomNumber" required>
+        <br>
+        <label for="addDate">Date:</label>
+        <input type="text" id="addDate" name="Date" required>
+        <br>
+        <label for="addFoodType">Food Type:</label>
+        <input type="text" id="addFoodType" name="FoodType" required>
+        <br>
+        <label for="addWaterType">Water Type:</label>
+        <input type="text" id="addWaterType" name="WaterType" required>
+        <br>
+        <button type="submit">Add Data</button>
+    </form>
+
+    <!-- Retrieve Data Form -->
+    <h2>Retrieve Data</h2>
+    <form id="retrieveForm">
+        <label for="retrieveRoomNumber">Room Number:</label>
+        <input type="number" id="retrieveRoomNumber" name="RoomNumber" required>
+        <br>
+        <button type="submit">Retrieve Data</button>
+    </form>
+    <div id="retrieveResult"></div>
+
+    <!-- Update Data Form -->
+    <h2>Update Data</h2>
+    <form id="updateForm">
+        <label for="updateRoomNumber">Room Number:</label>
+        <input type="number" id="updateRoomNumber" name="RoomNumber" required>
+        <br>
+        <label for="updateDate">Date:</label>
+        <input type="text" id="updateDate" name="Date" required>
+        <br>
+        <label for="updateFoodType">Food Type:</label>
+        <input type="text" id="updateFoodType" name="FoodType" required>
+        <br>
+        <label for="updateWaterType">Water Type:</label>
+        <input type="text" id="updateWaterType" name="WaterType" required>
+        <br>
+        <button type="submit">Update Data</button>
+    </form>
+
+    <!-- Delete Data Form -->
+    <h2>Delete Data</h2>
+    <form id="deleteForm">
+        <label for="deleteRoomNumber">Room Number:</label>
+        <input type="number" id="deleteRoomNumber" name="RoomNumber" required>
+        <br>
+        <button type="submit">Delete Data</button>
+    </form>
+
+    <script>
+        // Handle add data
+        document.getElementById('addForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            const data = {
+                RoomNumber: parseInt(formData.get('RoomNumber')),
+                Date: formData.get('Date'),
+                FoodType: formData.get('FoodType'),
+                WaterType: formData.get('WaterType'),
+            };
+
+            const response = await fetch('/add-data', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data),
+            });
+
+            if (response.ok) {
+                alert('Data added successfully');
+            } else {
+                alert('Error adding data');
+            }
+        });
+
+        // Handle retrieve data
+        document.getElementById('retrieveForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const roomNumber = parseInt(document.getElementById('retrieveRoomNumber').value);
+
+            const response = await fetch(`/get-data/${roomNumber}`, {
+                method: 'GET',
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                document.getElementById('retrieveResult').innerText = JSON.stringify(data, null, 2);
+            } else {
+                document.getElementById('retrieveResult').innerText = 'Error retrieving data';
+            }
+        });
+
+        // Handle update data
+        document.getElementById('updateForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            const data = {
+                RoomNumber: parseInt(formData.get('RoomNumber')),
+                Date: formData.get('Date'),
+                FoodType: formData.get('FoodType'),
+                WaterType: formData.get('WaterType'),
+            };
+
+            const response = await fetch('/update-data', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data),
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                alert('Data updated successfully');
+            } else {
+                alert('Error updating data');
+            }
+        });
+
+        // Handle delete data
+        document.getElementById('deleteForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const roomNumber = parseInt(document.getElementById('deleteRoomNumber').value);
+
+            const response = await fetch(`/delete-data/${roomNumber}`, {
+                method: 'DELETE',
+            });
+
+            if (response.ok) {
+                alert('Data deleted successfully');
+            } else {
+                alert('Error deleting data');
+            }
+        });
+    </script>
+</body>
+</html>
