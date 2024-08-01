@@ -10,7 +10,6 @@ export class LoginComponent {
   password: string = '';
 
   onSubmit() {
-    // Aquí puedes añadir la lógica de autenticación
     console.log('Email:', this.email);
     console.log('Password:', this.password);
   }
