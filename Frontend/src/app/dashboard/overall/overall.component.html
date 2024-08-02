@@ -1,0 +1,21 @@
+<div class="overall-container">
+  <header>
+    <h2>Overall</h2>
+    <div class="user-info">Supervisor: Chloe</div>
+  </header>
+  <table>
+    <tr>
+      <th>Room</th>
+      <th>Week</th>
+      <th>Stage</th>
+      <th>Quantity</th>
+    </tr>
+    <tr *ngFor="let data of overallData">
+      <td>{{ data.room }}</td>
+      <td>{{ data.week }}</td>
+      <td>{{ data.stage }}</td>
+      <td>{{ data.quantity }}</td>
+    </tr>
+  </table>
+  <button class="add-btn">+</button>
+</div>
