@@ -1,0 +1,34 @@
+<div class="dashboard-container">
+  <div class="sidebar">
+    <img src="assets/pisces-logo.png" alt="Pisces Logo" class="logo">
+    <nav>
+      <ul>
+        <li><a routerLink="/overall">Overall</a></li>
+        <li><a routerLink="/feeding">Feeding & Hydration</a></li>
+        <li><a routerLink="/staff">Staff Tracking</a></li>
+      </ul>
+    </nav>
+  </div>
+  <div class="content">
+    <header>
+      <h1>Overall</h1>
+      <div class="user-info">Supervisor / Chloe</div>
+    </header>
+    <div class="grid">
+      <div class="grid-item" *ngFor="let room of rooms">
+        <h2>Room {{ room.id }}</h2>
+        <p>Week {{ room.week }}</p>
+        <p>Stage {{ room.stage }}</p>
+        <p>Quantity {{ room.quantity }}</p>
+      </div>
+    </div>
+    <button class="add-btn" (click)="toggleMenu()">+</button>
+    <div class="menu" *ngIf="showMenu">
+      <ul>
+        <li (click)="addData(selectedRoom)">Add</li>
+        <li (click)="updateData(selectedRoom)">Update</li>
+        <li (click)="releaseData(selectedRoom)">Release</li>
+      </ul>
+    </div>
+  </div>
+</div>
