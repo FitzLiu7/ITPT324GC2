@@ -108,7 +108,6 @@ app.get("/get-data/:roomNumber", async (req, res) => {
 // Update Data
 app.put("/update-data", async (req, res) => {
   const { RoomNumber, Date, FoodType, WaterType } = req.body;
-
   if (
     RoomNumber === undefined ||
     Date === undefined ||
