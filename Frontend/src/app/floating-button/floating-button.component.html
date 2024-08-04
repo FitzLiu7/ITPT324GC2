@@ -1,0 +1,8 @@
+<div class="floating-button" (click)="toggleMenu()">
+  <i class="fas fa-plus"></i>
+</div>
+<div class="floating-menu" *ngIf="menuOpen">
+  <button (click)="navigateTo('add')">Add</button>
+  <button (click)="navigateTo('update')">Update</button>
+  <button (click)="navigateTo('release')">Release</button>
+</div>
