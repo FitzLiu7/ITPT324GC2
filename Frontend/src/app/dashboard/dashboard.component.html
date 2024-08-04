@@ -1,0 +1,15 @@
+<div class="dashboard">
+  <div class="room" *ngFor="let room of rooms">
+    <div class="room-main-title">Room:</div>
+    <div class="room-main-info">{{ room.name }}</div>
+
+    <div class="room-title">Week:</div>
+    <div class="room-info">{{ room.week }}</div>
+
+    <div class="room-title">Stage:</div>
+    <div class="room-stage-info">{{ room.stage }}</div>
+
+    <div class="room-title">Stock:</div>
+    <div class="room-info">{{ room.stock }}</div>
+  </div>
+</div>
