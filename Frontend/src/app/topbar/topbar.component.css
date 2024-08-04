@@ -1,8 +1,8 @@
 .topbar {
   width: 100%;
-  height: 30px;
+  height: 5%;
   background-color: #ffffff;
-  color: white;
+  color: black;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -17,43 +17,18 @@
   height: 100%;
 }
 
-.menu {
-  position: relative;
+.user-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
   padding: 0 20px;
 }
 
-.menu-button {
-  background: none;
-  border: none;
-  color: rgb(0, 0, 0);
-  font-size: 24px;
-  cursor: pointer;
+.user-name {
+  font-weight: bold;
 }
 
-.menu-list {
-  display: none;
-  position: absolute;
-  right: 0;
-  top: 60px;
-  background-color: #333;
-  border: 1px solid #444;
-  border-radius: 4px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  padding: 0 50px;
-}
-
-.menu-list.show {
-  display: block;
-}
-
-.menu-item {
-  color: white;
-  text-decoration: none;
-  padding: 10px 20px;
-  display: block;
-  transition: background 0.3s;
-}
-
-.menu-item:hover {
-  background-color: #555;
+.user-role {
+  font-size: 14px;
+  color: gray;
 }

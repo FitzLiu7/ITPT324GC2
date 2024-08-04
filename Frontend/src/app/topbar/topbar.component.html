@@ -2,11 +2,8 @@
   <div class="logo">
     <img src="/public/logo.png" alt="Pisces Enterprises" />
   </div>
-  <div class="menu">
-    <button (click)="toggleMenu()" class="menu-button">☰</button>
-    <div class="menu-list" [class.show]="menuOpen">
-      <a routerLink="/login" class="menu-item">Login</a>
-      <a (click)="logout()" class="menu-item">Logout</a>
-    </div>
+  <div class="user-info">
+    <span class="user-name">{{ userName }}</span>
+    <span class="user-role">{{ userRole }}</span>
   </div>
 </div>
