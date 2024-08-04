@@ -2,7 +2,20 @@
   <i class="fas fa-plus"></i>
 </div>
 <div class="floating-menu" *ngIf="menuOpen">
-  <button (click)="navigateTo('add')">Add</button>
-  <button (click)="navigateTo('update')">Update</button>
-  <button (click)="navigateTo('release')">Release</button>
+  <button (click)="openModal('add')">Add</button>
+  <button (click)="openModal('update')">Update</button>
+  <button (click)="openModal('release')">Release</button>
 </div>
+
+<app-add-modal
+  *ngIf="currentModal === 'add'"
+  (close)="closeModal()"
+></app-add-modal>
+<app-update-modal
+  *ngIf="currentModal === 'update'"
+  (close)="closeModal()"
+></app-update-modal>
+<app-release-modal
+  *ngIf="currentModal === 'release'"
+  (close)="closeModal()"
+></app-release-modal>
