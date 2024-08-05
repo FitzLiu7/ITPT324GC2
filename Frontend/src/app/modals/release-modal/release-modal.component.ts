@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 @Component({
-  selector: 'app-update-modal',
+  selector: 'app-release-modal',
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './release-modal.component.html',

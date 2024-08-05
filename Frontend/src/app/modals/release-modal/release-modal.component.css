@@ -20,6 +20,7 @@
   box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.3);
   z-index: 1001;
   width: 300px;
+  font-size: medium;
 }
 
 .modal-title {
@@ -29,6 +30,7 @@
 
 .form-group {
   margin-bottom: 15px;
+  font-size: medium;
 }
 
 label {
@@ -41,11 +43,13 @@ select {
   width: 100%;
   padding: 8px;
   box-sizing: border-box;
+  font-size: medium;
 }
 
 .form-actions {
   display: flex;
   justify-content: space-between;
+  font-size: medium;
 }
 
 .btn {
@@ -53,6 +57,7 @@ select {
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  font-size: medium;
 }
 
 .btn-save {
