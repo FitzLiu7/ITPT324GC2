@@ -43,7 +43,6 @@ export class AddModalComponent implements OnInit {
   }
 
   submitForm() {
-    // Handle form submission
     console.log('Form submitted:', {
       room: this.room,
       week: this.week,

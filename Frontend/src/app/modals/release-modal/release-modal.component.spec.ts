@@ -8,9 +8,8 @@ describe('ReleaseModalComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ReleaseModalComponent]
-    })
-    .compileComponents();
+      imports: [ReleaseModalComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(ReleaseModalComponent);
     component = fixture.componentInstance;
