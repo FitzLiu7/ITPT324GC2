@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { AuthService } from '../services/auth.service';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -16,14 +15,16 @@ export class LoginComponent {
   password = '';
   errorMessage = '';
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(private router: Router) {}
 
-  async login() {
-    try {
-      await this.authService.signIn(this.username, this.password);
+  login() {
+    const validUsername = 'admin';
+    const validPassword = 'password';
+
+    if (this.username === validUsername && this.password === validPassword) {
       this.router.navigate(['/dashboard']);
-    } catch (error) {
-      this.errorMessage = 'Login failed. Please check your credentials.';
+    } else {
+      this.errorMessage = 'Invalid username or password';
     }
   }
 }

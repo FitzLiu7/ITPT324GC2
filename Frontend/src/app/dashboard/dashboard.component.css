@@ -32,9 +32,9 @@
 }
 .room-stage-info {
   background-color: #35c7b9;
-  padding: 8px 0px;
+  padding: 0px 8px 0px 0px;
   border-radius: 10px;
-  color: rgb(255, 255, 255);
+  color: #fff;
   font-size: 15px;
 }
 .room-main-title {

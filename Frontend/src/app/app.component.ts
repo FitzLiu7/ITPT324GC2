@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { Router, NavigationEnd } from '@angular/router';
 import { TopbarComponent } from './topbar/topbar.component';
 import { LeftsidebarComponent } from './leftsidebar/leftsidebar.component';
 import DashboardComponent from './dashboard/dashboard.component';
@@ -30,6 +31,17 @@ import { LoginComponent } from './login/login.component';
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   title = 'PiscesWebApp';
+  showLayout = true;
+
+  constructor(private router: Router) {
+    this.router.events.subscribe((event) => {
+      if (event instanceof NavigationEnd) {
+        this.showLayout = !this.router.url.includes('/login');
+      }
+    });
+  }
+
+  ngOnInit() {}
 }
