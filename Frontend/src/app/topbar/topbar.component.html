@@ -2,8 +2,16 @@
   <div class="logo">
     <img src="/Frontend/src/assets/logo.png" alt="Pisces Enterprises" />
   </div>
-  <div class="user-info">
-    <span class="user-name">{{ userName }}</span>
-    <span class="user-role">{{ userRole }}</span>
+  <div class="user-info" (click)="toggleDropdown()">
+    <div>
+      <span class="user-name">{{ userName }}</span>
+    </div>
+    <div>
+      <span class="user-role">{{ userRole }}</span>
+    </div>
+    <span class="arrow">&#9662;</span>
+    <div class="dropdown" [class.show]="dropdownOpen">
+      <a href="#" (click)="logout()">Logout</a>
+    </div>
   </div>
 </div>
