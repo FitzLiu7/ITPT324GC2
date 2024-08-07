@@ -37,8 +37,8 @@ app.post("/add-data", async (req, res) => {
     return res.status(400).send("Missing required fields");
   }
 
-  if (typeof RoomNumber !== "number") {
-    return res.status(400).send("RoomNumber must be a number");
+  if (typeof RoomNumber !== "number" || typeof Tubs !== "number") {
+    return res.status(400).send("RoomNumber and Tubs must be numbers");
   }
 
   const params = {
@@ -46,6 +46,7 @@ app.post("/add-data", async (req, res) => {
     Item: {
       RoomNumber,
       Date,
+      Tubs,
       FoodType,
       WaterType,
       Tubs,
@@ -60,6 +61,7 @@ app.post("/add-data", async (req, res) => {
     res.status(500).send(`Error adding data: ${error.message}`);
   }
 });
+
 //get list
 app.get("/get-list", async (req, res) => {
   const params = {
@@ -95,7 +97,6 @@ app.get("/get-data/:roomNumber", async (req, res) => {
 
   try {
     const data = await dynamoDB.get(params).promise();
-    console.log(res);
     if (data.Item) {
       res.status(200).json(data.Item);
     } else {
@@ -109,18 +110,20 @@ app.get("/get-data/:roomNumber", async (req, res) => {
 
 // Update Data
 app.put("/update-data", async (req, res) => {
-  const { RoomNumber, Date, FoodType, WaterType } = req.body;
+  const { RoomNumber, Date, FoodType, WaterType, Tubs } = req.body;
+
   if (
     RoomNumber === undefined ||
     Date === undefined ||
     FoodType === undefined ||
-    WaterType === undefined
+    WaterType === undefined ||
+    Tubs === undefined
   ) {
     return res.status(400).send("Missing required fields");
   }
 
-  if (typeof RoomNumber !== "number") {
-    return res.status(400).send("RoomNumber must be a number");
+  if (typeof RoomNumber !== "number" || typeof Tubs !== "number") {
+    return res.status(400).send("RoomNumber and Tubs must be numbers");
   }
 
   const params = {
@@ -128,16 +131,19 @@ app.put("/update-data", async (req, res) => {
     Key: {
       RoomNumber,
     },
-    UpdateExpression: "set #d = :date, #f = :foodType, #w = :waterType",
+    UpdateExpression:
+      "set #d = :date, #f = :foodType, #w = :waterType, #t = :tubs",
     ExpressionAttributeNames: {
       "#d": "Date",
       "#f": "FoodType",
       "#w": "WaterType",
+      "#t": "Tubs",
     },
     ExpressionAttributeValues: {
       ":date": Date,
       ":foodType": FoodType,
       ":waterType": WaterType,
+      ":tubs": Tubs,
     },
     ReturnValues: "UPDATED_NEW",
   };
