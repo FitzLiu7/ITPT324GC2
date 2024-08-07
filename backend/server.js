@@ -25,13 +25,14 @@ app.get("/dashboard", (req, res) => {
 
 // Add Data
 app.post("/add-data", async (req, res) => {
-  const { RoomNumber, Date, FoodType, WaterType } = req.body;
+  const { RoomNumber, Date, FoodType, WaterType, Tubs } = req.body;
 
   if (
     RoomNumber === undefined ||
     Date === undefined ||
     FoodType === undefined ||
-    WaterType === undefined
+    WaterType === undefined ||
+    Tubs == undefined
   ) {
     return res.status(400).send("Missing required fields");
   }
@@ -47,6 +48,7 @@ app.post("/add-data", async (req, res) => {
       Date,
       FoodType,
       WaterType,
+      Tubs,
     },
   };
 
@@ -65,7 +67,7 @@ app.get("/get-list", async (req, res) => {
   };
 
   try {
-    const data = await docClient.scan(params).promise();
+    const data = await dynamoDB.scan(params).promise();
     res.json(data.Items);
   } catch (err) {
     console.error(

@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ApiService } from '../api.service';
+import { HttpClientModule } from '@angular/common/http';
 
 interface Room {
   name: string;
@@ -17,6 +19,21 @@ interface Room {
 })
 export default class DashboardComponent implements OnInit {
   rooms: Room[] = [];
+
+  // insectStock: any[] = [];
+  // constructor(private apiService: ApiService) {}
+  // getList() {
+  //   this.apiService.getList().subscribe(
+  //     (data) => {
+  //       console.log(data);
+
+  //       this.insectStock = data;
+  //     },
+  //     (error) => {
+  //       console.error('Error fetching insect production stock:', error);
+  //     }
+  //   );
+  // }
 
   ngOnInit() {
     this.rooms = [
