@@ -25,15 +25,27 @@ export default class DashboardComponent implements OnInit {
   constructor(private apiService: ApiService) {}
   
   ngOnInit() {
-    // Subscribe to the data updates from the ApiService
+    // Fetch initial data from HTTP request
+    this.apiService.getList().subscribe(
+      (initialData) => {
+        console.log('Initial data:', initialData);
+        this.rooms = initialData; // Initialize rooms with HTTP data
+      },
+      (error) => {
+        console.error('Error fetching initial data:', error);
+      }
+    );
+  
+    // Subscribe to the WebSocket updates
     this.apiService.getDataUpdates().subscribe(
       (data) => {
         console.log('Updated data:', data);
-        this.rooms = data;
+        this.rooms = data; // Update rooms with WebSocket data
       },
       (error) => {
-        console.error('Error fetching data:', error);
+        console.error('Error receiving WebSocket data:', error);
       }
     );
   }
+  
 }

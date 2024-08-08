@@ -2,9 +2,13 @@ const express = require("express");
 const path = require("path");
 const AWS = require("aws-sdk");
 const bodyParser = require("body-parser");
-require("dotenv").config();
+const http = require('http');
+const WebSocket = require('ws');
 const app = express();
 const cors = require("cors");
+require("dotenv").config();
+
+
 app.use(cors());
 app.use(
   cors({
@@ -16,6 +20,37 @@ const dynamoDB = new AWS.DynamoDB.DocumentClient({
   region: process.env.AWS_REGION,
 });
 
+
+
+// Create HTTP server
+const server = http.createServer(app);
+
+// Initialize WebSocket server
+const wss = new WebSocket.Server({ server });
+
+// Handle WebSocket connections
+wss.on('connection', ws => {
+  console.log('Client connected');
+
+  // Send updates to clients
+  const interval = setInterval(() => {
+    ws.send(JSON.stringify({ message: 'Update from server' }));
+  }, 5000);
+
+  ws.on('close', () => {
+    console.log('Client disconnected');
+    clearInterval(interval);
+  });
+
+  ws.on('message', message => {
+    console.log('Received:', message);
+    // Handle incoming messages from clients
+  });
+});
+
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 // Serve static files from the directory where server.js is located
 app.use(express.static(__dirname));
 app.use(bodyParser.json());
@@ -239,6 +274,6 @@ app.post("/sign-in", async (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
