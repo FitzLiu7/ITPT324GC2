@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { AuthService } from '../services/auth/auth.service';
+import { getCurrentUser } from 'aws-amplify/auth';
 
 @Component({
   selector: 'app-topbar',
@@ -9,17 +9,22 @@ import { AuthService } from '../services/auth/auth.service';
   styleUrls: ['./topbar.component.css'],
 })
 export class TopbarComponent implements OnInit {
-  userName = '';
-  userRole = '';
+  userName: string = '';
+  userRole: string = '';
   dropdownOpen = false;
 
-  constructor(private router: Router, private authService: AuthService) {}
+  constructor(private router: Router) {}
 
-  ngOnInit() {
-    const user = this.authService.getCurrentUser();
-    if (user) {
-      this.userName = user.name;
-      this.userRole = user.role;
+  ngOnInit(): void {
+    this.currentAuthenticatedUser()
+  }
+
+  async currentAuthenticatedUser() {
+    try {
+      const { username } = await getCurrentUser();
+      this.userName = username;
+    } catch (err) {
+      console.log(err);
     }
   }
 
@@ -30,7 +35,6 @@ export class TopbarComponent implements OnInit {
   logout() {
     console.log('Logout clicked');
     this.dropdownOpen = false;
-    //this.authService.logout();
     this.router.navigate(['/login']);
   }
 }
