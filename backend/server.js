@@ -65,7 +65,7 @@ app.post("/add-data", async (req, res) => {
 
   try {
     await dynamoDB.put(params).promise();
-    res.status(201).send("Data added successfully");
+    res.status(201).json({ message: "Data added successfully" });
   } catch (error) {
     console.error("Error adding data:", error);
     res.status(500).send(`Error adding data: ${error.message}`);
@@ -190,7 +190,7 @@ app.delete("/delete-data/:roomNumber", async (req, res) => {
 
   try {
     await dynamoDB.delete(params).promise();
-    res.status(200).send("Data deleted successfully");
+    res.status(200).json({ message: "Data deleted successfully" });
   } catch (error) {
     console.error("Error deleting data:", error);
     res.status(500).send(`Error deleting data: ${error.message}`);

@@ -22,6 +22,7 @@ export class UpdateModalComponent implements OnInit {
   Date: string = '';
 
   availableRooms: number[] = [];
+  
   constructor(private apiService: ApiService) {}
 
   ngOnInit() {
