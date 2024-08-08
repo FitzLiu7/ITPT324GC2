@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Output, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ApiService } from '../../api.service';
 
 @Component({
   selector: 'app-update-modal',
@@ -12,30 +13,20 @@ import { FormsModule } from '@angular/forms';
 export class UpdateModalComponent implements OnInit {
   @Output() close = new EventEmitter<void>();
 
-  room: string = '';
-  week: number = 0;
-  quantity: number = 0;
+  RoomNumber?: number;
+  Week: number = 0;
+  Stock: number = 0;
+  FoodType: string = '';
+  WaterType: string = '';
+  Tubs?: number;
+  Date: string = '';
 
-  availableRooms: string[] = [];
+  availableRooms: number[] = [];
+  constructor(private apiService: ApiService) {}
 
   ngOnInit() {
-    this.availableRooms = [
-      '1',
-      '2',
-      '3',
-      '4',
-      '5',
-      '6',
-      '7',
-      '8',
-      '9',
-      '10',
-      '11',
-      '12',
-      '13',
-    ];
-
-    this.week = this.getWeekNumber(new Date());
+    this.availableRooms = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
+    this.Week = this.getWeekNumber(new Date());
   }
 
   closeModal() {
@@ -43,11 +34,26 @@ export class UpdateModalComponent implements OnInit {
   }
 
   submitForm() {
-    console.log('Form submitted:', {
-      room: this.room,
-      week: this.week,
-      quantity: this.quantity,
-    });
+    let obj = {
+      RoomNumber: Number(this.RoomNumber),
+      Week: this.Week,
+      Stock: this.Stock,
+      FoodType: this.FoodType,
+      WaterType: this.WaterType,
+      Tubs: Number(this.Tubs),
+      Date: this.Date,
+    };
+    console.log('Form submitted:', obj);
+
+    this.apiService.updateRoomData(obj).subscribe(
+      (data) => {
+        console.log(data);
+      },
+      (error) => {
+        console.error(error);
+      }
+    );
+
     this.closeModal();
   }
 

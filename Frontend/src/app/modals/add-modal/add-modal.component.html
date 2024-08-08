@@ -3,8 +3,8 @@
   <h2 class="modal-title">ADD STOCK</h2>
   <form>
     <div class="form-group">
-      <label for="room">Room:</label>
-      <select id="room" [(ngModel)]="room" name="room" required>
+      <label for="room">RoomNumber:</label>
+      <select id="room" [(ngModel)]="RoomNumber" name="room" required>
         <option *ngFor="let room of availableRooms" [value]="room">
           {{ room }}
         </option>
@@ -12,17 +12,46 @@
     </div>
     <div class="form-group">
       <label for="week">Week:</label>
-      <input type="number" id="week" [(ngModel)]="week" name="week" required />
+      <input type="number" id="week" [(ngModel)]="Week" name="week" required />
     </div>
     <div class="form-group">
-      <label for="quantity">Quantity:</label>
+      <label for="FoodType">FoodType:</label>
       <input
-        type="number"
-        id="quantity"
-        [(ngModel)]="quantity"
-        name="quantity"
+        type="text"
+        id="FoodType"
+        [(ngModel)]="FoodType"
+        name="FoodType"
         required
       />
+    </div>
+
+    <div class="form-group">
+      <label for="WaterType">WaterType:</label>
+      <input
+        type="text"
+        id="WaterType"
+        [(ngModel)]="WaterType"
+        name="WaterType"
+        required
+      />
+    </div>
+    <div class="form-group">
+      <label for="Stock">Stock:</label>
+      <input
+        type="number"
+        id="Stock"
+        [(ngModel)]="Stock"
+        name="Stock"
+        required
+      />
+    </div>
+    <div class="form-group">
+      <label for="Tubs">Tubs:</label>
+      <input type="number" id="Tubs" [(ngModel)]="Tubs" name="Tubs" required />
+    </div>
+    <div class="form-group">
+      <label for="Date">Date:</label>
+      <input type="text" id="Date" [(ngModel)]="Date" name="Date" required />
     </div>
     <div class="form-actions">
       <button type="button" (click)="closeModal()" class="btn btn-cancel">

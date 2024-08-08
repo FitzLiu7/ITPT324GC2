@@ -23,7 +23,7 @@ export class ApiService {
   updateRoomData(data: any): Observable<any> {
     return this.http.put<any>(`${this.apiUrl}/update-data`, data);
   }
-  deleteRoomData(data: any): Observable<any> {
-    return this.http.delete<any>(`${this.apiUrl}/delete-data`, data);
+  deleteRoomData(RoomNumber: number): Observable<any> {
+    return this.http.delete<any>(`${this.apiUrl}/delete-data/${RoomNumber}`);
   }
 }

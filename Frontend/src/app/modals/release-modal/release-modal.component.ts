@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Output, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ApiService } from '../../api.service';
 
 @Component({
   selector: 'app-release-modal',
@@ -12,42 +13,24 @@ import { FormsModule } from '@angular/forms';
 export class ReleaseModalComponent implements OnInit {
   @Output() close = new EventEmitter<void>();
 
-  room: string = '';
-  week: number = 0;
-  quantity: number = 0;
+  RoomNumber?: number;
+  constructor(private apiService: ApiService) {}
 
-  availableRooms: string[] = [];
-
-  ngOnInit() {
-    this.availableRooms = [
-      '1',
-      '2',
-      '3',
-      '4',
-      '5',
-      '6',
-      '7',
-      '8',
-      '9',
-      '10',
-      '11',
-      '12',
-      '13',
-    ];
-
-    this.week = this.getWeekNumber(new Date());
-  }
+  ngOnInit() {}
 
   closeModal() {
     this.close.emit();
   }
 
   submitForm() {
-    console.log('Form submitted:', {
-      room: this.room,
-      week: this.week,
-      quantity: this.quantity,
-    });
+    this.apiService.deleteRoomData(Number(this.RoomNumber)).subscribe(
+      (data) => {
+        console.log(data);
+      },
+      (error) => {
+        console.error(error);
+      }
+    );
     this.closeModal();
   }
 

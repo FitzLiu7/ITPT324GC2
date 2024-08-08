@@ -3,8 +3,15 @@ const path = require("path");
 const AWS = require("aws-sdk");
 const bodyParser = require("body-parser");
 require("dotenv").config();
-
 const app = express();
+const cors = require("cors");
+app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:4200",
+    optionsSuccessStatus: 200,
+  })
+);
 const dynamoDB = new AWS.DynamoDB.DocumentClient({
   region: process.env.AWS_REGION,
 });
@@ -25,14 +32,16 @@ app.get("/dashboard", (req, res) => {
 
 // Add Data
 app.post("/add-data", async (req, res) => {
-  const { RoomNumber, Date, FoodType, WaterType, Tubs } = req.body;
+  const { RoomNumber, Date, FoodType, WaterType, Tubs, Week, Stock } = req.body;
 
   if (
     RoomNumber === undefined ||
     Date === undefined ||
     FoodType === undefined ||
     WaterType === undefined ||
-    Tubs == undefined
+    Tubs == undefined ||
+    Week == undefined ||
+    Stock == undefined
   ) {
     return res.status(400).send("Missing required fields");
   }
@@ -46,10 +55,11 @@ app.post("/add-data", async (req, res) => {
     Item: {
       RoomNumber,
       Date,
-      Tubs,
       FoodType,
       WaterType,
       Tubs,
+      Stock,
+      Week,
     },
   };
 
@@ -110,14 +120,16 @@ app.get("/get-data/:roomNumber", async (req, res) => {
 
 // Update Data
 app.put("/update-data", async (req, res) => {
-  const { RoomNumber, Date, FoodType, WaterType, Tubs } = req.body;
+  const { RoomNumber, Date, FoodType, WaterType, Tubs, Week, Stock } = req.body;
 
   if (
     RoomNumber === undefined ||
     Date === undefined ||
     FoodType === undefined ||
     WaterType === undefined ||
-    Tubs === undefined
+    Tubs == undefined ||
+    Week == undefined ||
+    Stock == undefined
   ) {
     return res.status(400).send("Missing required fields");
   }
@@ -132,18 +144,22 @@ app.put("/update-data", async (req, res) => {
       RoomNumber,
     },
     UpdateExpression:
-      "set #d = :date, #f = :foodType, #w = :waterType, #t = :tubs",
+      "set #d = :date, #f = :foodType, #w = :waterType, #t = :tubs ,#we = :week, #s = :stock",
     ExpressionAttributeNames: {
       "#d": "Date",
       "#f": "FoodType",
       "#w": "WaterType",
       "#t": "Tubs",
+      "#we": "Week",
+      "#s": "Stock",
     },
     ExpressionAttributeValues: {
       ":date": Date,
       ":foodType": FoodType,
       ":waterType": WaterType,
       ":tubs": Tubs,
+      ":week": Week,
+      ":stock": Stock,
     },
     ReturnValues: "UPDATED_NEW",
   };
