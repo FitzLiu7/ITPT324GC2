@@ -12,9 +12,8 @@ require("dotenv").config();
 app.use(cors());
 app.use(
   cors({
-    origin: "http://insect-production-frontend.s3-website-ap-southeast-2.amazonaws.com",
-    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-    optionsSuccessStatus: 204,
+    origin: "http://localhost:4200",
+    optionsSuccessStatus: 200,
   })
 );
 const dynamoDB = new AWS.DynamoDB.DocumentClient({
@@ -274,7 +273,7 @@ app.post("/sign-in", async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

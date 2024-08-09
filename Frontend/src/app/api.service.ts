@@ -8,8 +8,8 @@ import { debounceTime, switchMap } from 'rxjs/operators';
   providedIn: 'root',
 })
 export class ApiService {
-  private apiUrl = 'PiscesInsectProdBackend-dev.ap-southeast-2.elasticbeanstalk.com'; //api url
-  private wsUrl = 'ws://PiscesInsectProductionBackend-env.eba-6wgimkvk.ap-southeast-2.elasticbeanstalk.com'; //Websocket url
+  private apiUrl = 'http://localhost:3000'; //api url
+  private wsUrl = 'ws://localhost:3000'; //Websocket url
   private socket$: WebSocketSubject<any>;
   private dataSubject = new Subject<any>(); // Subject to emit data updates
 
