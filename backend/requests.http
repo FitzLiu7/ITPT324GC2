@@ -1,9 +1,12 @@
-PUT http://localhost:3000/update-data
+POST http://piscesinsectprodbackend-dev.ap-southeast-2.elasticbeanstalk.com/add-data
 Content-Type: application/json
 
 {
-    "RoomNumber": 5,
-    "Date": "23-02-2024",
-    "FoodType": "2 Scoops",
-    "WaterType": "Bottle with Ring"
+  "RoomNumber": 2,
+  "Date": "2024-08-09",
+  "FoodType": "1 Scoop",
+  "WaterType": "Sponge",
+  "Tubs": 5,
+  "Week": 2,
+  "Stock": 300
 }
