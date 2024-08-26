@@ -1,1 +1,27 @@
-<p>foodandhydration works!</p>
+<div class="foodandhydration-dashboard">
+  <table>
+    <thead>
+      <tr>
+        <th>Room Number</th>
+        <th>Stock type</th>
+        <th>Week</th>
+        <th>Stage</th>
+        <th>Scoops</th>
+        <th>Bottles</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let room of rooms">
+        <td class="RoomNumber">{{ room.RoomNumber }}</td>
+        <td></td>
+        <td>{{ room.Week }}</td>
+        <td>{{ room.Stage }}</td>
+        <td>{{ room.FoodType }}</td>
+        <td>{{ room.WaterType }}</td>
+      </tr>
+      <tr *ngIf="rooms.length === 0">
+        <td colspan="4">No data available</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
