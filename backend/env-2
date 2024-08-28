@@ -1,7 +1,0 @@
-AWS_REGION=ap-southeast-2
-DYNAMODB_TABLE=InsectProductionStock
-COGNITO_USER_POOL_ID=ap-southeast-2_S9Quvnwt5
-COGNITO_CLIENT_ID=fsklgrvsppomao3savu9397n5
-COGNITO_CLIENT_SECRET=gtvbibo00vas8ak392pvhjk6mm3vd2outrtjg88vgnfevssdh5r
-AWS_ACCESS_KEY_ID=AKIA4MTWHOXZBSSXW4X2
-AWS_SECRET_ACCESS_KEY=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
