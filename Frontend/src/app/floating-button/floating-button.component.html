@@ -1,10 +1,32 @@
-<div class="floating-button" (click)="toggleMenu()">
+<div
+  class="floating-button fixed bottom-6 right-6 w-16 h-16 bg-[#42bd16] text-white rounded-full flex items-center justify-center cursor-pointer shadow-lg text-3xl transform transition-transform duration-300 hover:scale-105"
+  (click)="toggleMenu()"
+>
   <i class="fas fa-plus"></i>
 </div>
-<div class="floating-menu" *ngIf="menuOpen">
-  <button (click)="openModal('add')">Add</button>
-  <button (click)="openModal('update')">Update</button>
-  <button (click)="openModal('release')">Release</button>
+
+<div
+  class="floating-menu fixed bottom-[110px] right-6 flex flex-col items-end gap-3 z-50 transition-opacity duration-300"
+  *ngIf="menuOpen"
+>
+  <button
+    class="bg-white text-[#42bd16] py-3 px-5 w-full rounded-full shadow-md flex items-center justify-center gap-2 transition-transform duration-300 hover:scale-105 hover:shadow-lg"
+    (click)="openModal('add')"
+  >
+    <i class="fas fa-plus-circle"></i> Add
+  </button>
+  <button
+    class="bg-white text-[#42bd16] py-3 px-5 w-full rounded-full shadow-md flex items-center justify-center gap-2 transition-transform duration-300 hover:scale-105 hover:shadow-lg"
+    (click)="openModal('update')"
+  >
+    <i class="fas fa-edit"></i> Update
+  </button>
+  <button
+    class="bg-white text-[#42bd16] py-3 px-5 w-full rounded-full shadow-md flex items-center justify-center gap-2 transition-transform duration-300 hover:scale-105 hover:shadow-lg"
+    (click)="openModal('release')"
+  >
+    <i class="fas fa-paper-plane"></i> Release
+  </button>
 </div>
 
 <app-add-modal

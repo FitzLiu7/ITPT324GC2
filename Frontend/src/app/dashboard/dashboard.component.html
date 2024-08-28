@@ -1,15 +1,59 @@
-<div class="dashboard">
-  <div class="room" *ngFor="let room of rooms">
-    <div class="room-main-title">Room:</div>
-    <div class="room-main-info">{{ room.RoomNumber }}</div>
+<div
+  class="dashboard grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-8 mx-6 ml-20"
+>
+  <div
+    class="room bg-white rounded-lg shadow-md p-4 flex flex-col border border-gray-200"
+    *ngFor="let room of rooms"
+  >
+    <!-- Room Number -->
+    <div
+      class="flex justify-between items-center border-b border-gray-300 pb-2 mb-2"
+    >
+      <div class="text-lg font-semibold text-gray-700">Room:</div>
+      <div class="text-2xl font-bold text-red-600">
+        {{ room.RoomNumber }}
+      </div>
+    </div>
 
-    <div class="room-title">Week:</div>
-    <div class="room-info">{{ room.Week }}</div>
+    <!-- Week and Stage (Center Aligned) -->
+    <div class="flex flex-col items-center border-b border-gray-300 pb-2 mb-2">
+      <div class="flex w-full items-center">
+        <div class="text-base font-medium text-gray-600 w-1/2 text-center">
+          Week:
+        </div>
+        <div class="border-l border-gray-300 h-6 mx-2"></div>
+        <div class="text-xl text-gray-800 w-1/2 text-center">
+          {{ room.Week }}
+        </div>
+      </div>
 
-    <div class="room-title">Stage:</div>
-    <div class=""></div>
+      <div class="flex w-full items-center mt-2">
+        <div class="text-base font-medium text-gray-600 w-1/2 text-center">
+          Stage:
+        </div>
+        <div class="border-l border-gray-300 h-6 mx-2"></div>
+        <div
+          class="text-sm py-2 px-3 rounded-full font-medium w-1/2 text-center"
+          [ngClass]="{
+            'bg-purple-600 text-white': room.Stage === 'Babies',
+            'bg-blue-800 text-white': room.Stage === 'Extra Small',
+            'bg-red-600 text-white': room.Stage === 'Small',
+            'bg-green-500 text-white': room.Stage === 'Medium',
+            'bg-yellow-500 text-black': room.Stage === 'Large',
+            'bg-blue-300 text-black': room.Stage === 'Breeders'
+          }"
+        >
+          {{ room.Stage }}
+        </div>
+      </div>
+    </div>
 
-    <div class="room-title">Quantity:</div>
-    <div class="room-info">{{ room.Stock }}</div>
+    <!-- Quantity -->
+    <div class="flex justify-between items-center">
+      <div class="text-base font-medium text-gray-600">Quantity:</div>
+      <div class="text-xl font-semibold text-gray-800">
+        {{ room.Stock }}
+      </div>
+    </div>
   </div>
 </div>

@@ -1,19 +1,26 @@
-<div class="sidebar">
-  <nav class="sidebar-nav">
-    <div class="menu-button">
-      <a routerLink="/dashboard" class="sidebar-link">
-        <i class="fas fa-tachometer-alt"></i>
-        <span>Rooms</span>
-      </a>
-    </div>
-    <div class="menu-button">
-      <a routerLink="/fyh" class="sidebar-link">
-        <i class="fas fa-bug"></i>
-        <span>F & H</span>
-      </a>
-    </div>
+<div
+  class="sidebar flex flex-col fixed top-0 left-0 h-full w-16 bg-[#42bd16] text-white"
+>
+  <div class="sidebar-header py-2 bg-[#3f7b34] text-center">
+    <img src="path/to/logo.png" alt="Logo" class="logo h-10 mx-auto" />
+  </div>
+  <nav class="sidebar-nav flex flex-col items-center mt-4">
+    <a
+      routerLink="/dashboard"
+      class="sidebar-link flex flex-col items-center py-2 w-full text-sm hover:bg-[#3f7b34] transition-colors"
+    >
+      <i class="fas fa-tachometer-alt text-lg mb-1"></i>
+      <span>Rooms</span>
+    </a>
+    <a
+      routerLink="/fyh"
+      class="sidebar-link flex flex-col items-center py-2 w-full text-sm hover:bg-[#3f7b34] transition-colors"
+    >
+      <i class="fas fa-bug text-lg mb-1"></i>
+      <span>F & H</span>
+    </a>
   </nav>
 </div>
-<div class="content">
+<div class="content ml-[5%] p-5">
   <ng-content></ng-content>
 </div>
