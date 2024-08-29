@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../api.service';
-
+import { QrFloatingButtonComponent } from '../qr-floating-button/qr-floating-button.component';
 interface Room {
   Date?: string;
   Stock?: number;
@@ -16,7 +16,7 @@ interface Room {
 @Component({
   selector: 'app-foodandhydration',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, QrFloatingButtonComponent],
   templateUrl: './foodandhydration.component.html',
   styleUrls: ['./foodandhydration.component.css'],
 })
@@ -73,7 +73,7 @@ export class FoodandhydrationComponent implements OnInit {
             RoomNumber: roomNumber,
             Stock: 0,
             Week: 0,
-            Stage: 'Unknown',
+            Stage: '',
             FoodType: '',
             WaterType: '',
           };
@@ -88,11 +88,12 @@ export class FoodandhydrationComponent implements OnInit {
     const weeksDiff = this.getWeeksDifference(startDate, currentDate);
 
     if (weeksDiff < 1) return 'Babies';
-    else if (weeksDiff < 2) return 'Extra Small';
-    else if (weeksDiff < 4) return 'Small';
-    else if (weeksDiff < 6) return 'Medium';
-    else if (weeksDiff < 7) return 'Large';
-    else return 'Breeders';
+    else if (weeksDiff < 1) return 'Extra Small';
+    else if (weeksDiff < 2) return 'Small';
+    else if (weeksDiff < 4) return 'Medium';
+    else if (weeksDiff < 6) return 'Large';
+    else if (weeksDiff < 7) return 'Breeder';
+    else return '-----';
   }
 
   private getWeeksDifference(startDate: Date, currentDate: Date): number {

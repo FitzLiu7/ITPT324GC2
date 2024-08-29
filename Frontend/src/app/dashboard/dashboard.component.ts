@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../api.service';
+import { FloatingButtonComponent } from '../floating-button/floating-button.component';
 
 interface Room {
   Date?: string;
@@ -16,7 +17,7 @@ interface Room {
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FloatingButtonComponent],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css'],
 })
@@ -68,7 +69,7 @@ export default class DashboardComponent implements OnInit {
       const existingRoom = data.find((room) => room.RoomNumber === roomNumber);
       return existingRoom
         ? existingRoom
-        : { RoomNumber: roomNumber, Stock: 0, Week: 0, Stage: 'Unknown' };
+        : { RoomNumber: roomNumber, Stock: 0, Week: 0, Stage: '-' };
     });
   }
 }

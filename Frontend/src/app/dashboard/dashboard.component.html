@@ -1,5 +1,5 @@
 <div
-  class="dashboard grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-8 mx-6 ml-20"
+  class="dashboard grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-8 mx-4 sm:mx-6 lg:ml-20"
 >
   <div
     class="room bg-white rounded-lg shadow-md p-4 flex flex-col border border-gray-200"
@@ -9,8 +9,8 @@
     <div
       class="flex justify-between items-center border-b border-gray-300 pb-2 mb-2"
     >
-      <div class="text-lg font-semibold text-gray-700">Room:</div>
-      <div class="text-2xl font-bold text-red-600">
+      <div class="text-base sm:text-lg font-semibold text-gray-700">Room:</div>
+      <div class="text-xl sm:text-2xl font-bold text-red-600">
         {{ room.RoomNumber }}
       </div>
     </div>
@@ -18,22 +18,26 @@
     <!-- Week and Stage (Center Aligned) -->
     <div class="flex flex-col items-center border-b border-gray-300 pb-2 mb-2">
       <div class="flex w-full items-center">
-        <div class="text-base font-medium text-gray-600 w-1/2 text-center">
+        <div
+          class="text-sm sm:text-base font-medium text-gray-600 w-1/2 text-center"
+        >
           Week:
         </div>
         <div class="border-l border-gray-300 h-6 mx-2"></div>
-        <div class="text-xl text-gray-800 w-1/2 text-center">
+        <div class="text-lg sm:text-xl text-gray-800 w-1/2 text-center">
           {{ room.Week }}
         </div>
       </div>
 
       <div class="flex w-full items-center mt-2">
-        <div class="text-base font-medium text-gray-600 w-1/2 text-center">
+        <div
+          class="text-sm sm:text-base font-medium text-gray-600 w-1/2 text-center"
+        >
           Stage:
         </div>
         <div class="border-l border-gray-300 h-6 mx-2"></div>
         <div
-          class="text-sm py-2 px-3 rounded-full font-medium w-1/2 text-center"
+          class="text-xs sm:text-sm py-1 sm:py-2 px-2 sm:px-3 rounded-full font-medium w-1/2 text-center"
           [ngClass]="{
             'bg-purple-600 text-white': room.Stage === 'Babies',
             'bg-blue-800 text-white': room.Stage === 'Extra Small',
@@ -50,10 +54,13 @@
 
     <!-- Quantity -->
     <div class="flex justify-between items-center">
-      <div class="text-base font-medium text-gray-600">Quantity:</div>
-      <div class="text-xl font-semibold text-gray-800">
-        {{ room.Stock }}
+      <div class="text-sm sm:text-base font-medium text-gray-600">
+        Quantity:
+      </div>
+      <div class="text-lg sm:text-xl font-semibold text-gray-800">
+        {{ room.Tubs }}
       </div>
     </div>
+    <app-floating-button></app-floating-button>
   </div>
 </div>
