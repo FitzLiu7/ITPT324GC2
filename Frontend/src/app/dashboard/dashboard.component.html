@@ -1,11 +1,12 @@
 <div
-  class="dashboard grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-8 mx-4 sm:mx-6 lg:ml-20"
+  class="dashboard grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-4 gap-6 mt-8 mx-4 sm:mx-6 lg:ml-20"
 >
+  <!-- Container for each room's information -->
   <div
     class="room bg-white rounded-lg shadow-md p-4 flex flex-col border border-gray-200"
     *ngFor="let room of rooms"
   >
-    <!-- Room Number -->
+    <!-- Displays the Room Number -->
     <div
       class="flex justify-between items-center border-b border-gray-300 pb-2 mb-2"
     >
@@ -15,7 +16,7 @@
       </div>
     </div>
 
-    <!-- Week and Stage (Center Aligned) -->
+    <!-- Displays the Week and Stage, centered -->
     <div class="flex flex-col items-center border-b border-gray-300 pb-2 mb-2">
       <div class="flex w-full items-center">
         <div
@@ -36,6 +37,7 @@
           Stage:
         </div>
         <div class="border-l border-gray-300 h-6 mx-2"></div>
+        <!-- Stage is color-coded based on its value -->
         <div
           class="text-xs sm:text-sm py-1 sm:py-2 px-2 sm:px-3 rounded-full font-medium w-1/2 text-center"
           [ngClass]="{
@@ -52,7 +54,7 @@
       </div>
     </div>
 
-    <!-- Quantity -->
+    <!-- Displays the Quantity of Tubs -->
     <div class="flex justify-between items-center">
       <div class="text-sm sm:text-base font-medium text-gray-600">
         Quantity:
@@ -61,6 +63,8 @@
         {{ room.Tubs }}
       </div>
     </div>
+
+    <!-- Floating button component -->
     <app-floating-button></app-floating-button>
   </div>
 </div>

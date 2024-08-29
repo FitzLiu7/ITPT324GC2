@@ -1,26 +1,32 @@
+<!-- Floating button in the bottom-right corner of the screen -->
 <div
   class="floating-button fixed bottom-6 right-6 w-16 h-16 bg-[#42bd16] text-white rounded-full flex items-center justify-center cursor-pointer shadow-md text-3xl transform transition-transform duration-300 hover:scale-105"
   (click)="toggleMenu()"
 >
+  <!-- Icon for the floating button -->
   <i class="fas fa-plus"></i>
 </div>
 
+<!-- Floating menu that appears when the button is clicked -->
 <div
   class="floating-menu fixed bottom-[110px] right-6 flex flex-col items-end gap-3 z-50 transition-opacity duration-300"
   *ngIf="menuOpen"
 >
+  <!-- "Add" button in the floating menu -->
   <button
     class="bg-white text-[#42bd16] py-3 px-5 w-full rounded-full shadow-md flex items-center justify-center gap-2 transition-transform duration-300 hover:scale-105 hover:shadow-lg"
     (click)="openModal('add')"
   >
     <i class="fas fa-plus-circle"></i> Add
   </button>
+  <!-- "Update" button in the floating menu -->
   <button
     class="bg-white text-[#42bd16] py-3 px-5 w-full rounded-full shadow-md flex items-center justify-center gap-2 transition-transform duration-300 hover:scale-105 hover:shadow-lg"
     (click)="openModal('update')"
   >
     <i class="fas fa-edit"></i> Update
   </button>
+  <!-- "Release" button in the floating menu -->
   <button
     class="bg-white text-[#42bd16] py-3 px-5 w-full rounded-full shadow-md flex items-center justify-center gap-2 transition-transform duration-300 hover:scale-105 hover:shadow-lg"
     (click)="openModal('release')"
@@ -29,14 +35,19 @@
   </button>
 </div>
 
+<!-- Add modal, displayed when 'add' is selected -->
 <app-add-modal
   *ngIf="currentModal === 'add'"
   (close)="closeModal()"
 ></app-add-modal>
+
+<!-- Update modal, displayed when 'update' is selected -->
 <app-update-modal
   *ngIf="currentModal === 'update'"
   (close)="closeModal()"
 ></app-update-modal>
+
+<!-- Release modal, displayed when 'release' is selected -->
 <app-release-modal
   *ngIf="currentModal === 'release'"
   (close)="closeModal()"

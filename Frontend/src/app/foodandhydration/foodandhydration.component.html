@@ -1,34 +1,42 @@
 <div class="foodandhydration-dashboard mt-12 ml-20 mr-5">
+  <!-- Table container with margin for top, left, and right -->
   <table
     class="min-w-full bg-white shadow-lg rounded-lg overflow-hidden border border-gray-300"
   >
+    <!-- Table header -->
     <thead>
       <tr>
+        <!-- Header cell for "Room Number" -->
         <th
           class="px-8 py-4 bg-green-600 text-white text-2xl font-bold text-center border-b border-gray-300"
         >
           Room Number
         </th>
+        <!-- Header cell for "Stock Type" -->
         <th
           class="px-8 py-4 bg-green-600 text-white text-2xl font-bold text-center border-b border-gray-300"
         >
           Stock Type
         </th>
+        <!-- Header cell for "Week" -->
         <th
           class="px-8 py-4 bg-green-600 text-white text-2xl font-bold text-center border-b border-gray-300"
         >
           Week
         </th>
+        <!-- Header cell for "Stage" -->
         <th
           class="px-8 py-4 bg-green-600 text-white text-2xl font-bold text-center border-b border-gray-300"
         >
           Stage
         </th>
+        <!-- Header cell for "Scoops" -->
         <th
           class="px-8 py-4 bg-green-600 text-white text-2xl font-bold text-center border-b border-gray-300"
         >
           Scoops
         </th>
+        <!-- Header cell for "Bottles" -->
         <th
           class="px-8 py-4 bg-green-600 text-white text-2xl font-bold text-center border-b border-gray-300"
         >
@@ -36,21 +44,27 @@
         </th>
       </tr>
     </thead>
+    <!-- Table body -->
     <tbody>
+      <!-- Loop through each room to create a row -->
       <tr *ngFor="let room of rooms" class="hover:bg-gray-100">
+        <!-- Cell for Room Number with styling -->
         <td
           class="RoomNumber px-8 py-4 text-red-600 font-extrabold text-2xl text-center border-b border-r border-gray-300"
         >
           {{ room.RoomNumber }}
         </td>
+        <!-- Empty cell for "Stock Type" -->
         <td
           class="px-8 py-4 text-2xl text-center border-b border-r border-gray-300"
         ></td>
+        <!-- Cell for Week, showing "-" if no data -->
         <td
           class="px-8 py-4 text-2xl text-center border-b border-r border-gray-300"
         >
           {{ room.Week || "-" }}
         </td>
+        <!-- Cell for Stage, with conditional styling based on the stage value -->
         <td
           class="px-8 py-4 text-2xl font-bold text-center border-b border-r border-gray-300"
           [ngClass]="{
@@ -64,16 +78,13 @@
         >
           {{ room.Stage || "-" }}
         </td>
+        <!-- Cell for Food Type, showing "-" if no data -->
         <td
           class="px-8 py-4 text-2xl text-center border-b border-r border-gray-300"
         >
           {{ room.FoodType || "-" }}
         </td>
-        <td class="px-8 py-4 text-2xl text-center border-b border-gray-300">
-          {{ room.WaterType || "-" }}
-        </td>
       </tr>
     </tbody>
   </table>
 </div>
-<app-qr-floating-button></app-qr-floating-button>
