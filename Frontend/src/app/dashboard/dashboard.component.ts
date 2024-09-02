@@ -54,7 +54,7 @@ export default class DashboardComponent implements OnInit {
     );
 
     // Subscribe to real-time updates via WebSocket
-    this.apiService.getDataUpdates().subscribe(
+    /* this.apiService.getDataUpdates().subscribe(
       (data) => {
         console.log('Updated data:', data);
         this.populateRooms(data); // Update rooms when new data arrives
@@ -62,7 +62,7 @@ export default class DashboardComponent implements OnInit {
       (error) => {
         console.error('Error receiving WebSocket data:', error);
       }
-    );
+    );*/
   }
 
   // Function to fill in room data, ensuring all fixed rooms are represented
