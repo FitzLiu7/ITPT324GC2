@@ -13,6 +13,7 @@ interface Room {
   WaterType?: string;
   RoomNumber: number | string;
   Stage?: string;
+  StockType?: string;
 }
 
 @Component({
@@ -90,23 +91,21 @@ export class FoodandhydrationComponent implements OnInit {
 
     const startDate = new Date(stockDate); // Convert stockDate to a Date object
     const currentDate = new Date(); // Get the current date
-    const weeksDiff = this.getWeeksDifference(startDate, currentDate); // Calculate the difference in weeks
+    const daysDiff = this.getDaysDifference(startDate, currentDate); // Calculate the difference in days
 
-    // Determine the stage based on the weeks difference
-    if (weeksDiff < 1) return 'Babies';
-    else if (weeksDiff < 1) return 'Extra Small';
-    else if (weeksDiff < 2) return 'Small';
-    else if (weeksDiff < 4) return 'Medium';
-    else if (weeksDiff < 6) return 'Large';
-    else if (weeksDiff < 7) return 'Breeder';
+    // Determine the stage based on the days difference
+    if (daysDiff < 2) return 'Babies';
+    else if (daysDiff < 7) return 'Extra Small';
+    else if (daysDiff < 14) return 'Small';
+    else if (daysDiff < 28) return 'Medium';
+    else if (daysDiff < 35) return 'Large';
+    else if (daysDiff < 42) return 'Breeders';
     else return '-----'; // Return a placeholder if it doesn't match any stage
   }
 
-  // Private function to calculate the number of weeks between two dates
-  private getWeeksDifference(startDate: Date, currentDate: Date): number {
-    const msPerWeek = 1000 * 60 * 60 * 24 * 7; // Number of milliseconds in a week
-    return Math.floor(
-      (currentDate.getTime() - startDate.getTime()) / msPerWeek
-    ); // Calculate the difference in weeks
+  // Private function to calculate the number of days between two dates
+  private getDaysDifference(startDate: Date, currentDate: Date): number {
+    const msPerDay = 1000 * 60 * 60 * 24; // Number of milliseconds in a day
+    return Math.floor((currentDate.getTime() - startDate.getTime()) / msPerDay); // Calculate the difference in days
   }
 }

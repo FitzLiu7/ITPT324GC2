@@ -57,7 +57,9 @@
         <!-- Empty cell for "Stock Type" -->
         <td
           class="px-8 py-4 text-2xl text-center border-b border-r border-gray-300"
-        ></td>
+        >
+          {{ room.StockType || "-" }}
+        </td>
         <!-- Cell for Week, showing "-" if no data -->
         <td
           class="px-8 py-4 text-2xl text-center border-b border-r border-gray-300"
@@ -71,7 +73,7 @@
             'bg-yellow-100 text-yellow-700': room.Stage === 'Large',
             'bg-green-100 text-green-700': room.Stage === 'Medium',
             'bg-red-100 text-red-700': room.Stage === 'Small',
-            'bg-blue-100 text-blue-900': room.Stage === 'Extra Small',
+            'bg-blue-200 text-blue-900': room.Stage === 'Extra Small',
             'bg-purple-100 text-purple-700': room.Stage === 'Babies',
             'bg-blue-100 text-blue-700': room.Stage === 'Breeders'
           }"
@@ -84,7 +86,14 @@
         >
           {{ room.FoodType || "-" }}
         </td>
+
+        <td
+          class="px-8 py-4 text-2xl text-center border-b border-r border-gray-300"
+        >
+          {{ room.WaterType || "-" }}
+        </td>
       </tr>
     </tbody>
   </table>
 </div>
+<app-qr-floating-button></app-qr-floating-button>

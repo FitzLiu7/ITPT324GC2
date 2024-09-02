@@ -22,11 +22,11 @@ export class UpdateModalComponent implements OnInit {
   Date: string = '';
 
   availableRooms: number[] = [];
-  
+
   constructor(private apiService: ApiService) {}
 
   ngOnInit() {
-    this.availableRooms = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
+    this.availableRooms = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
     this.Week = this.getWeekNumber(new Date());
   }
 
