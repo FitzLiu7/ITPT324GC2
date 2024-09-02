@@ -8,7 +8,6 @@ const app = express();
 const cors = require("cors");
 require("dotenv").config();
 
-
 app.use(cors());
 app.use(
   cors({
@@ -16,11 +15,10 @@ app.use(
     optionsSuccessStatus: 200,
   })
 );
+
 const dynamoDB = new AWS.DynamoDB.DocumentClient({
   region: process.env.AWS_REGION,
 });
-
-
 
 // Create HTTP server
 const server = http.createServer(app);
@@ -28,30 +26,30 @@ const server = http.createServer(app);
 // Initialize WebSocket server
 const wss = new WebSocket.Server({ server });
 
+// Function to broadcast updates to all WebSocket clients
+function broadcastUpdate(message) {
+  wss.clients.forEach(client => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(JSON.stringify(message));
+    }
+  });
+}
+
 // Handle WebSocket connections
 wss.on('connection', ws => {
   console.log('Client connected');
 
-  // Send updates to clients
-  const interval = setInterval(() => {
-    ws.send(JSON.stringify({ message: 'Update from server' }));
-  }, 5000);
-
   ws.on('close', () => {
     console.log('Client disconnected');
-    clearInterval(interval);
   });
 
   ws.on('message', message => {
     console.log('Received:', message);
-    // Handle incoming messages from clients
   });
 });
 
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-// Serve static files from the directory where server.js is located
 app.use(express.static(__dirname));
 app.use(bodyParser.json());
 
@@ -67,17 +65,9 @@ app.get("/dashboard", (req, res) => {
 
 // Add Data
 app.post("/add-data", async (req, res) => {
-  const { RoomNumber, Date, FoodType, WaterType, Tubs, Week, Stock } = req.body;
+  const { RoomNumber, Date, FoodType, WaterType, Tubs, Week, Stock, StockType } = req.body;
 
-  if (
-    RoomNumber === undefined ||
-    Date === undefined ||
-    FoodType === undefined ||
-    WaterType === undefined ||
-    Tubs == undefined ||
-    Week == undefined ||
-    Stock == undefined
-  ) {
+  if (!RoomNumber || !Date || !FoodType || !WaterType || Tubs === undefined || Week === undefined || Stock === undefined || !StockType) {
     return res.status(400).send("Missing required fields");
   }
 
@@ -95,19 +85,24 @@ app.post("/add-data", async (req, res) => {
       Tubs,
       Stock,
       Week,
+      StockType, // Add StockType here
     },
   };
 
   try {
     await dynamoDB.put(params).promise();
     res.status(201).json({ message: "Data added successfully" });
+
+    // Send WebSocket update
+    broadcastUpdate({ message: 'Data added', data: params.Item });
   } catch (error) {
     console.error("Error adding data:", error);
     res.status(500).send(`Error adding data: ${error.message}`);
   }
 });
 
-//get list
+
+// Get List
 app.get("/get-list", async (req, res) => {
   const params = {
     TableName: "InsectProductionStock",
@@ -117,10 +112,7 @@ app.get("/get-list", async (req, res) => {
     const data = await dynamoDB.scan(params).promise();
     res.json(data.Items);
   } catch (err) {
-    console.error(
-      "Unable to scan the table. Error JSON:",
-      JSON.stringify(err, null, 2)
-    );
+    console.error("Unable to scan the table. Error JSON:", JSON.stringify(err, null, 2));
     res.status(500).json({ error: "Could not retrieve data" });
   }
 });
@@ -155,17 +147,9 @@ app.get("/get-data/:roomNumber", async (req, res) => {
 
 // Update Data
 app.put("/update-data", async (req, res) => {
-  const { RoomNumber, Date, FoodType, WaterType, Tubs, Week, Stock } = req.body;
+  const { RoomNumber, Date, FoodType, WaterType, Tubs, Week, Stock, StockType } = req.body;
 
-  if (
-    RoomNumber === undefined ||
-    Date === undefined ||
-    FoodType === undefined ||
-    WaterType === undefined ||
-    Tubs == undefined ||
-    Week == undefined ||
-    Stock == undefined
-  ) {
+  if (!RoomNumber || !Date || !FoodType || !WaterType || Tubs === undefined || Week === undefined || Stock === undefined || !StockType) {
     return res.status(400).send("Missing required fields");
   }
 
@@ -178,8 +162,7 @@ app.put("/update-data", async (req, res) => {
     Key: {
       RoomNumber,
     },
-    UpdateExpression:
-      "set #d = :date, #f = :foodType, #w = :waterType, #t = :tubs ,#we = :week, #s = :stock",
+    UpdateExpression: "set #d = :date, #f = :foodType, #w = :waterType, #t = :tubs, #we = :week, #s = :stock, #st = :stockType",
     ExpressionAttributeNames: {
       "#d": "Date",
       "#f": "FoodType",
@@ -187,6 +170,7 @@ app.put("/update-data", async (req, res) => {
       "#t": "Tubs",
       "#we": "Week",
       "#s": "Stock",
+      "#st": "StockType", // Add StockType field
     },
     ExpressionAttributeValues: {
       ":date": Date,
@@ -195,6 +179,7 @@ app.put("/update-data", async (req, res) => {
       ":tubs": Tubs,
       ":week": Week,
       ":stock": Stock,
+      ":stockType": StockType, // Add StockType value
     },
     ReturnValues: "UPDATED_NEW",
   };
@@ -202,11 +187,15 @@ app.put("/update-data", async (req, res) => {
   try {
     const result = await dynamoDB.update(params).promise();
     res.status(200).json(result.Attributes);
+
+    // Send WebSocket update
+    broadcastUpdate({ message: 'Data updated', data: result.Attributes });
   } catch (error) {
     console.error("Error updating data:", error);
     res.status(500).send(`Error updating data: ${error.message}`);
   }
 });
+
 
 // Delete Data
 app.delete("/delete-data/:roomNumber", async (req, res) => {
@@ -226,6 +215,9 @@ app.delete("/delete-data/:roomNumber", async (req, res) => {
   try {
     await dynamoDB.delete(params).promise();
     res.status(200).json({ message: "Data deleted successfully" });
+
+    // Send WebSocket update
+    broadcastUpdate({ message: 'Data deleted', roomNumber: roomNumber });
   } catch (error) {
     console.error("Error deleting data:", error);
     res.status(500).send(`Error deleting data: ${error.message}`);
@@ -239,8 +231,7 @@ app.post("/sign-up", async (req, res) => {
   try {
     const user = await signUp(username, password, email);
     res.status(200).json({
-      message:
-        "Sign-Up successful. Please check your email for the confirmation code.",
+      message: "Sign-Up successful. Please check your email for the confirmation code.",
       user,
     });
   } catch (error) {
@@ -257,9 +248,7 @@ app.post("/confirm-sign-up", async (req, res) => {
       result,
     });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error confirming sign-up", error: error.message });
+    res.status(500).json({ message: "Error confirming sign-up", error: error.message });
   }
 });
 
