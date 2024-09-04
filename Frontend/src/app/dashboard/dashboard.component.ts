@@ -53,6 +53,17 @@ export default class DashboardComponent implements OnInit {
         console.error('Error fetching initial data:', error);
       }
     );
+
+    // Subscribe to WebSocket updates
+    this.apiService.getDataUpdates().subscribe(
+      (updatedData) => {
+        console.log('WebSocket Data received:', updatedData);
+        this.populateRooms(updatedData); // Update the rooms when WebSocket data is received
+      },
+      (error) => {
+        console.error('Error receiving WebSocket data:', error);
+      }
+    );
   }
 
   // Function to fill in room data, ensuring all fixed rooms are represented
@@ -65,6 +76,7 @@ export default class DashboardComponent implements OnInit {
         : { RoomNumber: roomNumber, Stock: 0, Week: 0, Stage: '-' };
     });
   }
+
   // Private function to calculate the stage of the room based on the stock date
   private calculateStage(stockDate?: string): string {
     if (!stockDate) return 'Unknown'; // Return 'Unknown' if no date is provided
