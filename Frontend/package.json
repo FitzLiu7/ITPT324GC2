@@ -24,6 +24,7 @@
     "@aws-amplify/auth": "^6.3.12",
     "@aws-sdk/client-dynamodb": "^3.624.0",
     "aws-amplify": "^6.4.4",
+    "ngx-scanner-qrcode": "^1.6.9",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.14.3"

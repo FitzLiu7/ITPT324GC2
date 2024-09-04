@@ -16,12 +16,11 @@ export class UpdateModalComponent implements OnInit {
   RoomNumber?: number;
   Week: number = 0;
   Stock: number = 0;
-  FoodType: string = '';
-  WaterType: string = '';
   Tubs?: number;
   Date: string = '';
 
   availableRooms: number[] = [];
+  showErrors: boolean = false; // Property to track validation errors
 
   constructor(private apiService: ApiService) {}
 
@@ -32,15 +31,20 @@ export class UpdateModalComponent implements OnInit {
 
   closeModal() {
     this.close.emit();
+    this.showErrors = false; // Reset errors when closing the modal
   }
 
   submitForm() {
+    // Check if all fields are filled
+    if (!this.RoomNumber || !this.Week || !this.Tubs || !this.Date) {
+      this.showErrors = true; // Show errors if any required field is missing
+      return;
+    }
+
     let obj = {
       RoomNumber: Number(this.RoomNumber),
       Week: this.Week,
       Stock: this.Stock,
-      FoodType: this.FoodType,
-      WaterType: this.WaterType,
       Tubs: Number(this.Tubs),
       Date: this.Date,
     };
