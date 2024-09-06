@@ -16,16 +16,21 @@ export class AddModalComponent implements OnInit {
   RoomNumber?: number;
   Week: number = 0;
   Stock: number = 0;
-  FoodType: string = '';
-  WaterType: string = '';
+  FoodType: string = '1/2';
+  WaterType: string = 'sponge';
   Tubs?: number;
   Date: string = '';
+  StockType: string = '';
 
   availableRooms: number[] = [];
-  constructor(private apiService: ApiService) {}
-  ngOnInit() {
-    this.availableRooms = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
+  stockTypes: string[] = ['Breeders', 'Sales'];
 
+  showErrors: boolean = false;
+
+  constructor(private apiService: ApiService) {}
+
+  ngOnInit() {
+    this.availableRooms = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
     this.Week = this.getWeekNumber(new Date());
   }
 
@@ -34,6 +39,13 @@ export class AddModalComponent implements OnInit {
   }
 
   submitForm() {
+    // Validate the required fields
+    if (!this.RoomNumber || !this.Tubs || !this.Date || !this.StockType) {
+      this.showErrors = true;
+      console.error('Please fill in all required fields.');
+      return;
+    }
+
     let obj = {
       RoomNumber: Number(this.RoomNumber),
       Week: this.Week,
@@ -42,19 +54,20 @@ export class AddModalComponent implements OnInit {
       WaterType: this.WaterType,
       Tubs: Number(this.Tubs),
       Date: this.Date,
+      StockType: this.StockType,
     };
+
     console.log('Form submitted:', obj);
 
     this.apiService.addRoomData(obj).subscribe(
       (data) => {
-        console.log(data);
+        console.log('Data successfully submitted:', data);
+        this.closeModal();
       },
       (error) => {
-        console.error(error);
+        console.error('Error submitting data:', error);
       }
     );
-
-    this.closeModal();
   }
 
   getWeekNumber(d: Date): number {

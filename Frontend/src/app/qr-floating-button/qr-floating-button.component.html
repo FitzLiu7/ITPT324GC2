@@ -1,12 +1,12 @@
 <div
-  class="qr-floating-button fixed bottom-6 right-6 w-16 h-16 bg-[#42bd16] text-white rounded-full flex items-center justify-center cursor-pointer shadow-lg text-3xl transform transition-transform duration-300 hover:scale-105"
+  class="qr-floating-button fixed bottom-6 right-6 w-16 h-16 bg-[#42bd16] text-white rounded-full flex items-center justify-center cursor-pointer shadow-2xl drop-shadow-lg text-3xl transform transition-transform duration-300 hover:scale-105 hover:bg-[#4d983f]"
   (click)="openQrScanner()"
 >
   <i class="fas fa-camera"></i>
 </div>
 
 <div
-  class="floating-menu fixed bottom-[110px] right-6 flex flex-col items-end gap-3 z-50 transition-opacity duration-300"
+  class="floating-menu fixed bottom-[110px] right-6 flex flex-col items-end gap-3 z-50 transition-opacity duration-300 hover:bg-[#4d983f]"
   *ngIf="menuOpen"
 >
   <!-- Other buttons if needed -->
