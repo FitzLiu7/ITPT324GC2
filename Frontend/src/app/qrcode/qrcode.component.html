@@ -1,0 +1,38 @@
+<div>
+  <div
+    style="
+      position: absolute;
+      width: 700px;
+      height: 700px;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: white;
+    "
+  >
+    <zxing-scanner (scanSuccess)="onCodeResult($event)"></zxing-scanner>
+    <div>
+      <h2>sannedResult:</h2>
+      <p>{{ scannerResult }}</p>
+    </div>
+  </div>
+  <!-- some.component.html -->
+  <div
+    id="modal"
+    class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden"
+    style="min-height: 700px"
+    [ngClass]="{ 'hidden': !showModal}"
+  >
+    <div class="bg-white rounded-lg shadow-lg p-6 w-1/3">
+      <h2 class="text-lg font-bold mb-4">title</h2>
+      <p class="mb-4">{{ toStringRoomData() }}</p>
+      <button
+        id="closeModal"
+        class="px-4 py-2 text-white bg-red-500 rounded hover:bg-red-600"
+        (click)="closeModal()"
+      >
+        colse
+      </button>
+    </div>
+  </div>
+</div>

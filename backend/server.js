@@ -2,8 +2,8 @@ const express = require("express");
 const path = require("path");
 const AWS = require("aws-sdk");
 const bodyParser = require("body-parser");
-const http = require('http');
-const WebSocket = require('ws');
+const http = require("http");
+const WebSocket = require("ws");
 const app = express();
 const cors = require("cors");
 require("dotenv").config();
@@ -28,7 +28,7 @@ const wss = new WebSocket.Server({ server });
 
 // Function to broadcast updates to all WebSocket clients
 function broadcastUpdate(message) {
-  wss.clients.forEach(client => {
+  wss.clients.forEach((client) => {
     if (client.readyState === WebSocket.OPEN) {
       client.send(JSON.stringify(message));
     }
@@ -36,15 +36,15 @@ function broadcastUpdate(message) {
 }
 
 // Handle WebSocket connections
-wss.on('connection', ws => {
-  console.log('Client connected');
+wss.on("connection", (ws) => {
+  console.log("Client connected");
 
-  ws.on('close', () => {
-    console.log('Client disconnected');
+  ws.on("close", () => {
+    console.log("Client disconnected");
   });
 
-  ws.on('message', message => {
-    console.log('Received:', message);
+  ws.on("message", (message) => {
+    console.log("Received:", message);
   });
 });
 
@@ -65,9 +65,27 @@ app.get("/dashboard", (req, res) => {
 
 // Add Data
 app.post("/add-data", async (req, res) => {
-  const { RoomNumber, Date, FoodType, WaterType, Tubs, Week, Stock, StockType } = req.body;
+  const {
+    RoomNumber,
+    Date,
+    FoodType,
+    WaterType,
+    Tubs,
+    Week,
+    Stock,
+    StockType,
+  } = req.body;
 
-  if (!RoomNumber || !Date || !FoodType || !WaterType || Tubs === undefined || Week === undefined || Stock === undefined || !StockType) {
+  if (
+    !RoomNumber ||
+    !Date ||
+    !FoodType ||
+    !WaterType ||
+    Tubs === undefined ||
+    Week === undefined ||
+    Stock === undefined ||
+    !StockType
+  ) {
     return res.status(400).send("Missing required fields");
   }
 
@@ -94,13 +112,12 @@ app.post("/add-data", async (req, res) => {
     res.status(201).json({ message: "Data added successfully" });
 
     // Send WebSocket update
-    broadcastUpdate({ message: 'Data added', data: params.Item });
+    broadcastUpdate({ message: "Data added", data: params.Item });
   } catch (error) {
     console.error("Error adding data:", error);
     res.status(500).send(`Error adding data: ${error.message}`);
   }
 });
-
 
 // Get List
 app.get("/get-list", async (req, res) => {
@@ -112,7 +129,10 @@ app.get("/get-list", async (req, res) => {
     const data = await dynamoDB.scan(params).promise();
     res.json(data.Items);
   } catch (err) {
-    console.error("Unable to scan the table. Error JSON:", JSON.stringify(err, null, 2));
+    console.error(
+      "Unable to scan the table. Error JSON:",
+      JSON.stringify(err, null, 2)
+    );
     res.status(500).json({ error: "Could not retrieve data" });
   }
 });
@@ -137,7 +157,9 @@ app.get("/get-data/:roomNumber", async (req, res) => {
     if (data.Item) {
       res.status(200).json(data.Item);
     } else {
-      res.status(404).send("Data not found");
+      res.status(404).json({
+        message: "Data not found",
+      });
     }
   } catch (error) {
     console.error("Error retrieving data:", error);
@@ -147,9 +169,27 @@ app.get("/get-data/:roomNumber", async (req, res) => {
 
 // Update Data
 app.put("/update-data", async (req, res) => {
-  const { RoomNumber, Date, FoodType, WaterType, Tubs, Week, Stock, StockType } = req.body;
+  const {
+    RoomNumber,
+    Date,
+    FoodType,
+    WaterType,
+    Tubs,
+    Week,
+    Stock,
+    StockType,
+  } = req.body;
 
-  if (!RoomNumber || !Date || !FoodType || !WaterType || Tubs === undefined || Week === undefined || Stock === undefined || !StockType) {
+  if (
+    !RoomNumber ||
+    !Date ||
+    !FoodType ||
+    !WaterType ||
+    Tubs === undefined ||
+    Week === undefined ||
+    Stock === undefined ||
+    !StockType
+  ) {
     return res.status(400).send("Missing required fields");
   }
 
@@ -162,7 +202,8 @@ app.put("/update-data", async (req, res) => {
     Key: {
       RoomNumber,
     },
-    UpdateExpression: "set #d = :date, #f = :foodType, #w = :waterType, #t = :tubs, #we = :week, #s = :stock, #st = :stockType",
+    UpdateExpression:
+      "set #d = :date, #f = :foodType, #w = :waterType, #t = :tubs, #we = :week, #s = :stock, #st = :stockType",
     ExpressionAttributeNames: {
       "#d": "Date",
       "#f": "FoodType",
@@ -189,13 +230,12 @@ app.put("/update-data", async (req, res) => {
     res.status(200).json(result.Attributes);
 
     // Send WebSocket update
-    broadcastUpdate({ message: 'Data updated', data: result.Attributes });
+    broadcastUpdate({ message: "Data updated", data: result.Attributes });
   } catch (error) {
     console.error("Error updating data:", error);
     res.status(500).send(`Error updating data: ${error.message}`);
   }
 });
-
 
 // Delete Data
 app.delete("/delete-data/:roomNumber", async (req, res) => {
@@ -217,7 +257,7 @@ app.delete("/delete-data/:roomNumber", async (req, res) => {
     res.status(200).json({ message: "Data deleted successfully" });
 
     // Send WebSocket update
-    broadcastUpdate({ message: 'Data deleted', roomNumber: roomNumber });
+    broadcastUpdate({ message: "Data deleted", roomNumber: roomNumber });
   } catch (error) {
     console.error("Error deleting data:", error);
     res.status(500).send(`Error deleting data: ${error.message}`);
@@ -231,7 +271,8 @@ app.post("/sign-up", async (req, res) => {
   try {
     const user = await signUp(username, password, email);
     res.status(200).json({
-      message: "Sign-Up successful. Please check your email for the confirmation code.",
+      message:
+        "Sign-Up successful. Please check your email for the confirmation code.",
       user,
     });
   } catch (error) {
@@ -248,7 +289,9 @@ app.post("/confirm-sign-up", async (req, res) => {
       result,
     });
   } catch (error) {
-    res.status(500).json({ message: "Error confirming sign-up", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Error confirming sign-up", error: error.message });
   }
 });
 

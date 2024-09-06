@@ -14,11 +14,10 @@ export class ApiService {
   private dataSubject = new Subject<any>(); // Subject to emit data updates
 
   constructor(private http: HttpClient) {
-        // Initialize WebSocket connection
-        this.socket$ = webSocket(this.wsUrl);
-        this.setupWebSocket();
+    // Initialize WebSocket connection
+    this.socket$ = webSocket(this.wsUrl);
+    this.setupWebSocket();
   }
-  
 
   // RoomNumber, Date, FoodType, WaterType, GetList
   addRoomData(data: any): Observable<any> {
@@ -28,7 +27,7 @@ export class ApiService {
     return this.http.get<any>(`${this.apiUrl}/get-list`);
   }
   getRoomData(data: any): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/get-data`, data);
+    return this.http.get<any>(`${this.apiUrl}/get-data/${data}`);
   }
   updateRoomData(data: any): Observable<any> {
     return this.http.put<any>(`${this.apiUrl}/update-data`, data);
@@ -39,21 +38,24 @@ export class ApiService {
 
   // Set up WebSocket connection with handling of message updates
   private setupWebSocket() {
-    this.socket$.pipe(
-      debounceTime(200), // Adjust debounce time as needed
-      switchMap(() => this.getList()) // Fetch updated data on receiving a WebSocket message
-    ).subscribe(
-      data => {
-        if (Array.isArray(data)) { // Ensure data is an array
-          console.log('WebSocket data received:', data);
-          this.dataSubject.next(data); // Emit WebSocket data
-        } else {
-          console.error('Unexpected WebSocket data format:', data);
-        }
-      },
-      err => console.error('WebSocket error:', err),
-      () => console.log('WebSocket connection closed')
-    );
+    this.socket$
+      .pipe(
+        debounceTime(200), // Adjust debounce time as needed
+        switchMap(() => this.getList()) // Fetch updated data on receiving a WebSocket message
+      )
+      .subscribe(
+        (data) => {
+          if (Array.isArray(data)) {
+            // Ensure data is an array
+            console.log('WebSocket data received:', data);
+            this.dataSubject.next(data); // Emit WebSocket data
+          } else {
+            console.error('Unexpected WebSocket data format:', data);
+          }
+        },
+        (err) => console.error('WebSocket error:', err),
+        () => console.log('WebSocket connection closed')
+      );
   }
 
   // Observable to subscribe to data changes
