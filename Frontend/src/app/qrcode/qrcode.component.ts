@@ -6,7 +6,7 @@ import { CommonModule } from '@angular/common';
 @Component({
   selector: 'app-qrcode',
   standalone: true,
-  imports: [CommonModule,ZXingScannerModule],
+  imports: [CommonModule, ZXingScannerModule],
   templateUrl: './qrcode.component.html',
   styleUrl: './qrcode.component.css',
 })
@@ -15,17 +15,17 @@ export class QRcodeComponent {
   showModal: boolean = false;
   roomData: any = null;
   scannerResult: string | null = null;
-  isShow(): boolean{
-    return this.showModal
+  isShow(): boolean {
+    return this.showModal;
   }
   closeModal() {
     this.showModal = false;
   }
-  toStringRoomData(){
-    if(this.roomData != null){
-      return JSON.stringify(this.roomData)
-    }else{
-      return ''
+  toStringRoomData() {
+    if (this.roomData != null) {
+      return JSON.stringify(this.roomData);
+    } else {
+      return '';
     }
   }
   onCodeResult(resultString: string) {
