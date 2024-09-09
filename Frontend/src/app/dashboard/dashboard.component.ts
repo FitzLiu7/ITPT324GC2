@@ -92,6 +92,7 @@ export default class DashboardComponent implements OnInit {
     else if (daysDiff < 28) return 'Medium';
     else if (daysDiff < 35) return 'Large';
     else if (daysDiff < 42) return 'Breeders';
+    else if (daysDiff < 49) return 'Eggpots';
     else return '-----'; // Return a placeholder if it doesn't match any stage
   }
 

@@ -1,32 +1,50 @@
-<div class="flex justify-center items-center min-h-screen bg-gray-100">
+<div class="flex justify-center items-center bg-gray-100">
   <!-- Scanner Container -->
   <div
     *ngIf="isScannerOpen"
-    class="relative bg-white shadow-xl rounded-lg p-8 max-w-lg w-full mx-4"
-    style="width: 700px; height: 700px"
+    class="relative bg-white shadow-xl rounded-lg p-6 sm:p-8 max-w-sm w-full sm:max-w-lg mx-4"
   >
     <!-- QR Code Scanner -->
-    <zxing-scanner (scanSuccess)="onCodeResult($event)"></zxing-scanner>
+    <zxing-scanner
+      class="w-full h-48 sm:h-64"
+      (scanSuccess)="onCodeResult($event)"
+    ></zxing-scanner>
 
-    <!-- Scanning Message -->
-    <div class="mt-6 text-center">
-      <h2 class="text-xl font-semibold text-gray-700">Scanning code...</h2>
-      <p class="text-gray-600 text-lg mt-2">Please scan the QR code.</p>
+    <!-- Scanning Message with loading spinner -->
+    <div class="mt-6 text-center flex flex-col items-center justify-center">
+      <div
+        *ngIf="!scanSuccess"
+        class="flex items-center justify-center space-x-2"
+      >
+        <div
+          class="animate-spin rounded-full h-8 w-8 border-t-4 border-b-4 border-gray-500"
+        ></div>
+        <h2 class="text-lg sm:text-xl font-semibold text-gray-700">
+          Scanning code...
+        </h2>
+      </div>
+      <p *ngIf="scanSuccess" class="text-green-500 text-lg mt-2">
+        QR code successfully scanned!
+      </p>
+      <p class="text-gray-500 text-md sm:text-lg mt-2">
+        Please scan the QR code.
+      </p>
     </div>
   </div>
 
-  <!-- Room Data Modal -->
+  <!-- Room Data Modal with feedback -->
   <div
     *ngIf="!isScannerOpen && roomData"
     class="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50"
   >
     <div
-      class="relative bg-white shadow-xl rounded-lg p-8 w-full max-w-3xl mx-4"
+      class="relative bg-white shadow-xl rounded-lg p-6 sm:p-8 w-full max-w-2xl mx-4"
     >
       <!-- Close button -->
       <button
-        class="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-2xl font-bold"
+        class="absolute top-2 right-2 text-gray-500 hover:text-gray-800 text-2xl sm:text-3xl font-bold focus:outline-none"
         (click)="closeQrScanner()"
+        aria-label="Close"
       >
         &times;
       </button>
@@ -36,19 +54,19 @@
         class="table-auto w-full text-center bg-white shadow-lg rounded-lg"
       >
         <tr>
-          <th class="py-4 text-xl font-bold">ROOM</th>
-          <td class="text-red-500 text-3xl font-bold">
+          <th class="py-3 sm:py-4 text-md sm:text-xl font-bold">ROOM</th>
+          <td class="text-red-500 text-2xl sm:text-3xl font-bold">
             {{ roomData.RoomNumber || "N/A" }}
           </td>
         </tr>
         <tr>
-          <th class="py-4 text-lg font-semibold">WEEK</th>
-          <td class="text-lg">{{ roomData.Week || "N/A" }}</td>
+          <th class="py-3 sm:py-4 text-md sm:text-lg font-semibold">WEEK</th>
+          <td class="text-md sm:text-lg">{{ roomData.Week || "N/A" }}</td>
         </tr>
         <tr>
-          <th class="py-4 text-lg font-semibold">STAGE</th>
+          <th class="py-3 sm:py-4 text-md sm:text-lg font-semibold">STAGE</th>
           <td
-            class="bg-blue-100 text-lg font-semibold text-blue-600 rounded"
+            class="text-md sm:text-lg font-semibold rounded px-2 py-1 sm:px-4 sm:py-2"
             [ngClass]="{
               'bg-yellow-100 text-yellow-700': roomData.Stage === 'Large',
               'bg-green-100 text-green-700': roomData.Stage === 'Medium',
@@ -62,18 +80,18 @@
           </td>
         </tr>
         <tr>
-          <th class="py-4 text-lg font-semibold">BOTTLES</th>
-          <td class="text-lg">{{ roomData.Bottles || "N/A" }}</td>
+          <th class="py-3 sm:py-4 text-md sm:text-lg font-semibold">BOTTLES</th>
+          <td class="text-md sm:text-lg">{{ roomData.Bottles || "N/A" }}</td>
         </tr>
         <tr>
-          <th class="py-4 text-lg font-semibold">SCOOPS</th>
-          <td class="text-lg">{{ roomData.Scoops || "N/A" }}</td>
+          <th class="py-3 sm:py-4 text-md sm:text-lg font-semibold">SCOOPS</th>
+          <td class="text-md sm:text-lg">{{ roomData.Scoops || "N/A" }}</td>
         </tr>
       </table>
 
       <!-- Button to scan another QR -->
       <button
-        class="w-full mt-6 px-4 py-2 bg-green-500 text-white font-semibold rounded hover:bg-green-600 transition duration-200"
+        class="w-full mt-6 px-4 py-2 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 transition-colors duration-200"
         (click)="openQrScanner()"
       >
         Scan another QR code

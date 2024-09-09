@@ -14,6 +14,7 @@ export class QRcodeComponent {
   isScannerOpen = true; // Controls whether the camera is open
   roomData: any = null; // Scanned room data
   scannerResult: string | null = null;
+  scanSuccess = false; // Indicates whether the scan was successful
 
   constructor(private apiService: ApiService) {}
 
@@ -21,6 +22,7 @@ export class QRcodeComponent {
   openQrScanner() {
     this.isScannerOpen = true;
     this.roomData = null; // Resets the room data
+    this.scanSuccess = false; // Reset the success flag
   }
 
   // Closes the scanner
@@ -46,6 +48,7 @@ export class QRcodeComponent {
           this.roomData.Scoops = this.calculateScoops(this.roomData.Date);
           this.roomData.Bottles = this.calculateBottles(this.roomData.Date);
 
+          this.scanSuccess = true; // Indicate that the scan was successful
           this.closeQrScanner(); // Closes the camera after scanning
         },
         (error) => {
