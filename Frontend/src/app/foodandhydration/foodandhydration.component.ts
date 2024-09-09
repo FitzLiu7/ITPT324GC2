@@ -40,6 +40,18 @@ export class FoodandhydrationComponent implements OnInit {
     15,
   ];
 
+  // Map for converting display names to numeric values and vice versa
+  roomDisplayNames: { [key: string]: number } = {
+    'N1': 1001,
+    'N2': 1002,
+  };
+  
+  // Map for converting numeric values back to display names
+  reverseRoomDisplayNames: { [key: number]: string } = {
+    1001: 'N1',
+    1002: 'N2',
+  };
+
   constructor(private apiService: ApiService) {}
 
   ngOnInit() {
@@ -64,10 +76,12 @@ export class FoodandhydrationComponent implements OnInit {
 
   populateRooms(data: Room[]) {
     this.rooms = this.fixedRooms.map((roomNumber) => {
-      const existingRoom = data.find((room) => room.RoomNumber === roomNumber);
+      const numericRoomNumber = this.convertRoomNumberToNumeric(roomNumber);
+      const existingRoom = data.find((room) => room.RoomNumber === numericRoomNumber);
       return existingRoom
         ? {
             ...existingRoom,
+            RoomNumber: this.convertNumericToRoomNumber(existingRoom.RoomNumber),
             Stage: this.calculateStage(existingRoom.Date),
             Scoops: this.calculateScoops(existingRoom.Date),
             Bottles: this.calculateBottles(existingRoom.Date),
@@ -81,6 +95,20 @@ export class FoodandhydrationComponent implements OnInit {
             WaterType: '',
           };
     });
+  }
+
+  private convertRoomNumberToNumeric(roomNumber: number | string): number | undefined {
+    if (typeof roomNumber === 'string') {
+      return this.roomDisplayNames[roomNumber] ?? undefined;
+    }
+    return typeof roomNumber === 'number' ? roomNumber : undefined;
+  }
+
+  private convertNumericToRoomNumber(numericRoomNumber: number | string): number | string {
+    if (typeof numericRoomNumber === 'number') {
+      return this.reverseRoomDisplayNames[numericRoomNumber] ?? numericRoomNumber;
+    }
+    return numericRoomNumber;
   }
 
   private calculateStage(stockDate?: string): string {

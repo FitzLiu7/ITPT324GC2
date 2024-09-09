@@ -25,8 +25,8 @@ interface Room {
 export default class DashboardComponent implements OnInit {
   rooms: Room[] = []; // Array to hold room data
   fixedRooms: (number | string)[] = [
-    'N1',
-    'N2',
+    1001,
+    1002,
     1,
     3,
     4,
@@ -39,6 +39,11 @@ export default class DashboardComponent implements OnInit {
     14,
     15,
   ]; // List of fixed room numbers to display
+
+  roomDisplayNames: { [key: number]: string } = {
+    1001: 'N1',
+    1002: 'N2'
+  };
 
   constructor(private apiService: ApiService) {} // Injecting the ApiService
 
@@ -72,9 +77,17 @@ export default class DashboardComponent implements OnInit {
       // Find the room data if it exists in the incoming data
       const existingRoom = data.find((room) => room.RoomNumber === roomNumber);
       return existingRoom
-        ? { ...existingRoom, Stage: this.calculateStage(existingRoom.Date) }
-        : { RoomNumber: roomNumber, Stock: 0, Week: 0, Stage: '-' };
+        ? { ...existingRoom, RoomNumber: this.mapRoomNumber(existingRoom.RoomNumber), Stage: this.calculateStage(existingRoom.Date) }
+        : { RoomNumber: this.mapRoomNumber(roomNumber), Stock: 0, Week: 0, Stage: '-' };
     });
+  }
+
+  // Function to map room numbers to their display names
+  mapRoomNumber(roomNumber: number | string): string | number {
+    if (typeof roomNumber === 'number' && this.roomDisplayNames[roomNumber]) {
+      return this.roomDisplayNames[roomNumber];
+    }
+    return roomNumber;
   }
 
   // Private function to calculate the stage of the room based on the stock date

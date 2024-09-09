@@ -13,7 +13,7 @@ import { ApiService } from '../../api.service';
 export class AddModalComponent implements OnInit {
   @Output() close = new EventEmitter<void>();
 
-  RoomNumber?: number;
+  RoomNumber?: string; // Changed from number to string
   Week: number = 0;
   Stock: number = 0;
   FoodType: string = '1/2';
@@ -22,7 +22,7 @@ export class AddModalComponent implements OnInit {
   Date: string = '';
   StockType: string = '';
 
-  availableRooms: number[] = [];
+  availableRooms: string[] = []; // Changed to string[]
   stockTypes: string[] = ['Breeders', 'Sales'];
 
   showErrors: boolean = false;
@@ -30,7 +30,11 @@ export class AddModalComponent implements OnInit {
   constructor(private apiService: ApiService) {}
 
   ngOnInit() {
-    this.availableRooms = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
+    // Add both numeric and non-numeric room options
+    this.availableRooms = [
+      '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15',
+      'N1', 'N2' // Non-numeric room identifiers
+    ];
     this.Week = this.getWeekNumber(new Date());
   }
 
@@ -47,7 +51,7 @@ export class AddModalComponent implements OnInit {
     }
 
     let obj = {
-      RoomNumber: Number(this.RoomNumber),
+      RoomNumber: this.RoomNumber, // RoomNumber is now a string
       Week: this.Week,
       Stock: this.Stock,
       FoodType: this.FoodType,

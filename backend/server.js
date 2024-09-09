@@ -20,6 +20,20 @@ const dynamoDB = new AWS.DynamoDB.DocumentClient({
   region: process.env.AWS_REGION,
 });
 
+// Mapping of room labels to numeric keys
+const roomMapping = {
+  'N1': 1001,
+  'N2': 1002,
+};
+
+// Function to get the partition key from the room label
+function getPartitionKey(roomLabel) {
+  if (roomMapping[roomLabel]) {
+    return roomMapping[roomLabel];
+  }
+  return parseInt(roomLabel); // For numeric room labels like '1', '2', etc.
+}
+
 // Create HTTP server
 const server = http.createServer(app);
 
@@ -89,21 +103,23 @@ app.post("/add-data", async (req, res) => {
     return res.status(400).send("Missing required fields");
   }
 
-  if (typeof RoomNumber !== "number" || typeof Tubs !== "number") {
-    return res.status(400).send("RoomNumber and Tubs must be numbers");
+  // Validate and map RoomNumber
+  const partitionKey = getPartitionKey(RoomNumber);
+  if (isNaN(partitionKey)) {
+    return res.status(400).send("Invalid RoomNumber");
   }
 
   const params = {
     TableName: "InsectProductionStock",
     Item: {
-      RoomNumber,
+      RoomNumber: partitionKey,
       Date,
       FoodType,
       WaterType,
       Tubs,
       Stock,
       Week,
-      StockType, // Add StockType here
+      StockType,
     },
   };
 
@@ -139,16 +155,17 @@ app.get("/get-list", async (req, res) => {
 
 // Retrieve Data
 app.get("/get-data/:roomNumber", async (req, res) => {
-  const roomNumber = parseInt(req.params.roomNumber, 10);
+  const roomNumber = req.params.roomNumber;
+  const partitionKey = getPartitionKey(roomNumber);
 
-  if (isNaN(roomNumber)) {
+  if (isNaN(partitionKey)) {
     return res.status(400).send("Invalid RoomNumber");
   }
 
   const params = {
     TableName: "InsectProductionStock",
     Key: {
-      RoomNumber: roomNumber,
+      RoomNumber: partitionKey,
     },
   };
 
@@ -193,14 +210,16 @@ app.put("/update-data", async (req, res) => {
     return res.status(400).send("Missing required fields");
   }
 
-  if (typeof RoomNumber !== "number" || typeof Tubs !== "number") {
-    return res.status(400).send("RoomNumber and Tubs must be numbers");
+  // Validate and map RoomNumber
+  const partitionKey = getPartitionKey(RoomNumber);
+  if (isNaN(partitionKey)) {
+    return res.status(400).send("Invalid RoomNumber");
   }
 
   const params = {
     TableName: "InsectProductionStock",
     Key: {
-      RoomNumber,
+      RoomNumber: partitionKey,
     },
     UpdateExpression:
       "set #d = :date, #f = :foodType, #w = :waterType, #t = :tubs, #we = :week, #s = :stock, #st = :stockType",
@@ -211,7 +230,7 @@ app.put("/update-data", async (req, res) => {
       "#t": "Tubs",
       "#we": "Week",
       "#s": "Stock",
-      "#st": "StockType", // Add StockType field
+      "#st": "StockType",
     },
     ExpressionAttributeValues: {
       ":date": Date,
@@ -220,7 +239,7 @@ app.put("/update-data", async (req, res) => {
       ":tubs": Tubs,
       ":week": Week,
       ":stock": Stock,
-      ":stockType": StockType, // Add StockType value
+      ":stockType": StockType,
     },
     ReturnValues: "UPDATED_NEW",
   };
@@ -239,16 +258,17 @@ app.put("/update-data", async (req, res) => {
 
 // Delete Data
 app.delete("/delete-data/:roomNumber", async (req, res) => {
-  const roomNumber = parseInt(req.params.roomNumber, 10);
+  const roomNumber = req.params.roomNumber;
+  const partitionKey = getPartitionKey(roomNumber);
 
-  if (isNaN(roomNumber)) {
+  if (isNaN(partitionKey)) {
     return res.status(400).send("Invalid RoomNumber");
   }
 
   const params = {
     TableName: "InsectProductionStock",
     Key: {
-      RoomNumber: roomNumber,
+      RoomNumber: partitionKey,
     },
   };
 
@@ -257,7 +277,7 @@ app.delete("/delete-data/:roomNumber", async (req, res) => {
     res.status(200).json({ message: "Data deleted successfully" });
 
     // Send WebSocket update
-    broadcastUpdate({ message: "Data deleted", roomNumber: roomNumber });
+    broadcastUpdate({ message: "Data deleted", roomNumber: partitionKey });
   } catch (error) {
     console.error("Error deleting data:", error);
     res.status(500).send(`Error deleting data: ${error.message}`);
@@ -307,5 +327,5 @@ app.post("/sign-in", async (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`Server is running on port ${PORT}`);
 });

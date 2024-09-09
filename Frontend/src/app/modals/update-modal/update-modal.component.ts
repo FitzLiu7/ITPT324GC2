@@ -13,53 +13,65 @@ import { ApiService } from '../../api.service';
 export class UpdateModalComponent implements OnInit {
   @Output() close = new EventEmitter<void>();
 
-  RoomNumber?: number;
+  RoomNumber?: string; // Changed from number to string
   Week: number = 0;
   Stock: number = 0;
+  FoodType: string = '1/2';
+  WaterType: string = 'sponge';
   Tubs?: number;
   Date: string = '';
+  StockType: string = '';
 
-  availableRooms: number[] = [];
-  showErrors: boolean = false; // Property to track validation errors
+  availableRooms: string[] = []; // Changed to string[]
+  stockTypes: string[] = ['Breeders', 'Sales'];
+
+  showErrors: boolean = false;
 
   constructor(private apiService: ApiService) {}
 
   ngOnInit() {
-    this.availableRooms = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
+    // Add both numeric and non-numeric room options
+    this.availableRooms = [
+      '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15',
+      'N1', 'N2' // Non-numeric room identifiers
+    ];
     this.Week = this.getWeekNumber(new Date());
   }
 
   closeModal() {
     this.close.emit();
-    this.showErrors = false; // Reset errors when closing the modal
   }
 
   submitForm() {
-    // Check if all fields are filled
-    if (!this.RoomNumber || !this.Week || !this.Tubs || !this.Date) {
-      this.showErrors = true; // Show errors if any required field is missing
+    // Validate the required fields
+    if (!this.RoomNumber || !this.Tubs || !this.Date || !this.StockType) {
+      this.showErrors = true;
+      console.error('Please fill in all required fields.');
       return;
     }
 
     let obj = {
-      RoomNumber: Number(this.RoomNumber),
+      RoomNumber: this.RoomNumber, // RoomNumber is now a string
       Week: this.Week,
       Stock: this.Stock,
+      FoodType: this.FoodType,
+      WaterType: this.WaterType,
       Tubs: Number(this.Tubs),
       Date: this.Date,
+      StockType: this.StockType,
     };
+
     console.log('Form submitted:', obj);
 
-    this.apiService.updateRoomData(obj).subscribe(
+    this.apiService.addRoomData(obj).subscribe(
       (data) => {
-        console.log(data);
+        console.log('Data successfully submitted:', data);
+        this.closeModal();
       },
       (error) => {
-        console.error(error);
+        console.error('Error submitting data:', error);
       }
     );
-
-    this.closeModal();
   }
 
   getWeekNumber(d: Date): number {
