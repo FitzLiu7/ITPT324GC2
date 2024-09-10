@@ -206,3 +206,31 @@ body {
     font-size: 1.3rem; /* Adjust close button size */
   }
 }
+
+/* Media query for screens smaller than 768px */
+@media (max-width: 768px) {
+  .foodandhydration-dashboard table {
+    display: none;
+  }
+
+  .mobile-message {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 85vh;
+    padding: 0 0rem 0 3.5rem;
+  }
+
+  .mobile-message p {
+    font-size: 1.25rem;
+    color: #4a5568;
+  }
+
+  app-qr-floating-button {
+    display: block;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 100;
+  }
+}
