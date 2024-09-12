@@ -6,10 +6,21 @@ const poolData = {
     ClientId: process.env.COGNITO_CLIENT_ID,
 };
 
-//initialize userpool
+// Initialize user pool
 const userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
 
-//Sign-Up function
+// Function to determine role based on username prefix
+const getRoleFromUsername = (username) => {
+    if (username.startsWith('mg')) {
+        return 'Manager';
+    } else if (username.startsWith('st')) {
+        return 'Staff';
+    } else {
+        return 'N/A';  // You can handle unknown roles if necessary
+    }
+};
+
+// Sign-Up function
 const signUp = async (username, password, email) => {
     const attributeList = [
         new AmazonCognitoIdentity.CognitoUserAttribute({ Name: 'email', Value: email })
@@ -46,7 +57,7 @@ const confirmSignUp = async (username, code) => {
     });
 };
 
-//Sign-In
+// Sign-In function with role assignment
 const signIn = async (username, password) => {
     const authenticationDetails = new AmazonCognitoIdentity.AuthenticationDetails({
         Username: username,
@@ -63,7 +74,17 @@ const signIn = async (username, password) => {
     return new Promise((resolve, reject) => {
         cognitoUser.authenticateUser(authenticationDetails, {
             onSuccess: (result) => {
-                resolve(result);
+                // Extract role based on username prefix
+                const role = getRoleFromUsername(username);
+
+                // Log the user's role to the console
+                console.log(`User ${username} logged in with role: ${role}`);
+                
+                // Add the role to the authentication result
+                resolve({
+                    result,  // Cognito authentication result
+                    role     // Role derived from username prefix
+                });
             },
             onFailure: (err) => {
                 reject(err);
@@ -73,6 +94,3 @@ const signIn = async (username, password) => {
 };
 
 module.exports = { signUp, confirmSignUp, signIn };
-
-
-
