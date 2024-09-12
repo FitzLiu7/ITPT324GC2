@@ -29,11 +29,10 @@ export class QRcodeComponent {
     }
   }
   onCodeResult(resultString: string) {
-    this.scannerResult = resultString;
+    this.scannerResult = resultString.trim();
     console.log(resultString);
-    console.log(Number(resultString));
-    if (!isNaN(Number(resultString))) {
-      this.apiService.getRoomData(Number(resultString)).subscribe(
+    if (new RegExp(/^ITPT324GC2\s\d+$/).test(resultString.trim())) {
+      this.apiService.getRoomData(this.scannerResult.split(' ')[this.scannerResult.split(' ').length-1]).subscribe(
         (initialData) => {
           console.log('Initial data:', initialData);
           this.showModal = true;
@@ -44,6 +43,8 @@ export class QRcodeComponent {
           alert(error.error.message);
         }
       );
+    }else{
+      alert('Error of QRcode');
     }
   }
 }
