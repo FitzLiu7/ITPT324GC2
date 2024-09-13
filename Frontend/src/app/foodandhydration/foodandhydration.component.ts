@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../api.service';
 import { QrFloatingButtonComponent } from '../qr-floating-button/qr-floating-button.component';
+import { AuthService } from '../services/auth/auth.service';
 
 interface Room {
   Date?: string;
@@ -40,6 +41,8 @@ export class FoodandhydrationComponent implements OnInit {
     15,
   ];
 
+  userRole: string = '';  // Store the user role
+
   // Map for converting display names to numeric values and vice versa
   roomDisplayNames: { [key: string]: number } = {
     'N1': 1001,
@@ -52,26 +55,34 @@ export class FoodandhydrationComponent implements OnInit {
     1002: 'N2',
   };
 
-  constructor(private apiService: ApiService) {}
+  constructor(private apiService: ApiService, private authService: AuthService) {}
 
   ngOnInit() {
-    this.apiService.getList().subscribe(
-      (initialData) => {
-        this.populateRooms(initialData);
-      },
-      (error) => {
-        console.error('Error fetching initial data:', error);
-      }
-    );
+    // Get the current user's role
+    const currentUser = this.authService.getCurrentUser();
+    if (currentUser) {
+      this.userRole = currentUser.role;
+    }
 
-    this.apiService.getDataUpdates().subscribe(
-      (data) => {
-        this.populateRooms(data);
-      },
-      (error) => {
-        console.error('Error receiving WebSocket data:', error);
-      }
-    );
+    if (this.userRole !== 'Staff') {  // Only load data if not 'Staff'
+      this.apiService.getList().subscribe(
+        (initialData) => {
+          this.populateRooms(initialData);
+        },
+        (error) => {
+          console.error('Error fetching initial data:', error);
+        }
+      );
+
+      this.apiService.getDataUpdates().subscribe(
+        (data) => {
+          this.populateRooms(data);
+        },
+        (error) => {
+          console.error('Error receiving WebSocket data:', error);
+        }
+      );
+    }
   }
 
   populateRooms(data: Room[]) {
