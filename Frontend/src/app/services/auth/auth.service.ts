@@ -20,17 +20,17 @@ export class AuthService {
 
   // Store user info (including role) in localStorage
   setCurrentUser(user: any): void {
-    localStorage.setItem('user', JSON.stringify(user));
+    sessionStorage.setItem('user', JSON.stringify(user));
   }
 
   // Get the currently logged-in user (if any) from localStorage
   getCurrentUser(): any {
-    const user = localStorage.getItem('user');
+    const user = sessionStorage.getItem('user');
     return user ? JSON.parse(user) : null;
   }
 
   // Clear user info on logout
   clearCurrentUser(): void {
-    localStorage.removeItem('user');
+    sessionStorage.removeItem('user');
   }
 }
