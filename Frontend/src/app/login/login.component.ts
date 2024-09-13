@@ -47,9 +47,9 @@ export class LoginComponent {
         if (role === 'Manager') {
           this.router.navigate(['/dashboard']);
         } else if (role === 'Staff') {
-          this.router.navigate(['/fyh']);
+          this.router.navigate(['/dashboard']);
         } else {
-          this.router.navigate(['/fyh']);
+          this.router.navigate(['/dashboard']);
         }
       } else {
         this.errorMessage = 'Unable to sign in.';
