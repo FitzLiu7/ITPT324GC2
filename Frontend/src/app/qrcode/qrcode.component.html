@@ -11,10 +11,16 @@
         class="absolute top-0 left-0 w-full h-full"
       ></zxing-scanner>
     </div>
+
+    <!-- Error Message -->
+    <div *ngIf="scanError" class="text-red-500 text-lg text-center mt-4">
+      {{ scanErrorMessage }}
+    </div>
+
     <!-- Scanning Message with loading spinner -->
     <div class="mt-6 text-center flex flex-col items-center justify-center">
       <div
-        *ngIf="!scanSuccess"
+        *ngIf="!scanSuccess && !scanError"
         class="flex items-center justify-center space-x-2"
       >
         <div

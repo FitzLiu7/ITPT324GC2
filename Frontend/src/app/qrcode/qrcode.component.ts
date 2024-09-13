@@ -15,6 +15,8 @@ export class QRcodeComponent {
   roomData: any = null; // Scanned room data
   scannerResult: string | null = null;
   scanSuccess = false; // Indicates whether the scan was successful
+  scanError = false; // Flag for showing an error message
+  scanErrorMessage = ''; // Error message to display
 
   // Define an EventEmitter for the close event
   @Output() close = new EventEmitter<void>();
@@ -26,6 +28,8 @@ export class QRcodeComponent {
     this.isScannerOpen = true;
     this.roomData = null; // Resets the room data
     this.scanSuccess = false; // Reset the success flag
+    this.scanError = false; // Reset error flag
+    this.scanErrorMessage = ''; // Clear error message
   }
 
   // Closes the scanner and hides the modal
@@ -39,6 +43,10 @@ export class QRcodeComponent {
     this.scannerResult = resultString;
     console.log('Scanned QR:', resultString);
 
+    // Reset error and success states
+    this.scanError = false;
+    this.scanSuccess = false;
+
     // Map N1 to 1001 and N2 to 1002
     let roomNumber: number;
     if (resultString === 'N1') {
@@ -48,13 +56,20 @@ export class QRcodeComponent {
     } else if (!isNaN(Number(resultString))) {
       roomNumber = Number(resultString);
     } else {
-      alert('Invalid room number');
+      this.scanError = true;
+      this.scanErrorMessage = 'Invalid QR code';
       return;
     }
 
     // Fetch the room data based on the mapped room number
     this.apiService.getRoomData(roomNumber).subscribe(
       (data) => {
+        if (!data) {
+          this.scanError = true;
+          this.scanErrorMessage = 'Room not found in the database';
+          return;
+        }
+
         console.log('Room data:', data);
         // Assign fetched data
         this.roomData = data;
@@ -69,7 +84,8 @@ export class QRcodeComponent {
       },
       (error) => {
         console.error('Error fetching room data:', error);
-        alert(error.error.message);
+        this.scanError = true;
+        this.scanErrorMessage = 'Error fetching room data';
       }
     );
   }
