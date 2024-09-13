@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core'; // Add EventEmitter and Output
 import { ZXingScannerModule } from '@zxing/ngx-scanner';
 import { ApiService } from '../api.service'; // Importing the service to get data
 import { CommonModule } from '@angular/common';
@@ -16,6 +16,9 @@ export class QRcodeComponent {
   scannerResult: string | null = null;
   scanSuccess = false; // Indicates whether the scan was successful
 
+  // Define an EventEmitter for the close event
+  @Output() close = new EventEmitter<void>();
+
   constructor(private apiService: ApiService) {}
 
   // Opens the scanner
@@ -25,9 +28,10 @@ export class QRcodeComponent {
     this.scanSuccess = false; // Reset the success flag
   }
 
-  // Closes the scanner
+  // Closes the scanner and hides the modal
   closeQrScanner() {
     this.isScannerOpen = false;
+    this.closeModal(); // Trigger modal close event
   }
 
   // Handles the result of the scanned QR code
@@ -35,28 +39,39 @@ export class QRcodeComponent {
     this.scannerResult = resultString;
     console.log('Scanned QR:', resultString);
 
-    // If the QR code is a valid number, fetch the room information
-    if (!isNaN(Number(resultString))) {
-      this.apiService.getRoomData(Number(resultString)).subscribe(
-        (data) => {
-          console.log('Room data:', data);
-          // Assign fetched data
-          this.roomData = data;
-
-          // Calculate stage, scoops, and bottles and add to roomData object
-          this.roomData.Stage = this.calculateStage(this.roomData.Date);
-          this.roomData.Scoops = this.calculateScoops(this.roomData.Date);
-          this.roomData.Bottles = this.calculateBottles(this.roomData.Date);
-
-          this.scanSuccess = true; // Indicate that the scan was successful
-          this.closeQrScanner(); // Closes the camera after scanning
-        },
-        (error) => {
-          console.error('Error fetching room data:', error);
-          alert(error.error.message);
-        }
-      );
+    // Map N1 to 1001 and N2 to 1002
+    let roomNumber: number;
+    if (resultString === 'N1') {
+      roomNumber = 1001;
+    } else if (resultString === 'N2') {
+      roomNumber = 1002;
+    } else if (!isNaN(Number(resultString))) {
+      roomNumber = Number(resultString);
+    } else {
+      alert('Invalid room number');
+      return;
     }
+
+    // Fetch the room data based on the mapped room number
+    this.apiService.getRoomData(roomNumber).subscribe(
+      (data) => {
+        console.log('Room data:', data);
+        // Assign fetched data
+        this.roomData = data;
+
+        // Calculate stage, scoops, and bottles and add to roomData object
+        this.roomData.Stage = this.calculateStage(this.roomData.Date);
+        this.roomData.Scoops = this.calculateScoops(this.roomData.Date);
+        this.roomData.Bottles = this.calculateBottles(this.roomData.Date);
+
+        this.scanSuccess = true; // Indicate that the scan was successful
+        this.closeQrScanner(); // Closes the camera after scanning
+      },
+      (error) => {
+        console.error('Error fetching room data:', error);
+        alert(error.error.message);
+      }
+    );
   }
 
   private calculateStage(stockDate?: string): string {
@@ -70,6 +85,7 @@ export class QRcodeComponent {
     else if (daysDiff < 28) return 'Medium';
     else if (daysDiff < 35) return 'Large';
     else if (daysDiff < 42) return 'Breeders';
+    else if (daysDiff < 49) return 'Eggpots';
     else return '-----';
   }
 
@@ -78,12 +94,12 @@ export class QRcodeComponent {
     const startDate = new Date(stockDate);
     const currentDate = this.adjustToNearestFeedingDay(new Date());
     const daysDiff = this.getDaysDifference(startDate, currentDate);
-    if (daysDiff < 8) return '1/2 Scoop';
-    else if (daysDiff < 15) return '1 Scoop';
-    else if (daysDiff < 22) return '1-1/2 Scoops';
-    else if (daysDiff < 29) return '2 Scoops';
-    else if (daysDiff < 40) return '2-1/2 Scoops';
-    else if (daysDiff < 45) return '1/2 Scoop';
+    if (daysDiff < 8) return '1/2';
+    else if (daysDiff < 15) return '1';
+    else if (daysDiff < 22) return '1-1/2';
+    else if (daysDiff < 29) return '2';
+    else if (daysDiff < 40) return '2-1/2';
+    else if (daysDiff < 45) return '1/2';
     else return 'Unknown';
   }
 
@@ -112,5 +128,10 @@ export class QRcodeComponent {
   private getDaysDifference(startDate: Date, currentDate: Date): number {
     const msPerDay = 1000 * 60 * 60 * 24;
     return Math.floor((currentDate.getTime() - startDate.getTime()) / msPerDay);
+  }
+
+  // Emits the close event to parent component
+  closeModal() {
+    this.close.emit(); // Emit the close event to parent component
   }
 }

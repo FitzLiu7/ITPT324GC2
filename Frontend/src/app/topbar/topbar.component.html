@@ -1,11 +1,17 @@
 <!-- Topbar Component -->
 <div
-  class="topbar fixed top-0 left-0 w-full bg-white text-gray-800 flex items-center justify-between p-2 shadow-md z-50"
+  class="topbar fixed top-0 left-0 w-full bg-white text-gray-800 flex items-center justify-between px-4 py-3 shadow-lg z-50"
 >
   <!-- Logo -->
   <div class="flex items-center space-x-4">
-    <img src="../../assets/logo.png" alt="Logo" class="w-12 h-12" />
-    <span class="text-2xl font-bold">Live Production Area</span>
+    <img
+      src="../../assets/logo.png"
+      alt="Logo"
+      class="w-10 h-10 sm:w-12 sm:h-12"
+    />
+    <span class="text-lg sm:text-2xl font-bold tracking-tight"
+      >Live Production Area</span
+    >
   </div>
 
   <!-- User Info and Dropdown -->
@@ -14,20 +20,23 @@
     (click)="toggleDropdown()"
   >
     <div class="flex items-center space-x-2">
-      <i class="fas fa-user-circle fa-2x"></i>
+      <i class="fas fa-user-circle text-2xl sm:text-3xl"></i>
       <div class="hidden md:flex flex-col text-right">
-        <span class="font-semibold">{{ userName }}</span>
-        <span class="text-sm text-gray-600">{{ userRole }}</span>
+        <span class="font-semibold text-sm sm:text-base">{{ userName }}</span>
+        <span class="text-xs sm:text-sm text-gray-600">{{ userRole }}</span>
       </div>
     </div>
-    <span class="ml-2 text-xl">&#9662;</span>
+    <span class="ml-2 text-lg sm:text-xl">&#9662;</span>
 
     <!-- Dropdown Menu -->
     <div
-      class="absolute right-0 mt-2 w-48 bg-white text-gray-800 rounded-md shadow-lg overflow-hidden z-10"
+      class="absolute right-0 mt-2 w-48 bg-white text-gray-800 rounded-lg shadow-md overflow-hidden z-10 transition-all duration-300 ease-in-out"
       [class.hidden]="!dropdownOpen"
     >
-      <a href="#" (click)="logout()" class="block px-4 py-2 hover:bg-gray-200"
+      <a
+        href="#"
+        (click)="logout()"
+        class="block px-4 py-2 text-sm hover:bg-gray-100 transition-colors duration-200"
         >Logout</a
       >
       <!-- Add more links here if needed -->
