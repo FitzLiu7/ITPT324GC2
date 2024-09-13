@@ -4,12 +4,13 @@
     *ngIf="isScannerOpen"
     class="relative bg-white shadow-xl rounded-lg p-6 sm:p-8 max-w-sm w-full sm:max-w-lg mx-4"
   >
-    <!-- QR Code Scanner -->
-    <zxing-scanner
-      class="w-full h-48 sm:h-64"
-      (scanSuccess)="onCodeResult($event)"
-    ></zxing-scanner>
-
+    <div class="w-full h-48 sm:h-64 mt-6 relative">
+      <!-- QR Code Scanner -->
+      <zxing-scanner
+        (scanSuccess)="onCodeResult($event)"
+        class="absolute top-0 left-0 w-full h-full"
+      ></zxing-scanner>
+    </div>
     <!-- Scanning Message with loading spinner -->
     <div class="mt-6 text-center flex flex-col items-center justify-center">
       <div
@@ -17,8 +18,9 @@
         class="flex items-center justify-center space-x-2"
       >
         <div
-          class="animate-spin rounded-full h-8 w-8 border-t-4 border-b-4 border-gray-500"
+          class="animate-spin rounded-full h-8 w-8 border-t-4 border-b-4 border-gray-500 p-2"
         ></div>
+
         <h2 class="text-lg sm:text-xl font-semibold text-gray-700">
           Scanning code...
         </h2>
@@ -43,7 +45,7 @@
       <!-- Close button -->
       <button
         class="absolute top-2 right-2 text-gray-500 hover:text-gray-800 text-2xl sm:text-3xl font-bold focus:outline-none"
-        (click)="closeQrScanner()"
+        (click)="closeModal()"
         aria-label="Close"
       >
         &times;
@@ -51,41 +53,71 @@
 
       <!-- Room Data Table -->
       <table
-        class="table-auto w-full text-center bg-white shadow-lg rounded-lg"
+        class="table-auto w-full text-center bg-white shadow-lg rounded-lg border-separate border-spacing-2"
       >
-        <tr>
-          <th class="py-3 sm:py-4 text-md sm:text-xl font-bold">ROOM</th>
-          <td class="text-red-500 text-2xl sm:text-3xl font-bold">
+        <!-- Room Title and Number with vertical lines -->
+        <tr class="border-b border-gray-200">
+          <th
+            class="py-3 sm:py-4 text-xl sm:text-3xl font-bold border-r border-gray-300"
+          >
+            ROOM
+          </th>
+          <td class="text-red-500 text-4xl sm:text-5xl font-bold">
             {{ roomData.RoomNumber || "N/A" }}
           </td>
         </tr>
-        <tr>
-          <th class="py-3 sm:py-4 text-md sm:text-lg font-semibold">WEEK</th>
-          <td class="text-md sm:text-lg">{{ roomData.Week || "N/A" }}</td>
+
+        <!-- Week with vertical lines -->
+        <tr class="border-b border-gray-200">
+          <th
+            class="py-3 sm:py-4 text-lg sm:text-xl font-semibold border-r border-gray-300"
+          >
+            WEEK
+          </th>
+          <td class="text-lg sm:text-xl">{{ roomData.Week || "N/A" }}</td>
         </tr>
-        <tr>
-          <th class="py-3 sm:py-4 text-md sm:text-lg font-semibold">STAGE</th>
+
+        <!-- Stage with vertical lines -->
+        <tr class="border-b border-gray-200">
+          <th
+            class="py-3 sm:py-4 text-lg sm:text-xl font-semibold border-r border-gray-300"
+          >
+            STAGE
+          </th>
           <td
-            class="text-md sm:text-lg font-semibold rounded px-2 py-1 sm:px-4 sm:py-2"
+            class="text-lg sm:text-xl font-semibold rounded px-2 py-1 sm:px-4 sm:py-2"
             [ngClass]="{
               'bg-yellow-100 text-yellow-700': roomData.Stage === 'Large',
               'bg-green-100 text-green-700': roomData.Stage === 'Medium',
               'bg-red-100 text-red-700': roomData.Stage === 'Small',
               'bg-blue-200 text-blue-900': roomData.Stage === 'Extra Small',
               'bg-purple-100 text-purple-700': roomData.Stage === 'Babies',
-              'bg-blue-100 text-blue-700': roomData.Stage === 'Breeders'
+              'bg-blue-100 text-blue-700': roomData.Stage === 'Breeders',
+              'bg-amber-100 text-amber-700': roomData.Stage === 'Eggpots'
             }"
           >
             {{ roomData.Stage || "N/A" }}
           </td>
         </tr>
-        <tr>
-          <th class="py-3 sm:py-4 text-md sm:text-lg font-semibold">BOTTLES</th>
-          <td class="text-md sm:text-lg">{{ roomData.Bottles || "N/A" }}</td>
+
+        <!-- Bottles with vertical lines -->
+        <tr class="border-b border-gray-200">
+          <th
+            class="py-3 sm:py-4 text-lg sm:text-xl font-semibold border-r border-gray-300"
+          >
+            BOTTLES
+          </th>
+          <td class="text-lg sm:text-xl">{{ roomData.Bottles || "N/A" }}</td>
         </tr>
+
+        <!-- Scoops with vertical lines -->
         <tr>
-          <th class="py-3 sm:py-4 text-md sm:text-lg font-semibold">SCOOPS</th>
-          <td class="text-md sm:text-lg">{{ roomData.Scoops || "N/A" }}</td>
+          <th
+            class="py-3 sm:py-4 text-lg sm:text-xl font-semibold border-r border-gray-300"
+          >
+            SCOOPS
+          </th>
+          <td class="text-lg sm:text-xl">{{ roomData.Scoops || "N/A" }}</td>
         </tr>
       </table>
 
