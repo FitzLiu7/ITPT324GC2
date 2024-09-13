@@ -6,17 +6,18 @@ import { AuthService } from './auth.service';
   providedIn: 'root',
 })
 export class AuthGuard implements CanActivate {
+
   constructor(private authService: AuthService, private router: Router) {}
 
   canActivate(): boolean {
-    const user = this.authService.getCurrentUser();
-    
-    if (user && user.role === 'Manager') {
-      // Allow access if user is a Manager
+    const role = this.authService.getUserRole();
+    if (role === 'Manager') {
       return true;
-    } else {
-      // Redirect to a different route if the user is not authorized
+    } else if (role === 'Staff') {
       this.router.navigate(['/access-denied']);
+      return false;
+    } else {
+      this.router.navigate(['/login']);
       return false;
     }
   }

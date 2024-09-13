@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { ZXingScannerModule } from '@zxing/ngx-scanner';
 import { ApiService } from '../api.service'; // Importing the service to get data
+import { AuthService } from '../services/auth/auth.service'; // Import AuthService
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -16,7 +17,10 @@ export class QRcodeComponent {
   scannerResult: string | null = null;
   scanSuccess = false; // Indicates whether the scan was successful
 
-  constructor(private apiService: ApiService) {}
+  constructor(
+    private apiService: ApiService,
+    private authService: AuthService // Inject AuthService
+  ) {}
 
   // Opens the scanner
   openQrScanner() {
@@ -50,6 +54,13 @@ export class QRcodeComponent {
 
           this.scanSuccess = true; // Indicate that the scan was successful
           this.closeQrScanner(); // Closes the camera after scanning
+
+          // Optionally update the user role if needed
+          const currentUser = this.authService.getCurrentUser();
+          if (currentUser) {
+            console.log(`Current user role: ${currentUser.role}`);
+            // Additional logic if needed based on the user role
+          }
         },
         (error) => {
           console.error('Error fetching room data:', error);
