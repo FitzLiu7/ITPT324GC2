@@ -8,16 +8,17 @@ const app = express();
 const cors = require("cors");
 require("dotenv").config();
 
-app.use(cors());
-app.use(
-  cors({
-    origin: "http://localhost:4200",
-    optionsSuccessStatus: 200,
-  })
-);
+// CORS configuration
+const allowedOrigin = process.env.FRONTEND_URL || "http://localhost:4200"; // Set frontend URL dynamically
 
+app.use(cors({
+    origin: allowedOrigin,
+    optionsSuccessStatus: 200,
+}));
+
+// AWS DynamoDB configuration
 const dynamoDB = new AWS.DynamoDB.DocumentClient({
-  region: process.env.AWS_REGION,
+  region: process.env.AWS_REGION || "ap-southeast-2",
 });
 
 // Mapping of room labels to numeric keys
@@ -110,7 +111,7 @@ app.post("/add-data", async (req, res) => {
   }
 
   const params = {
-    TableName: "InsectProductionStock",
+    TableName: process.env.DYNAMODB_TABLE || "InsectProductionStock",
     Item: {
       RoomNumber: partitionKey,
       Date,
