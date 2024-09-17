@@ -1,4 +1,4 @@
-<div class="flex justify-center items-center bg-gray-100">
+<div class="flex justify-center items-center h-screen bg-gray-100">
   <!-- Scanner Container -->
   <div
     *ngIf="isScannerOpen"
@@ -40,26 +40,26 @@
     </div>
   </div>
 
-  <!-- Room Data Modal with feedback -->
+  <!-- Room Data View -->
   <div
     *ngIf="!isScannerOpen && roomData"
-    class="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50"
+    class="flex justify-center items-center w-full h-full"
   >
     <div
       class="relative bg-white shadow-xl rounded-lg p-6 sm:p-8 w-full max-w-2xl mx-4"
     >
-      <!-- Close button -->
+      <!-- Go Back Button (top-right) -->
       <button
-        class="absolute top-2 right-2 text-gray-500 hover:text-gray-800 text-2xl sm:text-3xl font-bold focus:outline-none"
-        (click)="closeModal()"
-        aria-label="Close"
+        class="absolute top-4 left-4 bg-blue-500 text-white font-semibold p-2 rounded-full hover:bg-blue-600 transition-colors duration-200 flex items-center justify-center"
+        (click)="goBack()"
       >
-        &times;
+        <i class="fas fa-arrow-left mr-2"></i>
+        Return
       </button>
 
       <!-- Room Data Table -->
       <table
-        class="table-auto w-full text-center bg-white shadow-lg rounded-lg border-separate border-spacing-2"
+        class="table-auto w-full text-center bg-white shadow-lg rounded-lg border-separate border-spacing-2 mt-10"
       >
         <!-- Room Title and Number with vertical lines -->
         <tr class="border-b border-gray-200">

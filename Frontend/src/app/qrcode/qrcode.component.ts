@@ -1,14 +1,15 @@
-import { Component, EventEmitter, Output } from '@angular/core'; // Add EventEmitter and Output
+import { Component } from '@angular/core';
 import { ZXingScannerModule } from '@zxing/ngx-scanner';
-import { ApiService } from '../api.service'; // Importing the service to get data
-import { CommonModule } from '@angular/common';
+import { ApiService } from '../api.service';
+import { Router } from '@angular/router';
+import { CommonModule } from '@angular/common'; // Import CommonModule for ngClass
 
 @Component({
   selector: 'app-qrcode',
   standalone: true,
-  imports: [CommonModule, ZXingScannerModule],
   templateUrl: './qrcode.component.html',
   styleUrls: ['./qrcode.component.css'],
+  imports: [CommonModule, ZXingScannerModule], // Make sure CommonModule is imported
 })
 export class QRcodeComponent {
   isScannerOpen = true; // Controls whether the camera is open
@@ -18,10 +19,7 @@ export class QRcodeComponent {
   scanError = false; // Flag for showing an error message
   scanErrorMessage = ''; // Error message to display
 
-  // Define an EventEmitter for the close event
-  @Output() close = new EventEmitter<void>();
-
-  constructor(private apiService: ApiService) {}
+  constructor(private apiService: ApiService, private router: Router) {}
 
   // Opens the scanner
   openQrScanner() {
@@ -30,12 +28,6 @@ export class QRcodeComponent {
     this.scanSuccess = false; // Reset the success flag
     this.scanError = false; // Reset error flag
     this.scanErrorMessage = ''; // Clear error message
-  }
-
-  // Closes the scanner and hides the modal
-  closeQrScanner() {
-    this.isScannerOpen = false;
-    this.closeModal(); // Trigger modal close event
   }
 
   // Handles the result of the scanned QR code
@@ -80,7 +72,7 @@ export class QRcodeComponent {
         this.roomData.Bottles = this.calculateBottles(this.roomData.Date);
 
         this.scanSuccess = true; // Indicate that the scan was successful
-        this.closeQrScanner(); // Closes the camera after scanning
+        this.isScannerOpen = false; // Closes the camera after scanning
       },
       (error) => {
         console.error('Error fetching room data:', error);
@@ -146,8 +138,8 @@ export class QRcodeComponent {
     return Math.floor((currentDate.getTime() - startDate.getTime()) / msPerDay);
   }
 
-  // Emits the close event to parent component
-  closeModal() {
-    this.close.emit(); // Emit the close event to parent component
+  // Method to go back to the previous page
+  goBack() {
+    this.router.navigate(['/fyh']);
   }
 }
