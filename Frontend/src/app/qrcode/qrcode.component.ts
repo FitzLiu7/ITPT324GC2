@@ -2,14 +2,15 @@ import { Component } from '@angular/core';
 import { ZXingScannerModule } from '@zxing/ngx-scanner';
 import { ApiService } from '../api.service';
 import { Router } from '@angular/router';
-import { CommonModule } from '@angular/common'; // Import CommonModule for ngClass
+import { CommonModule } from '@angular/common';
+import { MinutesSecondsPipe } from '../minutes-seconds.pipe'; // Import the pipe
 
 @Component({
   selector: 'app-qrcode',
   standalone: true,
   templateUrl: './qrcode.component.html',
   styleUrls: ['./qrcode.component.css'],
-  imports: [CommonModule, ZXingScannerModule], // Make sure CommonModule is imported
+  imports: [CommonModule, ZXingScannerModule, MinutesSecondsPipe], // Add the pipe here
 })
 export class QRcodeComponent {
   isScannerOpen = true; // Controls whether the camera is open
@@ -18,6 +19,15 @@ export class QRcodeComponent {
   scanSuccess = false; // Indicates whether the scan was successful
   scanError = false; // Flag for showing an error message
   scanErrorMessage = ''; // Error message to display
+
+  foodTimer: any = null; // Timer for food
+  waterTimer: any = null; // Timer for water
+  foodTimeRemaining: number = 0;
+  waterTimeRemaining: number = 0;
+  isFoodLate: boolean = false;
+  isWaterLate: boolean = false;
+  isFoodTimerRunning = false; // Controls if the food timer is running
+  isWaterTimerRunning = false; // Controls if the water timer is running
 
   constructor(private apiService: ApiService, private router: Router) {}
 
@@ -28,6 +38,7 @@ export class QRcodeComponent {
     this.scanSuccess = false; // Reset the success flag
     this.scanError = false; // Reset error flag
     this.scanErrorMessage = ''; // Clear error message
+    this.resetTimers(); // Reset timers when opening scanner
   }
 
   // Handles the result of the scanned QR code
@@ -63,13 +74,14 @@ export class QRcodeComponent {
         }
 
         console.log('Room data:', data);
-        // Assign fetched data
         this.roomData = data;
 
-        // Calculate stage, scoops, and bottles and add to roomData object
         this.roomData.Stage = this.calculateStage(this.roomData.Date);
         this.roomData.Scoops = this.calculateScoops(this.roomData.Date);
         this.roomData.Bottles = this.calculateBottles(this.roomData.Date);
+
+        // Reset timers before allowing a new scan
+        this.resetTimers();
 
         this.scanSuccess = true; // Indicate that the scan was successful
         this.isScannerOpen = false; // Closes the camera after scanning
@@ -82,6 +94,84 @@ export class QRcodeComponent {
     );
   }
 
+  // Resets food and water timers
+  resetTimers() {
+    if (this.foodTimer) clearInterval(this.foodTimer);
+    if (this.waterTimer) clearInterval(this.waterTimer);
+    this.foodTimeRemaining = 0;
+    this.waterTimeRemaining = 0;
+    this.isFoodLate = false;
+    this.isWaterLate = false;
+    this.isFoodTimerRunning = false;
+    this.isWaterTimerRunning = false;
+  }
+
+  // Starts or stops the food timer
+  toggleFoodTimer() {
+    if (this.isWaterTimerRunning) return; // Prevent starting both timers
+    if (this.isFoodTimerRunning) {
+      clearInterval(this.foodTimer); // Stop the timer
+      this.isFoodTimerRunning = false;
+    } else {
+      this.startFoodTimer(); // Start the timer
+    }
+  }
+
+  // Starts or stops the water timer
+  toggleWaterTimer() {
+    if (this.isFoodTimerRunning) return; // Prevent starting both timers
+    if (this.isWaterTimerRunning) {
+      clearInterval(this.waterTimer); // Stop the timer
+      this.isWaterTimerRunning = false;
+    } else {
+      this.startWaterTimer(); // Start the timer
+    }
+  }
+
+  // Starts food timer logic
+  startFoodTimer() {
+    const today = new Date();
+    const isFriday = today.getDay() === 5;
+    const foodTime = isFriday ? 30 * 60 : 20 * 60; // Convert minutes to seconds
+    this.foodTimeRemaining = foodTime;
+    this.isFoodTimerRunning = true;
+
+    // Timer logic
+    this.foodTimer = setInterval(() => {
+      this.foodTimeRemaining--;
+      if (this.foodTimeRemaining <= 0) {
+        this.isFoodLate = true;
+        clearInterval(this.foodTimer); // Stop the timer when time runs out
+        this.isFoodTimerRunning = false;
+      }
+    }, 1000);
+  }
+
+  // Starts water timer logic
+  startWaterTimer() {
+    const today = new Date();
+    const isFriday = today.getDay() === 5;
+    const waterTime = isFriday ? 50 * 60 : 40 * 60; // Convert minutes to seconds
+    this.waterTimeRemaining = waterTime;
+    this.isWaterTimerRunning = true;
+
+    // Timer logic
+    this.waterTimer = setInterval(() => {
+      this.waterTimeRemaining--;
+      if (this.waterTimeRemaining <= 0) {
+        this.isWaterLate = true;
+        clearInterval(this.waterTimer); // Stop the timer when time runs out
+        this.isWaterTimerRunning = false;
+      }
+    }, 1000);
+  }
+
+  // Go back to the previous page
+  goBack() {
+    this.router.navigate(['/fyh']);
+  }
+
+  // Helper functions to calculate data (unchanged from your original code)
   private calculateStage(stockDate?: string): string {
     if (!stockDate) return 'Unknown';
     const startDate = new Date(stockDate);
@@ -136,10 +226,5 @@ export class QRcodeComponent {
   private getDaysDifference(startDate: Date, currentDate: Date): number {
     const msPerDay = 1000 * 60 * 60 * 24;
     return Math.floor((currentDate.getTime() - startDate.getTime()) / msPerDay);
-  }
-
-  // Method to go back to the previous page
-  goBack() {
-    this.router.navigate(['/fyh']);
   }
 }

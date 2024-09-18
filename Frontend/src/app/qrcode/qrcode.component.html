@@ -127,13 +127,83 @@
         </tr>
       </table>
 
-      <!-- Button to scan another QR -->
-      <button
-        class="w-full mt-6 px-4 py-2 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 transition-colors duration-200"
-        (click)="openQrScanner()"
-      >
-        Scan another QR code
-      </button>
+      <!-- Timer section -->
+      <div class="border border-gray-300 rounded-lg mt-8 p-3 shadow-sm">
+        <!-- Scan another QR code -->
+        <div class="text-center mb-3 border-b-2 w-full">
+          <button
+            class="px-4 py-1 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 transition-colors duration-200"
+            (click)="openQrScanner()"
+          >
+            Scan another QR code
+          </button>
+        </div>
+
+        <!-- Timer table -->
+        <table class="table-auto w-full text-center">
+          <thead>
+            <tr class="border-b border-gray-200">
+              <th class="py-2 text-lg font-bold border-r">FOOD</th>
+              <th class="py-2 text-lg font-bold">WATER</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="border-b border-gray-200">
+              <!-- Food Timer -->
+              <td class="py-3">
+                <button
+                  class="px-4 py-1 font-semibold rounded-lg mx-auto block transition-colors duration-200"
+                  [ngClass]="
+                    isFoodTimerRunning
+                      ? 'bg-red-500 text-white hover:bg-red-600'
+                      : 'bg-green-500 text-white hover:bg-green-600'
+                  "
+                  (click)="toggleFoodTimer()"
+                >
+                  {{ isFoodTimerRunning ? "End" : "Start" }}
+                </button>
+              </td>
+
+              <!-- Water Timer -->
+              <td class="py-3 border-l border-gray-200">
+                <button
+                  class="px-4 py-1 font-semibold rounded-lg mx-auto block transition-colors duration-200"
+                  [ngClass]="
+                    isWaterTimerRunning
+                      ? 'bg-red-500 text-white hover:bg-red-600'
+                      : 'bg-green-500 text-white hover:bg-green-600'
+                  "
+                  (click)="toggleWaterTimer()"
+                >
+                  {{ isWaterTimerRunning ? "End" : "Start" }}
+                </button>
+              </td>
+            </tr>
+
+            <!-- Timer values -->
+            <tr>
+              <td class="py-2">
+                <p class="mt-1 text-md" [class.text-red-500]="isFoodLate">
+                  {{ foodTimeRemaining | minutesSeconds }}
+                </p>
+              </td>
+              <td class="py-2 border-l border-gray-200">
+                <p class="mt-1 text-md" [class.text-red-500]="isWaterLate">
+                  {{ waterTimeRemaining | minutesSeconds }}
+                </p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Status row -->
+        <table class="table-auto w-full mt-3 border-t border-gray-300">
+          <tr>
+            <th class="py-2 text-lg font-bold border-r align-middle">STATUS</th>
+            <td class="text-red-500 text-lg font-bold text-center">WORKING</td>
+          </tr>
+        </table>
+      </div>
     </div>
   </div>
 </div>
