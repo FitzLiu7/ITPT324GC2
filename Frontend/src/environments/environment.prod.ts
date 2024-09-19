@@ -1,6 +1,6 @@
 export const environment = {
     production: true,
-    apiUrl: 'http://insectprodenv.eba-ewpzvkhv.ap-southeast-2.elasticbeanstalk.com/',
-    wsUrl: 'wss://insectprodenv.eba-ewpzvkhv.ap-southeast-2.elasticbeanstalk.com/',
+    apiUrl: 'http://backend-env-1.eba-sru2uevz.ap-southeast-2.elasticbeanstalk.com',
+    wsUrl: 'wss://backend-env-1.eba-sru2uevz.ap-southeast-2.elasticbeanstalk.com',
   };
   
