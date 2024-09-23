@@ -18,7 +18,9 @@
     </div>
 
     <!-- Scanning Message with loading spinner -->
-    <div class="mt-6 text-center flex flex-col items-center justify-center">
+    <div
+      class="mt-6 text-center flex flex-col items-center justify-center p-20"
+    >
       <div
         *ngIf="!scanSuccess && !scanError"
         class="flex items-center justify-center space-x-2"
@@ -128,27 +130,29 @@
       </table>
 
       <!-- Timer section -->
-      <div class="border border-gray-300 rounded-lg mt-8 p-3 shadow-sm">
-        <!-- Scan another QR code -->
-        <div class="text-center mb-3 border-b-2 w-full">
-          <button
-            class="px-4 py-1 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 transition-colors duration-200"
-            (click)="openQrScanner()"
-          >
-            Scan another QR code
-          </button>
-        </div>
-
+      <div
+        class="border border-gray-300 rounded-lg mt-8 p-3 shadow-sm bg-white"
+      >
         <!-- Timer table -->
         <table class="table-auto w-full text-center">
           <thead>
-            <tr class="border-b border-gray-200">
-              <th class="py-2 text-lg font-bold border-r">FOOD</th>
-              <th class="py-2 text-lg font-bold">WATER</th>
+            <tr class="border-b border-gray-300">
+              <th
+                class="py-2 text-lg font-bold border-r"
+                style="background-color: #fbc820; color: #fff"
+              >
+                FOOD
+              </th>
+              <th
+                class="py-2 text-lg font-bold"
+                style="background-color: #007bff; color: #fff"
+              >
+                WATER
+              </th>
             </tr>
           </thead>
           <tbody>
-            <tr class="border-b border-gray-200">
+            <tr class="border-b border-gray-300">
               <!-- Food Timer -->
               <td class="py-3">
                 <button
@@ -165,7 +169,7 @@
               </td>
 
               <!-- Water Timer -->
-              <td class="py-3 border-l border-gray-200">
+              <td class="py-3 border-l border-gray-300">
                 <button
                   class="px-4 py-1 font-semibold rounded-lg mx-auto block transition-colors duration-200"
                   [ngClass]="
@@ -180,29 +184,111 @@
               </td>
             </tr>
 
-            <!-- Timer values -->
+            <!-- Display start, end, and elapsed times in a more structured layout -->
             <tr>
               <td class="py-2">
-                <p class="mt-1 text-md" [class.text-red-500]="isFoodLate">
-                  {{ foodTimeRemaining | minutesSeconds }}
-                </p>
+                <table class="w-full text-center mx-auto">
+                  <thead>
+                    <tr class="border-b border-gray-300">
+                      <th class="font-semibold py-1">Start</th>
+                      <th class="font-semibold py-1 border-l border-gray-300">
+                        End
+                      </th>
+                      <th class="font-semibold py-1 border-l border-gray-300">
+                        Elapsed
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="py-1">
+                        {{
+                          foodStartTime
+                            ? foodStartTime.toLocaleTimeString()
+                            : "-"
+                        }}
+                      </td>
+                      <td class="py-1 border-l border-gray-300">
+                        {{
+                          foodEndTime ? foodEndTime.toLocaleTimeString() : "-"
+                        }}
+                      </td>
+                      <td class="py-1 border-l border-gray-300">
+                        {{ formatTime(foodElapsedTime) }}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
               </td>
-              <td class="py-2 border-l border-gray-200">
-                <p class="mt-1 text-md" [class.text-red-500]="isWaterLate">
-                  {{ waterTimeRemaining | minutesSeconds }}
-                </p>
+              <td class="py-2 border-l border-gray-300">
+                <table class="w-full text-center mx-auto">
+                  <thead>
+                    <tr class="border-b border-gray-300">
+                      <th class="font-semibold py-1">Start</th>
+                      <th class="font-semibold py-1 border-l border-gray-300">
+                        End
+                      </th>
+                      <th class="font-semibold py-1 border-l border-gray-300">
+                        Elapsed
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="py-1">
+                        {{
+                          waterStartTime
+                            ? waterStartTime.toLocaleTimeString()
+                            : "-"
+                        }}
+                      </td>
+                      <td class="py-1 border-l border-gray-300">
+                        {{
+                          waterEndTime ? waterEndTime.toLocaleTimeString() : "-"
+                        }}
+                      </td>
+                      <td class="py-1 border-l border-gray-300">
+                        {{ formatTime(waterElapsedTime) }}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </td>
+            </tr>
+
+            <!-- Status row -->
+            <tr class="border-t border-gray-300">
+              <th
+                class="py-2 text-lg font-bold border-r"
+                style="background-color: #fff; color: #333"
+              >
+                STATUS
+              </th>
+              <td
+                class="text-lg font-bold text-center"
+                [ngClass]="
+                  status === 'Occupied'
+                    ? 'bg-red-100 text-red-500'
+                    : 'bg-green-100 text-green-500'
+                "
+              >
+                {{ status }}
               </td>
             </tr>
           </tbody>
         </table>
+      </div>
 
-        <!-- Status row -->
-        <table class="table-auto w-full mt-3 border-t border-gray-300">
-          <tr>
-            <th class="py-2 text-lg font-bold border-r align-middle">STATUS</th>
-            <td class="text-red-500 text-lg font-bold text-center">WORKING</td>
-          </tr>
-        </table>
+      <!-- Scan another QR code button -->
+      <div class="border border-gray-300 rounded-lg mt-8 p-3 shadow-sm">
+        <div class="text-center w-full">
+          <button
+            class="px-4 py-1 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 transition-colors duration-200"
+            (click)="openQrScanner()"
+          >
+            Scan another QR code
+          </button>
+        </div>
       </div>
     </div>
   </div>

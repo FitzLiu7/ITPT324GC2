@@ -20,14 +20,17 @@ export class QRcodeComponent {
   scanError = false; // Flag for showing an error message
   scanErrorMessage = ''; // Error message to display
 
-  foodTimer: any = null; // Timer for food
-  waterTimer: any = null; // Timer for water
-  foodTimeRemaining: number = 0;
-  waterTimeRemaining: number = 0;
-  isFoodLate: boolean = false;
-  isWaterLate: boolean = false;
-  isFoodTimerRunning = false; // Controls if the food timer is running
-  isWaterTimerRunning = false; // Controls if the water timer is running
+  foodTimer: any = null;
+  waterTimer: any = null;
+  foodStartTime: Date | null = null;
+  waterStartTime: Date | null = null;
+  waterEndTime: Date | null = null;
+  foodEndTime: Date | null = null;
+  foodElapsedTime: number = 0; // Time elapsed in seconds for food
+  waterElapsedTime: number = 0; // Time elapsed in seconds for water
+  isFoodTimerRunning = false;
+  isWaterTimerRunning = false;
+  status: string = 'Vacant';
 
   constructor(private apiService: ApiService, private router: Router) {}
 
@@ -94,76 +97,81 @@ export class QRcodeComponent {
     );
   }
 
-  // Resets food and water timers
+  // Resets both timers
   resetTimers() {
     if (this.foodTimer) clearInterval(this.foodTimer);
     if (this.waterTimer) clearInterval(this.waterTimer);
-    this.foodTimeRemaining = 0;
-    this.waterTimeRemaining = 0;
-    this.isFoodLate = false;
-    this.isWaterLate = false;
+    this.foodStartTime = null;
+    this.waterStartTime = null;
+    this.foodEndTime = null;
+    this.waterEndTime = null;
+    this.foodElapsedTime = 0;
+    this.waterElapsedTime = 0;
     this.isFoodTimerRunning = false;
     this.isWaterTimerRunning = false;
+    this.status = 'Vacant';
   }
 
-  // Starts or stops the food timer
+  // Start or stop the food timer
+  // Start or stop the food timer
   toggleFoodTimer() {
-    if (this.isWaterTimerRunning) return; // Prevent starting both timers
     if (this.isFoodTimerRunning) {
-      clearInterval(this.foodTimer); // Stop the timer
+      // Stop the timer and set the end time
+      clearInterval(this.foodTimer);
+      this.foodEndTime = new Date(); // Set the end time correctly
       this.isFoodTimerRunning = false;
+      this.updateStatus();
     } else {
-      this.startFoodTimer(); // Start the timer
+      if (this.isWaterTimerRunning) return; // Prevent starting if water timer is running
+      this.foodStartTime = new Date(); // Set the start time
+      this.foodEndTime = null; // Reset the end time
+      this.foodElapsedTime = 0; // Reset elapsed time
+      this.isFoodTimerRunning = true;
+      this.foodTimer = setInterval(() => {
+        this.foodElapsedTime = Math.floor(
+          (new Date().getTime() - this.foodStartTime!.getTime()) / 1000
+        );
+      }, 1000);
+      this.updateStatus();
     }
   }
 
-  // Starts or stops the water timer
+  // Start or stop the water timer
   toggleWaterTimer() {
-    if (this.isFoodTimerRunning) return; // Prevent starting both timers
     if (this.isWaterTimerRunning) {
-      clearInterval(this.waterTimer); // Stop the timer
+      // Stop the timer and set the end time
+      clearInterval(this.waterTimer);
+      this.waterEndTime = new Date(); // Set the end time correctly
       this.isWaterTimerRunning = false;
+      this.updateStatus();
     } else {
-      this.startWaterTimer(); // Start the timer
+      if (this.isFoodTimerRunning) return; // Prevent starting if food timer is running
+      this.waterStartTime = new Date(); // Set the start time
+      this.waterEndTime = null; // Reset the end time
+      this.waterElapsedTime = 0; // Reset elapsed time
+      this.isWaterTimerRunning = true;
+      this.waterTimer = setInterval(() => {
+        this.waterElapsedTime = Math.floor(
+          (new Date().getTime() - this.waterStartTime!.getTime()) / 1000
+        );
+      }, 1000);
+      this.updateStatus();
     }
   }
-
-  // Starts food timer logic
-  startFoodTimer() {
-    const today = new Date();
-    const isFriday = today.getDay() === 5;
-    const foodTime = isFriday ? 30 * 60 : 20 * 60; // Convert minutes to seconds
-    this.foodTimeRemaining = foodTime;
-    this.isFoodTimerRunning = true;
-
-    // Timer logic
-    this.foodTimer = setInterval(() => {
-      this.foodTimeRemaining--;
-      if (this.foodTimeRemaining <= 0) {
-        this.isFoodLate = true;
-        clearInterval(this.foodTimer); // Stop the timer when time runs out
-        this.isFoodTimerRunning = false;
-      }
-    }, 1000);
+  updateStatus() {
+    this.status =
+      this.isFoodTimerRunning || this.isWaterTimerRunning
+        ? 'Occupied'
+        : 'Vacant';
   }
 
-  // Starts water timer logic
-  startWaterTimer() {
-    const today = new Date();
-    const isFriday = today.getDay() === 5;
-    const waterTime = isFriday ? 50 * 60 : 40 * 60; // Convert minutes to seconds
-    this.waterTimeRemaining = waterTime;
-    this.isWaterTimerRunning = true;
-
-    // Timer logic
-    this.waterTimer = setInterval(() => {
-      this.waterTimeRemaining--;
-      if (this.waterTimeRemaining <= 0) {
-        this.isWaterLate = true;
-        clearInterval(this.waterTimer); // Stop the timer when time runs out
-        this.isWaterTimerRunning = false;
-      }
-    }, 1000);
+  // Helper function to format elapsed time
+  formatTime(seconds: number): string {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs
+      .toString()
+      .padStart(2, '0')}`;
   }
 
   // Go back to the previous page
