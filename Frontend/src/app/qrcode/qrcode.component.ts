@@ -46,22 +46,29 @@ export class QRcodeComponent {
 
   // Handles the result of the scanned QR code
   onCodeResult(resultString: string) {
-    this.scannerResult = resultString;
+    this.scannerResult = resultString.trim();
     console.log('Scanned QR:', resultString);
 
     // Reset error and success states
     this.scanError = false;
     this.scanSuccess = false;
+    let roomNumber : any;
+
+    if (new RegExp(/^ITPT324GC2\s(\d+|N1|N2)$/).test(this.scannerResult)){
+      debugger
+      roomNumber = this.scannerResult.split(' ')[this.scannerResult.split(' ').length-1]
+    } else {
+      alert('Error of QRcode')
+    }
 
     // Map N1 to 1001 and N2 to 1002
-    let roomNumber: number;
-    if (resultString === 'N1') {
+    if (roomNumber === 'N1') {
       roomNumber = 1001;
-    } else if (resultString === 'N2') {
+    } else if (roomNumber === 'N2') {
       roomNumber = 1002;
-    } else if (!isNaN(Number(resultString))) {
-      roomNumber = Number(resultString);
-    } else {
+    }
+
+    if(![1001,1002,1,3,4,8,9,10,11,12,13,14,15].includes(Number(roomNumber))){
       this.scanError = true;
       this.scanErrorMessage = 'Invalid QR code';
       return;
