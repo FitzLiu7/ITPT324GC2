@@ -4,6 +4,7 @@ import { signIn, signOut } from 'aws-amplify/auth';
 import { AuthService } from '../services/auth/auth.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import {log} from "@angular-devkit/build-angular/src/builders/ssr-dev-server";
 
 @Component({
   selector: 'app-login',
@@ -28,7 +29,8 @@ export class LoginComponent {
       const { isSignedIn } = await signIn({
         username: this.username,
         password: this.password,
-      });
+      })
+
 
       if (isSignedIn) {
         // Determine the role based on the username prefix

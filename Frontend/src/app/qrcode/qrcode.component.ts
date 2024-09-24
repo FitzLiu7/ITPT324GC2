@@ -1,9 +1,10 @@
-import { Component } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import { ZXingScannerModule } from '@zxing/ngx-scanner';
 import { ApiService } from '../api.service';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { MinutesSecondsPipe } from '../minutes-seconds.pipe'; // Import the pipe
+import { MinutesSecondsPipe } from '../minutes-seconds.pipe';
+import {getCurrentUser} from "aws-amplify/auth"; // Import the pipe
 
 @Component({
   selector: 'app-qrcode',
@@ -12,14 +13,14 @@ import { MinutesSecondsPipe } from '../minutes-seconds.pipe'; // Import the pipe
   styleUrls: ['./qrcode.component.css'],
   imports: [CommonModule, ZXingScannerModule, MinutesSecondsPipe], // Add the pipe here
 })
-export class QRcodeComponent {
+export class QRcodeComponent implements OnInit {
   isScannerOpen = true; // Controls whether the camera is open
   roomData: any = null; // Scanned room data
   scannerResult: string | null = null;
   scanSuccess = false; // Indicates whether the scan was successful
   scanError = false; // Flag for showing an error message
   scanErrorMessage = ''; // Error message to display
-
+  userName: string = '';
   foodTimer: any = null;
   waterTimer: any = null;
   foodStartTime: Date | null = null;
@@ -31,9 +32,22 @@ export class QRcodeComponent {
   isFoodTimerRunning = false;
   isWaterTimerRunning = false;
   status: string = 'Vacant';
-
+  taskList: Array<any> = [];
+  currentUserTask: any  = {};
+  currentRoomNumber: number= 0 ;
   constructor(private apiService: ApiService, private router: Router) {}
 
+  ngOnInit() {
+    this.currentAuthenticatedUser()
+    this.apiService.getStaffTaskList().subscribe(
+      (res) => {
+        this.taskList = res
+      },
+      (error) => {
+        console.log(error);
+      }
+    )
+  }
   // Opens the scanner
   openQrScanner() {
     this.isScannerOpen = true;
@@ -42,6 +56,15 @@ export class QRcodeComponent {
     this.scanError = false; // Reset error flag
     this.scanErrorMessage = ''; // Clear error message
     this.resetTimers(); // Reset timers when opening scanner
+  }
+
+  async currentAuthenticatedUser() {
+    try {
+      const { username } = await getCurrentUser();
+      this.userName = username;
+    } catch (err) {
+      console.log(err);
+    }
   }
 
   // Handles the result of the scanned QR code
@@ -82,6 +105,13 @@ export class QRcodeComponent {
           this.scanErrorMessage = 'Room not found in the database';
           return;
         }
+        this.currentRoomNumber = roomNumber
+        this.taskList.forEach((task) => {
+          if (this.userName == task.userName) {
+            this.currentUserTask = task
+            console.log('currentUserTask', this.currentUserTask)
+          }
+        })
 
         console.log('Room data:', data);
         this.roomData = data;
@@ -122,7 +152,21 @@ export class QRcodeComponent {
   // Start or stop the food timer
   // Start or stop the food timer
   toggleFoodTimer() {
+
     if (this.isFoodTimerRunning) {
+
+      let params = {
+        userName: this.userName,
+        startTime: this.currentUserTask.startTime,
+        task: 'food',
+        working: false,
+        roomNumber: this.currentRoomNumber as number,
+      }
+
+      this.apiService.updateStaffTask(params).subscribe(
+        //
+      )
+
       // Stop the timer and set the end time
       clearInterval(this.foodTimer);
       this.foodEndTime = new Date(); // Set the end time correctly
@@ -130,6 +174,26 @@ export class QRcodeComponent {
       this.updateStatus();
     } else {
       if (this.isWaterTimerRunning) return; // Prevent starting if water timer is running
+
+
+      const params = {
+        userName: this.userName,
+        startTime: new Date().getTime(),
+        task: 'food',
+        working: true,
+        roomNumber: this.currentRoomNumber as number,
+      }
+      this.currentUserTask = params
+      if (Object.keys(this.currentUserTask).length > 0)
+        this.apiService.updateStaffTask(params).subscribe(
+          // success ...
+        )
+      } else {
+        this.apiService.addStaffTask(params).subscribe(
+          // success ...
+        )
+      }
+
       this.foodStartTime = new Date(); // Set the start time
       this.foodEndTime = null; // Reset the end time
       this.foodElapsedTime = 0; // Reset elapsed time

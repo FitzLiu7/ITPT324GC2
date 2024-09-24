@@ -6,6 +6,7 @@ const http = require("http");
 const WebSocket = require("ws");
 const app = express();
 const cors = require("cors");
+const { signUp, confirmSignUp, signIn, getUserList } = require("./auth");
 require("dotenv").config();
 
 // CORS configuration
@@ -77,6 +78,105 @@ app.get("/signup", (req, res) => {
 app.get("/dashboard", (req, res) => {
   res.sendFile(path.join(__dirname, "dashboard.html"));
 });
+
+// add Employee Staff TaskList
+
+app.post("/addStaffTask", async (req, res) => {
+  let { userName, roomNumber , startTime, task} = req.body
+
+  if (!userName || !roomNumber || !startTime || !task) {
+    return res.status(400).send("Missing required fields");
+  }
+
+  roomNumber = getPartitionKey(roomNumber)
+
+  const params = {
+    TableName: "InsectProductionStaffTimes",
+    Item: {
+      userName, roomNumber , startTime, task, working: false
+    }
+  }
+
+  try {
+    await dynamoDB.put(params).promise();
+    res.status(201).json({ message: "Data added successfully" });
+
+    // Send WebSocket update
+    broadcastUpdate({ message: "Data added", data: params.Item });
+  } catch (error) {
+    console.error("Error adding data:", error);
+    res.status(500).send(`Error adding data: ${error.message}`);
+  }
+})
+
+app.put("/updateStaffTask", async (req, res) => {
+  let { userName, roomNumber , startTime, task, working} = req.body
+  if  (working === undefined || working === null) {
+    working = false
+  }
+  if (!userName || !roomNumber || !startTime || !task) {
+    return res.status(400).send("Missing required fields");
+  }
+
+  // Validate and map RoomNumber
+  roomNumber = getPartitionKey(roomNumber);
+  if (isNaN(roomNumber)) {
+    return res.status(400).send("Invalid RoomNumber");
+  }
+
+  const params = {
+    TableName: "InsectProductionStaffTimes",
+    Key: {
+      userName: userName,
+    },
+    UpdateExpression:
+        "set #rn = :roomNumber, #s = :startTime, #t = :task, #wk = :working",
+    ExpressionAttributeNames: {
+      "#rn": "roomNumber",
+      "#s": "startTime",
+      "#t": "task",
+      "#wk": "working"
+    },
+    ExpressionAttributeValues: {
+      ":roomNumber": roomNumber,
+      ":startTime": startTime,
+      ":task": task,
+      ":working": working,
+    },
+    ReturnValues: "UPDATED_NEW",
+  };
+
+  try {
+    const result = await dynamoDB.update(params).promise();
+    res.status(200).json(result.Attributes);
+
+    // Send WebSocket update
+    broadcastUpdate({ message: "Data updated", data: result.Attributes });
+  } catch (error) {
+    console.error("Error updating data:", error);
+    res.status(500).send(`Error updating data: ${error.message}`);
+  }
+});
+
+// Get StaffTask List
+app.get("/getStaffTaskList", async (req, res) => {
+  const params = {
+    TableName: "InsectProductionStaffTimes",
+  };
+
+  try {
+    const data = await dynamoDB.scan(params).promise();
+    res.json(data.Items);
+  } catch (err) {
+    console.error(
+        "Unable to scan the table. Error JSON:",
+        JSON.stringify(err, null, 2)
+    );
+    res.status(500).json({ error: "Could not retrieve data" });
+  }
+});
+
+
 
 // Add Data
 app.post("/add-data", async (req, res) => {
@@ -285,7 +385,7 @@ app.delete("/delete-data/:roomNumber", async (req, res) => {
   }
 });
 
-const { signUp, confirmSignUp, signIn } = require("./auth");
+
 
 app.post("/sign-up", async (req, res) => {
   const { username, password, email } = req.body;
@@ -300,6 +400,17 @@ app.post("/sign-up", async (req, res) => {
     res.status(500).json({ message: "Error signing up", error: error.message });
   }
 });
+
+
+app.get('/getUserList', async (req, res) => {
+  try {
+    const result = await getUserList();
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).send(`Error getting user list: ${error.message}`);
+  }
+})
+
 
 app.post("/confirm-sign-up", async (req, res) => {
   const { username, confirmationCode } = req.body;

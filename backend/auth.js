@@ -1,5 +1,6 @@
 require('dotenv').config();
 const AmazonCognitoIdentity = require('amazon-cognito-identity-js');
+const AWS = require('aws-sdk');
 
 const poolData = {
     UserPoolId: process.env.COGNITO_USER_POOL_ID,
@@ -8,6 +9,8 @@ const poolData = {
 
 // Initialize user pool
 const userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
+AWS.config.update({ region: 'ap-southeast-2' });
+const cognitoIdentityServiceProvider = new AWS.CognitoIdentityServiceProvider();
 
 // Function to determine role based on username prefix
 const getRoleFromUsername = (username) => {
@@ -19,6 +22,22 @@ const getRoleFromUsername = (username) => {
         return 'N/A';  // You can handle unknown roles if necessary
     }
 };
+
+//get user list
+const getUserList = async () => {
+    const params = {
+        UserPoolId: process.env.COGNITO_USER_POOL_ID,
+    }
+    return new Promise((resolve, reject) => {
+        cognitoIdentityServiceProvider.listUsers(params, (err, data) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(data);
+            }
+        });
+    });
+}
 
 // Sign-Up function
 const signUp = async (username, password, email) => {
@@ -57,6 +76,11 @@ const confirmSignUp = async (username, code) => {
     });
 };
 
+// del user function
+const deleteUser = async (username) => {
+
+}
+
 // Sign-In function with role assignment
 const signIn = async (username, password) => {
     const authenticationDetails = new AmazonCognitoIdentity.AuthenticationDetails({
@@ -93,4 +117,4 @@ const signIn = async (username, password) => {
     });
 };
 
-module.exports = { signUp, confirmSignUp, signIn };
+module.exports = { signUp, confirmSignUp, signIn, getUserList };

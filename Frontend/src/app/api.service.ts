@@ -19,6 +19,24 @@ export class ApiService {
     this.socket$ = webSocket(this.wsUrl);
     this.setupWebSocket();
   }
+  // getUserList Api
+  getUserList(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/getUserList`);
+  }
+  // get StaffTask list
+  getStaffTaskList(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/getStaffTaskList`);
+  }
+
+  // add StaffTask
+  addStaffTask(obj: { userName:string, startTime: number, roomNumber: string| number, task: string }): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/addStaffTask`, obj);
+  }
+
+  // update StaffTask
+  updateStaffTask(obj: { userName:string, startTime: number, roomNumber: string| number, task: string }): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/updateStaffTask`, obj);
+  }
 
   // RoomNumber, Date, FoodType, WaterType, GetList
   addRoomData(data: any): Observable<any> {

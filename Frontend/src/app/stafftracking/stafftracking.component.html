@@ -74,6 +74,17 @@
       </tr>
     </thead>
     <tbody>
+    <!--  Real Data   -->
+    <tr class="bg-gray-100" *ngFor="let employee of employeeList">
+      <td class="py-3 px-4">{{ employee.Username }}</td>
+      <td class="py-3 px-4 text-blue-500">{{ employee.working ? 'working' : 'Idle' }}</td>
+      <td class="py-3 px-4">{{ employee.roomNumber ? employee.roomNumber : '--' }}</td>
+      <td class="py-3 px-4">{{ employee.startTime ? employee.startTime : '--' }}</td>
+      <td class="py-3 px-4">--</td>
+      <td class="py-3 px-4">{{ employee.task ? employee.task : '--' }}</td>
+      <td class="py-3 px-4">--</td>
+    </tr>
+
       <!-- Row 1 -->
       <tr class="bg-gray-100">
         <td class="py-3 px-4">Employee 1</td>
