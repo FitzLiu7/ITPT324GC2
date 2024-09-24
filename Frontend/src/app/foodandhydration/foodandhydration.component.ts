@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../api.service';
 import { QrFloatingButtonComponent } from '../qr-floating-button/qr-floating-button.component';
+import { AuthService } from '../services/auth/auth.service';
 
 interface Room {
   Date?: string;
@@ -40,34 +41,58 @@ export class FoodandhydrationComponent implements OnInit {
     15,
   ];
 
-  constructor(private apiService: ApiService) {}
+  userRole: string = '';  // Store the user role
+
+  // Map for converting display names to numeric values and vice versa
+  roomDisplayNames: { [key: string]: number } = {
+    'N1': 1001,
+    'N2': 1002,
+  };
+  
+  // Map for converting numeric values back to display names
+  reverseRoomDisplayNames: { [key: number]: string } = {
+    1001: 'N1',
+    1002: 'N2',
+  };
+
+  constructor(private apiService: ApiService, private authService: AuthService) {}
 
   ngOnInit() {
-    this.apiService.getList().subscribe(
-      (initialData) => {
-        this.populateRooms(initialData);
-      },
-      (error) => {
-        console.error('Error fetching initial data:', error);
-      }
-    );
+    // Get the current user's role
+    const currentUser = this.authService.getCurrentUser();
+    if (currentUser) {
+      this.userRole = currentUser.role;
+    }
 
-    this.apiService.getDataUpdates().subscribe(
-      (data) => {
-        this.populateRooms(data);
-      },
-      (error) => {
-        console.error('Error receiving WebSocket data:', error);
-      }
-    );
+    if (this.userRole !== 'Staff') {  // Only load data if not 'Staff'
+      this.apiService.getList().subscribe(
+        (initialData) => {
+          this.populateRooms(initialData);
+        },
+        (error) => {
+          console.error('Error fetching initial data:', error);
+        }
+      );
+
+      this.apiService.getDataUpdates().subscribe(
+        (data) => {
+          this.populateRooms(data);
+        },
+        (error) => {
+          console.error('Error receiving WebSocket data:', error);
+        }
+      );
+    }
   }
 
   populateRooms(data: Room[]) {
     this.rooms = this.fixedRooms.map((roomNumber) => {
-      const existingRoom = data.find((room) => room.RoomNumber === roomNumber);
+      const numericRoomNumber = this.convertRoomNumberToNumeric(roomNumber);
+      const existingRoom = data.find((room) => room.RoomNumber === numericRoomNumber);
       return existingRoom
         ? {
             ...existingRoom,
+            RoomNumber: this.convertNumericToRoomNumber(existingRoom.RoomNumber),
             Stage: this.calculateStage(existingRoom.Date),
             Scoops: this.calculateScoops(existingRoom.Date),
             Bottles: this.calculateBottles(existingRoom.Date),
@@ -83,6 +108,20 @@ export class FoodandhydrationComponent implements OnInit {
     });
   }
 
+  private convertRoomNumberToNumeric(roomNumber: number | string): number | undefined {
+    if (typeof roomNumber === 'string') {
+      return this.roomDisplayNames[roomNumber] ?? undefined;
+    }
+    return typeof roomNumber === 'number' ? roomNumber : undefined;
+  }
+
+  private convertNumericToRoomNumber(numericRoomNumber: number | string): number | string {
+    if (typeof numericRoomNumber === 'number') {
+      return this.reverseRoomDisplayNames[numericRoomNumber] ?? numericRoomNumber;
+    }
+    return numericRoomNumber;
+  }
+
   private calculateStage(stockDate?: string): string {
     if (!stockDate) return 'Unknown';
     const startDate = new Date(stockDate);
@@ -94,6 +133,7 @@ export class FoodandhydrationComponent implements OnInit {
     else if (daysDiff < 28) return 'Medium';
     else if (daysDiff < 35) return 'Large';
     else if (daysDiff < 42) return 'Breeders';
+    else if (daysDiff < 49) return 'Eggpots';
     else return '-----';
   }
 

@@ -8,9 +8,8 @@ describe('QRcodeComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [QRcodeComponent]
-    })
-    .compileComponents();
+      imports: [QRcodeComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(QRcodeComponent);
     component = fixture.componentInstance;

@@ -1,50 +1,238 @@
 import { Component } from '@angular/core';
 import { ZXingScannerModule } from '@zxing/ngx-scanner';
-import { ApiService } from '../api.service'; // Importing the service to get data
+import { ApiService } from '../api.service';
+import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { MinutesSecondsPipe } from '../minutes-seconds.pipe'; // Import the pipe
 
 @Component({
   selector: 'app-qrcode',
   standalone: true,
-  imports: [CommonModule,ZXingScannerModule],
   templateUrl: './qrcode.component.html',
-  styleUrl: './qrcode.component.css',
+  styleUrls: ['./qrcode.component.css'],
+  imports: [CommonModule, ZXingScannerModule, MinutesSecondsPipe], // Add the pipe here
 })
 export class QRcodeComponent {
-  constructor(private apiService: ApiService) {} // Injecting the ApiService
-  showModal: boolean = false;
-  roomData: any = null;
+  isScannerOpen = true; // Controls whether the camera is open
+  roomData: any = null; // Scanned room data
   scannerResult: string | null = null;
-  isShow(): boolean{
-    return this.showModal
+  scanSuccess = false; // Indicates whether the scan was successful
+  scanError = false; // Flag for showing an error message
+  scanErrorMessage = ''; // Error message to display
+
+  foodTimer: any = null;
+  waterTimer: any = null;
+  foodStartTime: Date | null = null;
+  waterStartTime: Date | null = null;
+  waterEndTime: Date | null = null;
+  foodEndTime: Date | null = null;
+  foodElapsedTime: number = 0; // Time elapsed in seconds for food
+  waterElapsedTime: number = 0; // Time elapsed in seconds for water
+  isFoodTimerRunning = false;
+  isWaterTimerRunning = false;
+  status: string = 'Vacant';
+
+  constructor(private apiService: ApiService, private router: Router) {}
+
+  // Opens the scanner
+  openQrScanner() {
+    this.isScannerOpen = true;
+    this.roomData = null; // Resets the room data
+    this.scanSuccess = false; // Reset the success flag
+    this.scanError = false; // Reset error flag
+    this.scanErrorMessage = ''; // Clear error message
+    this.resetTimers(); // Reset timers when opening scanner
   }
-  closeModal() {
-    this.showModal = false;
-  }
-  toStringRoomData(){
-    if(this.roomData != null){
-      return JSON.stringify(this.roomData)
-    }else{
-      return ''
-    }
-  }
+
+  // Handles the result of the scanned QR code
   onCodeResult(resultString: string) {
-    this.scannerResult = resultString.trim();
-    console.log(resultString);
-    if (new RegExp(/^ITPT324GC2\s\d+$/).test(resultString.trim())) {
-      this.apiService.getRoomData(this.scannerResult.split(' ')[this.scannerResult.split(' ').length-1]).subscribe(
-        (initialData) => {
-          console.log('Initial data:', initialData);
-          this.showModal = true;
-          this.roomData = initialData;
-        },
-        (error) => {
-          console.error('Error fetching initial data:', error);
-          alert(error.error.message);
-        }
-      );
-    }else{
-      alert('Error of QRcode');
+    this.scannerResult = resultString;
+    console.log('Scanned QR:', resultString);
+
+    // Reset error and success states
+    this.scanError = false;
+    this.scanSuccess = false;
+
+    // Map N1 to 1001 and N2 to 1002
+    let roomNumber: number;
+    if (resultString === 'N1') {
+      roomNumber = 1001;
+    } else if (resultString === 'N2') {
+      roomNumber = 1002;
+    } else if (!isNaN(Number(resultString))) {
+      roomNumber = Number(resultString);
+    } else {
+      this.scanError = true;
+      this.scanErrorMessage = 'Invalid QR code';
+      return;
     }
+
+    // Fetch the room data based on the mapped room number
+    this.apiService.getRoomData(roomNumber).subscribe(
+      (data) => {
+        if (!data) {
+          this.scanError = true;
+          this.scanErrorMessage = 'Room not found in the database';
+          return;
+        }
+
+        console.log('Room data:', data);
+        this.roomData = data;
+
+        this.roomData.Stage = this.calculateStage(this.roomData.Date);
+        this.roomData.Scoops = this.calculateScoops(this.roomData.Date);
+        this.roomData.Bottles = this.calculateBottles(this.roomData.Date);
+
+        // Reset timers before allowing a new scan
+        this.resetTimers();
+
+        this.scanSuccess = true; // Indicate that the scan was successful
+        this.isScannerOpen = false; // Closes the camera after scanning
+      },
+      (error) => {
+        console.error('Error fetching room data:', error);
+        this.scanError = true;
+        this.scanErrorMessage = 'Error fetching room data';
+      }
+    );
+  }
+
+  // Resets both timers
+  resetTimers() {
+    if (this.foodTimer) clearInterval(this.foodTimer);
+    if (this.waterTimer) clearInterval(this.waterTimer);
+    this.foodStartTime = null;
+    this.waterStartTime = null;
+    this.foodEndTime = null;
+    this.waterEndTime = null;
+    this.foodElapsedTime = 0;
+    this.waterElapsedTime = 0;
+    this.isFoodTimerRunning = false;
+    this.isWaterTimerRunning = false;
+    this.status = 'Vacant';
+  }
+
+  // Start or stop the food timer
+  // Start or stop the food timer
+  toggleFoodTimer() {
+    if (this.isFoodTimerRunning) {
+      // Stop the timer and set the end time
+      clearInterval(this.foodTimer);
+      this.foodEndTime = new Date(); // Set the end time correctly
+      this.isFoodTimerRunning = false;
+      this.updateStatus();
+    } else {
+      if (this.isWaterTimerRunning) return; // Prevent starting if water timer is running
+      this.foodStartTime = new Date(); // Set the start time
+      this.foodEndTime = null; // Reset the end time
+      this.foodElapsedTime = 0; // Reset elapsed time
+      this.isFoodTimerRunning = true;
+      this.foodTimer = setInterval(() => {
+        this.foodElapsedTime = Math.floor(
+          (new Date().getTime() - this.foodStartTime!.getTime()) / 1000
+        );
+      }, 1000);
+      this.updateStatus();
+    }
+  }
+
+  // Start or stop the water timer
+  toggleWaterTimer() {
+    if (this.isWaterTimerRunning) {
+      // Stop the timer and set the end time
+      clearInterval(this.waterTimer);
+      this.waterEndTime = new Date(); // Set the end time correctly
+      this.isWaterTimerRunning = false;
+      this.updateStatus();
+    } else {
+      if (this.isFoodTimerRunning) return; // Prevent starting if food timer is running
+      this.waterStartTime = new Date(); // Set the start time
+      this.waterEndTime = null; // Reset the end time
+      this.waterElapsedTime = 0; // Reset elapsed time
+      this.isWaterTimerRunning = true;
+      this.waterTimer = setInterval(() => {
+        this.waterElapsedTime = Math.floor(
+          (new Date().getTime() - this.waterStartTime!.getTime()) / 1000
+        );
+      }, 1000);
+      this.updateStatus();
+    }
+  }
+  updateStatus() {
+    this.status =
+      this.isFoodTimerRunning || this.isWaterTimerRunning
+        ? 'Occupied'
+        : 'Vacant';
+  }
+
+  // Helper function to format elapsed time
+  formatTime(seconds: number): string {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs
+      .toString()
+      .padStart(2, '0')}`;
+  }
+
+  // Go back to the previous page
+  goBack() {
+    this.router.navigate(['/fyh']);
+  }
+
+  // Helper functions to calculate data (unchanged from your original code)
+  private calculateStage(stockDate?: string): string {
+    if (!stockDate) return 'Unknown';
+    const startDate = new Date(stockDate);
+    const currentDate = this.adjustToNearestFeedingDay(new Date());
+    const daysDiff = this.getDaysDifference(startDate, currentDate);
+    if (daysDiff < 2) return 'Babies';
+    else if (daysDiff < 7) return 'Extra Small';
+    else if (daysDiff < 14) return 'Small';
+    else if (daysDiff < 28) return 'Medium';
+    else if (daysDiff < 35) return 'Large';
+    else if (daysDiff < 42) return 'Breeders';
+    else if (daysDiff < 49) return 'Eggpots';
+    else return '-----';
+  }
+
+  private calculateScoops(stockDate?: string): string {
+    if (!stockDate) return 'Unknown';
+    const startDate = new Date(stockDate);
+    const currentDate = this.adjustToNearestFeedingDay(new Date());
+    const daysDiff = this.getDaysDifference(startDate, currentDate);
+    if (daysDiff < 8) return '1/2';
+    else if (daysDiff < 15) return '1';
+    else if (daysDiff < 22) return '1-1/2';
+    else if (daysDiff < 29) return '2';
+    else if (daysDiff < 40) return '2-1/2';
+    else if (daysDiff < 45) return '1/2';
+    else return 'Unknown';
+  }
+
+  private calculateBottles(stockDate?: string): string {
+    if (!stockDate) return 'Unknown';
+    const startDate = new Date(stockDate);
+    const currentDate = this.adjustToNearestFeedingDay(new Date());
+    const daysDiff = this.getDaysDifference(startDate, currentDate);
+    if (daysDiff < 14) return 'Sponge';
+    else if (daysDiff < 29) return '2 Rings';
+    else if (daysDiff < 50) return '1 Ring';
+    else return 'Unknown';
+  }
+
+  private adjustToNearestFeedingDay(date: Date): Date {
+    const day = date.getDay();
+    if (day === 2) {
+      date.setDate(date.getDate() + 1);
+    } else if (day === 0 || day === 4 || day === 6) {
+      const daysToAdd = (1 + 7 - day) % 7;
+      date.setDate(date.getDate() + daysToAdd);
+    }
+    return date;
+  }
+
+  private getDaysDifference(startDate: Date, currentDate: Date): number {
+    const msPerDay = 1000 * 60 * 60 * 24;
+    return Math.floor((currentDate.getTime() - startDate.getTime()) / msPerDay);
   }
 }

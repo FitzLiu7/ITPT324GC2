@@ -1,8 +1,236 @@
-body {
-  font-family: "Poppins", sans-serif;
-  background-color: rgb(242, 242, 242);
-}
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Body Styles */
+body {
+  font-family: "Poppins", sans-serif; /* Use Poppins font for the entire body */
+  background-color: rgb(242, 242, 242); /* Light background color */
+}
+
+/* Floating Add Button Styles */
+.floating-add-button {
+  position: fixed; /* Keeps button in a fixed position */
+  bottom: 2rem; /* Positions it 2rem from the bottom */
+  right: 2rem; /* Positions it 2rem from the right */
+  z-index: 1000; /* Ensures the button stays on top of other elements */
+}
+
+/* Dashboard Styles */
+.dashboard {
+  margin-top: 6rem; /* Adds top margin to adjust for the top bar */
+  margin-left: 12rem; /* Adds left margin to account for the sidebar */
+  justify-items: center; /* Centers grid items */
+}
+
+/* Room Box Styles */
+.room {
+  width: 100%; /* Makes the room box fit within the grid cell */
+  max-width: 320px; /* Sets a maximum width */
+  margin: 0 auto; /* Centers the room box within the grid cell */
+  padding: 1.5rem; /* Adds padding to the box */
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Adds a subtle shadow */
+}
+
+/* Responsive Adjustments for Different Screen Sizes */
+/* For screens with max width of 640px (small devices) */
+@media (max-width: 640px) {
+  .dashboard {
+    margin-left: 5rem; /* Smaller left margin for mobile devices */
+    margin-top: 4rem; /* Adjust top margin */
+  }
+}
+
+/* For screens between 641px and 1024px (tablets) */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .dashboard {
+    margin-left: 8rem; /* Adjust left margin for tablets */
+  }
+}
+
+/* Food & Hydration Dashboard Table Styles */
+.foodandhydration-dashboard {
+  margin-top: 5rem; /* Adds margin to adjust for top bar */
+  margin-left: 7rem; /* Adjusts for the sidebar */
+  margin-right: 2rem; /* Adds right margin */
+  overflow-x: auto; /* Enables horizontal scrolling */
+  max-width: 100%; /* Ensures the table fits within the screen */
+}
+
+.table {
+  width: 100%; /* Full width table */
+  border-collapse: collapse; /* Ensures that table borders collapse */
+}
+
+/* Table Header Styles */
+.table th {
+  padding: 0.75rem; /* Padding inside each table header cell */
+  background-color: #42bd16; /* Sets green background for header */
+  color: white; /* Text color */
+  font-size: 1.1rem; /* Font size for headers */
+  font-weight: bold; /* Bold text */
+  text-align: center; /* Centers text */
+  border-bottom: 1px solid #ddd; /* Adds border to the bottom */
+  white-space: nowrap; /* Prevents text wrapping in header */
+}
+
+/* Table Body Cell Styles */
+.table td {
+  padding: 0.75rem; /* Padding inside each table cell */
+  font-size: 1.1rem; /* Font size for body text */
+  text-align: center; /* Centers text */
+  border-bottom: 1px solid #ddd; /* Adds border to the bottom */
+  white-space: nowrap; /* Prevents text wrapping */
+}
+
+/* Responsive Adjustments for Tables */
+/* Phones (max-width: 640px) */
+@media (max-width: 640px) {
+  .foodandhydration-dashboard {
+    margin-top: 3rem;
+    margin-left: 5rem; /* Adjusts left margin for mobile */
+    margin-right: 1rem; /* Adds smaller right margin */
+    overflow-x: auto; /* Enables horizontal scrolling */
+  }
+
+  .table {
+    width: 100%;
+    display: block; /* Makes the table block for easier stacking */
+  }
+
+  /* Smaller text and padding for mobile */
+  .table th,
+  .table td {
+    padding: 0.5rem;
+    font-size: 0.9rem; /* Smaller font size for mobile */
+  }
+
+  /* Ensure headers stay visible */
+  .table th {
+    position: relative;
+    top: 0;
+    background-color: #42bd16;
+    z-index: 10; /* Keeps headers above the content when scrolling */
+  }
+
+  .table td {
+    padding: 0.6rem;
+    font-size: 0.9rem; /* Adjusted text size for table data */
+  }
+}
+
+/* Tablets (641px - 1024px) */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .foodandhydration-dashboard {
+    margin-top: 4rem;
+    margin-left: 6rem; /* Adjusted margin for tablets */
+    margin-right: 2rem;
+  }
+
+  .table {
+    width: 100%;
+  }
+
+  /* Slightly smaller padding and font for tablets */
+  .table th,
+  .table td {
+    padding: 0.6rem;
+    font-size: 1rem;
+  }
+}
+
+/* Large screens (min-width: 1025px) */
+@media (min-width: 1025px) {
+  .foodandhydration-dashboard {
+    margin-top: 5rem;
+    margin-left: 7rem;
+    margin-right: 3rem;
+  }
+
+  .table th,
+  .table td {
+    font-size: 1.1rem;
+    padding: 0.75rem;
+  }
+}
+
+/* Modal Styles for Small Devices */
+/* For screens up to 768px */
+@media (max-width: 768px) {
+  .modal-content {
+    width: 70%; /* Reduce modal width */
+    padding: 1rem; /* Reduce padding */
+  }
+
+  .modal-header h2 {
+    font-size: 1.5rem; /* Smaller title size */
+  }
+
+  .modal-header button {
+    font-size: 1.5rem; /* Adjust close button size */
+  }
+
+  .form-group input,
+  .form-group select {
+    font-size: 0.9rem; /* Adjust input text size */
+    padding: 0.5rem; /* Smaller padding */
+  }
+
+  .form-actions button {
+    font-size: 0.9rem; /* Smaller font for buttons */
+    padding: 0.5rem 1rem; /* Adjust button padding */
+  }
+
+  .modal-backdrop {
+    backdrop-filter: blur(3px); /* Adds a subtle blur to the backdrop */
+  }
+}
+
+/* For very small screens (up to 640px) */
+@media (max-width: 640px) {
+  .modal-content {
+    width: 95%; /* Maximize modal width for small screens */
+    padding: 1rem; /* Reduce padding */
+  }
+
+  .form-group input,
+  .form-group select {
+    font-size: 0.85rem; /* Smaller input text size */
+  }
+
+  .modal-header h2 {
+    font-size: 1.3rem; /* Smaller modal title size */
+  }
+
+  .modal-header button {
+    font-size: 1.3rem; /* Adjust close button size */
+  }
+}
+
+/* Media query for screens smaller than 768px */
+@media (max-width: 768px) {
+  .foodandhydration-dashboard table {
+    display: none;
+  }
+
+  .mobile-message {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 85vh;
+    padding: 0 0rem 0 3.5rem;
+  }
+
+  .mobile-message p {
+    font-size: 1.25rem;
+    color: #4a5568;
+  }
+
+  app-qr-floating-button {
+    display: block;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 100;
+  }
+}

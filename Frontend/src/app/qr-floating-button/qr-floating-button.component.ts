@@ -1,26 +1,17 @@
 import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router'; // Import the Router
 
 @Component({
   selector: 'app-qr-floating-button',
   standalone: true,
   templateUrl: './qr-floating-button.component.html',
   styleUrls: ['./qr-floating-button.component.css'],
-  imports: [CommonModule],
 })
 export class QrFloatingButtonComponent {
-  menuOpen = false;
-  currentModal: 'add' | 'update' | 'release' | null = null;
-
-  toggleMenu() {
-    this.menuOpen = !this.menuOpen;
-  }
-
-  closeModal() {
-    this.currentModal = null;
-  }
+  constructor(private router: Router) {}
 
   openQrScanner() {
-    // Your QR scanner logic here
+    // Navigate to the QR scanner page
+    this.router.navigate(['/QRcode']);
   }
 }

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { AddModalComponent } from '../modals/add-modal/add-modal.component';
 import { UpdateModalComponent } from '../modals/update-modal/update-modal.component';
 import { ReleaseModalComponent } from '../modals/release-modal/release-modal.component';
+import { AuthService } from '../services/auth/auth.service';
 
 @Component({
   selector: 'app-floating-button', // Selector to use this component in templates
@@ -19,6 +20,15 @@ import { ReleaseModalComponent } from '../modals/release-modal/release-modal.com
 export class FloatingButtonComponent {
   menuOpen = false; // Tracks whether the floating menu is open or closed
   currentModal: 'add' | 'update' | 'release' | null = null; // Tracks which modal is currently open, if any
+  userRole: string | null = null; // Variable to store the user's role
+
+constructor(private authService: AuthService) {} // Inject AuthService
+
+  ngOnInit(): void {
+    // Get the current user's role on component initialization
+    const currentUser = this.authService.getCurrentUser();
+    this.userRole = currentUser?.role || null; // Assign user role if available
+  }
 
   // Toggles the floating menu's visibility
   toggleMenu() {

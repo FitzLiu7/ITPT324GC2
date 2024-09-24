@@ -69,10 +69,22 @@ export default class DashboardComponent implements OnInit {
   // Function to fill in room data, ensuring all fixed rooms are represented
   populateRooms(data: Room[]) {
     this.rooms = this.fixedRooms.map((roomNumber) => {
+      // Map N1 and N2 to numeric equivalents to match backend data
+      const mappedRoomNumber =
+        roomNumber === 'N1' ? 1001 : roomNumber === 'N2' ? 1002 : roomNumber;
+
       // Find the room data if it exists in the incoming data
-      const existingRoom = data.find((room) => room.RoomNumber === roomNumber);
+      const existingRoom = data.find(
+        (room) => room.RoomNumber === mappedRoomNumber
+      );
+
+      // Return the room data or a default room object
       return existingRoom
-        ? { ...existingRoom, Stage: this.calculateStage(existingRoom.Date) }
+        ? {
+            ...existingRoom,
+            RoomNumber: roomNumber,
+            Stage: this.calculateStage(existingRoom.Date),
+          }
         : { RoomNumber: roomNumber, Stock: 0, Week: 0, Stage: '-' };
     });
   }
@@ -92,6 +104,7 @@ export default class DashboardComponent implements OnInit {
     else if (daysDiff < 28) return 'Medium';
     else if (daysDiff < 35) return 'Large';
     else if (daysDiff < 42) return 'Breeders';
+    else if (daysDiff < 49) return 'Eggpots';
     else return '-----'; // Return a placeholder if it doesn't match any stage
   }
 

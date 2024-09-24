@@ -3,13 +3,14 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, Subject } from 'rxjs';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 import { debounceTime, switchMap } from 'rxjs/operators';
+import { environment } from '../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ApiService {
-  private apiUrl = 'http://localhost:3000'; //api url
-  private wsUrl = 'ws://localhost:3000'; //Websocket url
+  private apiUrl = environment.apiUrl; // Dynamically set API URL
+  private wsUrl = environment.wsUrl; // Dynamically set WebSocket URL
   private socket$: WebSocketSubject<any>;
   private dataSubject = new Subject<any>(); // Subject to emit data updates
 

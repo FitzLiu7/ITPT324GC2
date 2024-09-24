@@ -13,7 +13,7 @@ import { ApiService } from '../../api.service';
 export class AddModalComponent implements OnInit {
   @Output() close = new EventEmitter<void>();
 
-  RoomNumber?: number;
+  RoomNumber?: number | string;
   Week: number = 0;
   Stock: number = 0;
   FoodType: string = '1/2';
@@ -22,7 +22,7 @@ export class AddModalComponent implements OnInit {
   Date: string = '';
   StockType: string = '';
 
-  availableRooms: number[] = [];
+  availableRooms: (number | string)[] = [];
   stockTypes: string[] = ['Breeders', 'Sales'];
 
   showErrors: boolean = false;
@@ -30,7 +30,25 @@ export class AddModalComponent implements OnInit {
   constructor(private apiService: ApiService) {}
 
   ngOnInit() {
-    this.availableRooms = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
+    this.availableRooms = [
+      'N1',
+      'N2',
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+    ];
     this.Week = this.getWeekNumber(new Date());
   }
 
@@ -46,8 +64,15 @@ export class AddModalComponent implements OnInit {
       return;
     }
 
+    let mappedRoomNumber = this.RoomNumber;
+    if (this.RoomNumber === 'N1') {
+      mappedRoomNumber = 1001; // Assign N1 to a numeric value
+    } else if (this.RoomNumber === 'N2') {
+      mappedRoomNumber = 1002; // Assign N2 to a numeric value
+    }
+
     let obj = {
-      RoomNumber: Number(this.RoomNumber),
+      RoomNumber: Number(mappedRoomNumber),
       Week: this.Week,
       Stock: this.Stock,
       FoodType: this.FoodType,
