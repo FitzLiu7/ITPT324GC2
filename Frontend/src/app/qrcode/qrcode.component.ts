@@ -4,16 +4,26 @@ import { ApiService } from '../api.service';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MinutesSecondsPipe } from '../minutes-seconds.pipe';
+<<<<<<< Updated upstream
 import {getCurrentUser} from "aws-amplify/auth"; // Import the pipe
+=======
+import { DataSharingService } from '../services/data-sharing.service';
+import { AuthService } from '../services/auth/auth.service';
+>>>>>>> Stashed changes
 
 @Component({
   selector: 'app-qrcode',
   standalone: true,
   templateUrl: './qrcode.component.html',
   styleUrls: ['./qrcode.component.css'],
-  imports: [CommonModule, ZXingScannerModule, MinutesSecondsPipe], // Add the pipe here
+  imports: [CommonModule, ZXingScannerModule, MinutesSecondsPipe],
 })
+<<<<<<< Updated upstream
 export class QRcodeComponent implements OnInit {
+=======
+export class QRcodeComponent {
+  currentUser: any;
+>>>>>>> Stashed changes
   isScannerOpen = true; // Controls whether the camera is open
   roomData: any = null; // Scanned room data
   scannerResult: string | null = null;
@@ -32,10 +42,26 @@ export class QRcodeComponent implements OnInit {
   isFoodTimerRunning = false;
   isWaterTimerRunning = false;
   status: string = 'Vacant';
+<<<<<<< Updated upstream
   taskList: Array<any> = [];
   currentUserTask: any  = {};
   currentRoomNumber: number= 0 ;
   constructor(private apiService: ApiService, private router: Router) {}
+=======
+
+  constructor(
+    private apiService: ApiService,
+    private router: Router,
+    private dataSharingService: DataSharingService,
+    private authService: AuthService // Fixed the typo here
+  ) {}
+
+  ngOnInit(): void {
+    // Get the current user from AuthService
+    this.currentUser = this.authService.getCurrentUser();
+    console.log('Logged in user:', this.currentUser); // Debugging log
+  }
+>>>>>>> Stashed changes
 
   ngOnInit() {
     this.currentAuthenticatedUser()
@@ -125,6 +151,9 @@ export class QRcodeComponent implements OnInit {
 
         this.scanSuccess = true; // Indicate that the scan was successful
         this.isScannerOpen = false; // Closes the camera after scanning
+
+        // Update the shared data service with the scanned data
+        this.updateSharedData();
       },
       (error) => {
         console.error('Error fetching room data:', error);
@@ -149,10 +178,23 @@ export class QRcodeComponent implements OnInit {
     this.status = 'Vacant';
   }
 
+<<<<<<< Updated upstream
+=======
+  // Helper function to format elapsed time
+  formatTime(seconds: number): string {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs
+      .toString()
+      .padStart(2, '0')}`;
+  }
+
+>>>>>>> Stashed changes
   // Start or stop the food timer
   toggleFoodTimer() {
 
     if (this.isFoodTimerRunning) {
+<<<<<<< Updated upstream
 
       let params = {
         userName: this.userName,
@@ -167,6 +209,8 @@ export class QRcodeComponent implements OnInit {
       )
 
       // Stop the timer and set the end time
+=======
+>>>>>>> Stashed changes
       clearInterval(this.foodTimer);
       this.foodEndTime = new Date(); // Set the end time correctly
       this.isFoodTimerRunning = false;
@@ -194,6 +238,7 @@ export class QRcodeComponent implements OnInit {
       }
 
     }
+<<<<<<< Updated upstream
 
     this.foodStartTime = new Date(); // Set the start time
     this.foodEndTime = null; // Reset the end time
@@ -205,12 +250,14 @@ export class QRcodeComponent implements OnInit {
       );
     }, 1000);
     this.updateStatus();
+=======
+    this.updateSharedData(); // Update shared data whenever the timer changes
+>>>>>>> Stashed changes
   }
 
   // Start or stop the water timer
   toggleWaterTimer() {
     if (this.isWaterTimerRunning) {
-      // Stop the timer and set the end time
       clearInterval(this.waterTimer);
       this.waterEndTime = new Date(); // Set the end time correctly
       this.isWaterTimerRunning = false;
@@ -228,7 +275,9 @@ export class QRcodeComponent implements OnInit {
       }, 1000);
       this.updateStatus();
     }
+    this.updateSharedData(); // Update shared data whenever the timer changes
   }
+
   updateStatus() {
     this.status =
       this.isFoodTimerRunning || this.isWaterTimerRunning
@@ -236,13 +285,25 @@ export class QRcodeComponent implements OnInit {
         : 'Vacant';
   }
 
-  // Helper function to format elapsed time
-  formatTime(seconds: number): string {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs
-      .toString()
-      .padStart(2, '0')}`;
+  // Function to update the shared data service
+  updateSharedData() {
+    const dataToShare = {
+      username: this.currentUser?.username || 'Unknown User', // Use currentUser's username
+      room: this.roomData?.RoomNumber || '',
+      startTime: this.foodStartTime || this.waterStartTime,
+      endTime: this.foodEndTime || this.waterEndTime,
+      task: this.isFoodTimerRunning
+        ? 'Food'
+        : this.isWaterTimerRunning
+        ? 'Water'
+        : 'None',
+      elapsedTime: this.isFoodTimerRunning
+        ? this.foodElapsedTime
+        : this.waterElapsedTime,
+      status: this.status,
+    };
+    console.log('Data to share:', dataToShare); // Debug log
+    this.dataSharingService.updateScannedData(dataToShare);
   }
 
   // Go back to the previous page

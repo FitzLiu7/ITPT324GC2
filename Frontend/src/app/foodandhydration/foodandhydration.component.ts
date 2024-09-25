@@ -41,21 +41,24 @@ export class FoodandhydrationComponent implements OnInit {
     15,
   ];
 
-  userRole: string = '';  // Store the user role
+  userRole: string = ''; // Store the user role
 
   // Map for converting display names to numeric values and vice versa
   roomDisplayNames: { [key: string]: number } = {
-    'N1': 1001,
-    'N2': 1002,
+    N1: 1001,
+    N2: 1002,
   };
-  
+
   // Map for converting numeric values back to display names
   reverseRoomDisplayNames: { [key: number]: string } = {
     1001: 'N1',
     1002: 'N2',
   };
 
-  constructor(private apiService: ApiService, private authService: AuthService) {}
+  constructor(
+    private apiService: ApiService,
+    private authService: AuthService
+  ) {}
 
   ngOnInit() {
     // Get the current user's role
@@ -64,7 +67,8 @@ export class FoodandhydrationComponent implements OnInit {
       this.userRole = currentUser.role;
     }
 
-    if (this.userRole !== 'Staff') {  // Only load data if not 'Staff'
+    if (currentUser) {
+      // Only load data if not 'Staff'
       this.apiService.getList().subscribe(
         (initialData) => {
           this.populateRooms(initialData);
@@ -88,11 +92,15 @@ export class FoodandhydrationComponent implements OnInit {
   populateRooms(data: Room[]) {
     this.rooms = this.fixedRooms.map((roomNumber) => {
       const numericRoomNumber = this.convertRoomNumberToNumeric(roomNumber);
-      const existingRoom = data.find((room) => room.RoomNumber === numericRoomNumber);
+      const existingRoom = data.find(
+        (room) => room.RoomNumber === numericRoomNumber
+      );
       return existingRoom
         ? {
             ...existingRoom,
-            RoomNumber: this.convertNumericToRoomNumber(existingRoom.RoomNumber),
+            RoomNumber: this.convertNumericToRoomNumber(
+              existingRoom.RoomNumber
+            ),
             Stage: this.calculateStage(existingRoom.Date),
             Scoops: this.calculateScoops(existingRoom.Date),
             Bottles: this.calculateBottles(existingRoom.Date),
@@ -108,16 +116,22 @@ export class FoodandhydrationComponent implements OnInit {
     });
   }
 
-  private convertRoomNumberToNumeric(roomNumber: number | string): number | undefined {
+  private convertRoomNumberToNumeric(
+    roomNumber: number | string
+  ): number | undefined {
     if (typeof roomNumber === 'string') {
       return this.roomDisplayNames[roomNumber] ?? undefined;
     }
     return typeof roomNumber === 'number' ? roomNumber : undefined;
   }
 
-  private convertNumericToRoomNumber(numericRoomNumber: number | string): number | string {
+  private convertNumericToRoomNumber(
+    numericRoomNumber: number | string
+  ): number | string {
     if (typeof numericRoomNumber === 'number') {
-      return this.reverseRoomDisplayNames[numericRoomNumber] ?? numericRoomNumber;
+      return (
+        this.reverseRoomDisplayNames[numericRoomNumber] ?? numericRoomNumber
+      );
     }
     return numericRoomNumber;
   }
