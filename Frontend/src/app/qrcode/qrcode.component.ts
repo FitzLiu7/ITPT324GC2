@@ -150,7 +150,6 @@ export class QRcodeComponent implements OnInit {
   }
 
   // Start or stop the food timer
-  // Start or stop the food timer
   toggleFoodTimer() {
 
     if (this.isFoodTimerRunning) {
@@ -184,7 +183,7 @@ export class QRcodeComponent implements OnInit {
         roomNumber: this.currentRoomNumber as number,
       }
       this.currentUserTask = params
-      if (Object.keys(this.currentUserTask).length > 0)
+      if (Object.keys(this.currentUserTask).length > 0){
         this.apiService.updateStaffTask(params).subscribe(
           // success ...
         )
@@ -194,17 +193,18 @@ export class QRcodeComponent implements OnInit {
         )
       }
 
-      this.foodStartTime = new Date(); // Set the start time
-      this.foodEndTime = null; // Reset the end time
-      this.foodElapsedTime = 0; // Reset elapsed time
-      this.isFoodTimerRunning = true;
-      this.foodTimer = setInterval(() => {
-        this.foodElapsedTime = Math.floor(
-          (new Date().getTime() - this.foodStartTime!.getTime()) / 1000
-        );
-      }, 1000);
-      this.updateStatus();
     }
+
+    this.foodStartTime = new Date(); // Set the start time
+    this.foodEndTime = null; // Reset the end time
+    this.foodElapsedTime = 0; // Reset elapsed time
+    this.isFoodTimerRunning = true;
+    this.foodTimer = setInterval(() => {
+      this.foodElapsedTime = Math.floor(
+        (new Date().getTime() - this.foodStartTime!.getTime()) / 1000
+      );
+    }, 1000);
+    this.updateStatus();
   }
 
   // Start or stop the water timer
