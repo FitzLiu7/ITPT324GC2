@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { ApiService } from '../api.service';
 import { NgForOf } from '@angular/common';
 import { CommonModule } from '@angular/common';
@@ -8,6 +8,7 @@ import {
   FormBuilder,
   FormGroup,
   Validators,
+  AbstractControl,
 } from '@angular/forms';
 
 @Component({
@@ -21,6 +22,8 @@ export class UsermanagementComponent {
   employeeList: Array<any> = [];
   signupForm: FormGroup;
   userAddedMessage: string = '';
+  showPassword: boolean = false;
+  showConfirmPassword: boolean = false;
 
   constructor(
     private apiService: ApiService,
@@ -28,11 +31,35 @@ export class UsermanagementComponent {
     private router: Router
   ) {
     // Initialize the signup form with validation rules
-    this.signupForm = this.fb.group({
-      username: ['', [Validators.required]],
-      password: ['', [Validators.required, Validators.minLength(6)]],
-      email: ['', [Validators.required, Validators.email]],
-    });
+    this.signupForm = this.fb.group(
+      {
+        username: ['', [Validators.required]],
+        password: ['', [Validators.required, Validators.minLength(6)]],
+        confirmPassword: ['', [Validators.required]],
+        email: ['', [Validators.required, Validators.email]],
+      },
+      {
+        validators: this.passwordsMatchValidator,
+      }
+    );
+  }
+
+  // Custom validator to check if passwords match
+  passwordsMatchValidator(
+    formGroup: FormGroup
+  ): null | { passwordsMismatch: true } {
+    const password = formGroup.get('password')?.value;
+    const confirmPassword = formGroup.get('confirmPassword')?.value;
+    return password === confirmPassword ? null : { passwordsMismatch: true };
+  }
+
+  // Method to toggle show/hide password
+  toggleShowPassword(): void {
+    this.showPassword = !this.showPassword;
+  }
+
+  toggleShowConfirmPassword(): void {
+    this.showConfirmPassword = !this.showConfirmPassword;
   }
 
   // Method to handle form submission

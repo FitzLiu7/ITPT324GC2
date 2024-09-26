@@ -22,15 +22,22 @@
         </div>
       </div>
 
-      <div class="mb-3">
+      <div class="mb-3 relative">
         <label for="password" class="block font-medium">Password</label>
         <input
           id="password"
-          type="password"
+          [type]="showPassword ? 'text' : 'password'"
           formControlName="password"
           required
           class="border border-gray-300 rounded p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
+        <button
+          type="button"
+          (click)="toggleShowPassword()"
+          class="absolute right-2 top-1/2 transform -translate-y-1/2 text-sm text-blue-500"
+        >
+          {{ showPassword ? "Hide" : "Show" }}
+        </button>
         <div
           *ngIf="
             signupForm.get('password')?.invalid &&
@@ -39,6 +46,44 @@
           class="text-red-500 text-sm"
         >
           Password must be at least 6 characters long.
+        </div>
+      </div>
+
+      <div class="mb-3 relative">
+        <label for="confirmPassword" class="block font-medium"
+          >Confirm Password</label
+        >
+        <input
+          id="confirmPassword"
+          [type]="showConfirmPassword ? 'text' : 'password'"
+          formControlName="confirmPassword"
+          required
+          class="border border-gray-300 rounded p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        <button
+          type="button"
+          (click)="toggleShowConfirmPassword()"
+          class="absolute right-2 top-1/2 transform -translate-y-1/2 text-sm text-blue-500"
+        >
+          {{ showConfirmPassword ? "Hide" : "Show" }}
+        </button>
+        <div
+          *ngIf="
+            signupForm.get('confirmPassword')?.invalid &&
+            signupForm.get('confirmPassword')?.touched
+          "
+          class="text-red-500 text-sm"
+        >
+          Confirmation password is required.
+        </div>
+        <div
+          *ngIf="
+            signupForm.hasError('passwordsMismatch') &&
+            signupForm.get('confirmPassword')?.touched
+          "
+          class="text-red-500 text-sm"
+        >
+          Passwords do not match.
         </div>
       </div>
 
