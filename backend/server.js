@@ -385,6 +385,54 @@ app.put("/update-data", async (req, res) => {
     }
 });
 
+// Release a specified amount of Tubs from the Stock Table
+app.put("/release-tubs", async (req, res) => {
+    const { RoomNumber, amount } = req.body; // Destructure the room number and amount from the request body
+
+    // Validate the input
+    if (!RoomNumber || !amount || amount <= 0 || typeof amount !== 'number') {
+        return res.status(400).json({ error: "Missing required fields or invalid amount" });
+    }
+
+    const partitionKey = getPartitionKey(RoomNumber); // Get the partition key from the RoomNumber
+    if (isNaN(partitionKey)) {
+        return res.status(400).json({ error: "Invalid RoomNumber" });
+    }
+
+    const params = {
+        TableName: process.env.DYNAMODB_TABLE || "InsectProductionStock",
+        Key: {
+            RoomNumber: partitionKey, // Specify the partition key
+        },
+        // UpdateExpression to subtract the amount from Tubs stock
+        UpdateExpression: "SET #tubsStock = #tubsStock - :amount", 
+        ExpressionAttributeNames: {
+            "#tubsStock": "Tubs", // Reference to Tubs attribute
+        },
+        ExpressionAttributeValues: {
+            ":amount": amount, // The amount to subtract
+        },
+        ReturnValues: "UPDATED_NEW", // Return the updated value
+    };
+
+    try {
+        const result = await dynamoDB.update(params).promise(); // Update the stock in DynamoDB
+        if (result.Attributes) {
+            res.status(200).json({ message: "Tubs released successfully", updatedTubsStock: result.Attributes.Tubs });
+
+            // Optionally, broadcast update via WebSocket if needed
+            broadcastUpdate({ message: "Tubs released", data: { RoomNumber: partitionKey, Tubs: result.Attributes.Tubs } });
+        } else {
+            res.status(404).json({ error: "Room not found or insufficient stock" });
+        }
+    } catch (error) {
+        console.error("Error releasing tubs:", error);
+        // Enhance error handling
+        res.status(500).json({ error: `Error releasing tubs: ${error.message}` });
+    }
+});
+
+
 // User Authentication Endpoints
 app.post("/sign-up", async (req, res) => {
     const { username, password, email } = req.body;

@@ -113,7 +113,7 @@ export class ApiService {
     return this.http.put<any>(`${this.apiUrl}/update-data`, data);
   }
 
-  deleteRoomData(RoomNumber: number): Observable<any> {
-    return this.http.delete<any>(`${this.apiUrl}/delete-data/${RoomNumber}`);
+  releaseTubsFromRoom(roomNumber: number | string, amount: number): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/release-tubs`, { RoomNumber: roomNumber, amount });
   }
 }
