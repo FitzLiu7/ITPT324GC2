@@ -7,6 +7,7 @@ import { AccessDeniedComponent } from './access-denied/access-denied.component';
 import { AuthGuard } from './services/auth/auth.guard';
 import { StafftrackingComponent } from './stafftracking/stafftracking.component';
 import { ConfirmationComponent } from './confirmation/confirmation.component';
+import { UsermanagementComponent } from './usermanagement/usermanagement.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -16,5 +17,6 @@ export const routes: Routes = [
   { path: 'stafftracking', component: StafftrackingComponent },
   { path: 'access-denied', component: AccessDeniedComponent },
   { path: 'confirm', component: ConfirmationComponent },
+  { path: 'user', component: UsermanagementComponent },
   { path: '', redirectTo: '/login', pathMatch: 'full' },
 ];

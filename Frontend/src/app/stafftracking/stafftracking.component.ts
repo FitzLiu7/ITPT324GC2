@@ -73,22 +73,4 @@ export class StafftrackingComponent implements OnInit {
       }
     );
   }
-
-  // Method to handle form submission
-  onSubmit(): void {
-    if (this.signupForm.valid) {
-      const { username, password, email } = this.signupForm.value;
-
-      this.apiService.signUp(username, password, email).subscribe({
-        next: (response) => {
-          this.userAddedMessage = 'User added successfully!';
-          this.router.navigate(['/confirm'], { queryParams: { username } });
-          this.signupForm.reset(); // Reset the form after successful signup
-        },
-        error: (err) => {
-          this.userAddedMessage = 'Error adding user: ' + err.message;
-        },
-      });
-    }
-  }
 }

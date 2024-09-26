@@ -98,12 +98,12 @@ export default class DashboardComponent implements OnInit {
     const daysDiff = this.getDaysDifference(startDate, currentDate); // Calculate the difference in days
 
     // Determine the stage based on the days difference
-    if (daysDiff < 2) return 'Babies';
-    else if (daysDiff < 7) return 'Extra Small';
+    if (daysDiff < 3) return 'Babies';
+    else if (daysDiff < 8) return 'Extra Small';
     else if (daysDiff < 14) return 'Small';
-    else if (daysDiff < 28) return 'Medium';
-    else if (daysDiff < 35) return 'Large';
-    else if (daysDiff < 42) return 'Breeders';
+    else if (daysDiff < 21) return 'Medium';
+    else if (daysDiff < 28) return 'Large';
+    else if (daysDiff < 35) return 'Breeders';
     else if (daysDiff < 49) return 'Eggpots';
     else return '-----'; // Return a placeholder if it doesn't match any stage
   }

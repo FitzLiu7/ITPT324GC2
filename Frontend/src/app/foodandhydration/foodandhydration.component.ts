@@ -41,21 +41,24 @@ export class FoodandhydrationComponent implements OnInit {
     15,
   ];
 
-  userRole: string = '';  // Store the user role
+  userRole: string = ''; // Store the user role
 
   // Map for converting display names to numeric values and vice versa
   roomDisplayNames: { [key: string]: number } = {
-    'N1': 1001,
-    'N2': 1002,
+    N1: 1001,
+    N2: 1002,
   };
-  
+
   // Map for converting numeric values back to display names
   reverseRoomDisplayNames: { [key: number]: string } = {
     1001: 'N1',
     1002: 'N2',
   };
 
-  constructor(private apiService: ApiService, private authService: AuthService) {}
+  constructor(
+    private apiService: ApiService,
+    private authService: AuthService
+  ) {}
 
   ngOnInit() {
     // Get the current user's role
@@ -64,7 +67,8 @@ export class FoodandhydrationComponent implements OnInit {
       this.userRole = currentUser.role;
     }
 
-    if (this.userRole !== 'Staff') {  // Only load data if not 'Staff'
+    if (this.userRole !== 'Staff') {
+      // Only load data if not 'Staff'
       this.apiService.getList().subscribe(
         (initialData) => {
           this.populateRooms(initialData);
@@ -88,11 +92,15 @@ export class FoodandhydrationComponent implements OnInit {
   populateRooms(data: Room[]) {
     this.rooms = this.fixedRooms.map((roomNumber) => {
       const numericRoomNumber = this.convertRoomNumberToNumeric(roomNumber);
-      const existingRoom = data.find((room) => room.RoomNumber === numericRoomNumber);
+      const existingRoom = data.find(
+        (room) => room.RoomNumber === numericRoomNumber
+      );
       return existingRoom
         ? {
             ...existingRoom,
-            RoomNumber: this.convertNumericToRoomNumber(existingRoom.RoomNumber),
+            RoomNumber: this.convertNumericToRoomNumber(
+              existingRoom.RoomNumber
+            ),
             Stage: this.calculateStage(existingRoom.Date),
             Scoops: this.calculateScoops(existingRoom.Date),
             Bottles: this.calculateBottles(existingRoom.Date),
@@ -108,33 +116,42 @@ export class FoodandhydrationComponent implements OnInit {
     });
   }
 
-  private convertRoomNumberToNumeric(roomNumber: number | string): number | undefined {
+  private convertRoomNumberToNumeric(
+    roomNumber: number | string
+  ): number | undefined {
     if (typeof roomNumber === 'string') {
       return this.roomDisplayNames[roomNumber] ?? undefined;
     }
     return typeof roomNumber === 'number' ? roomNumber : undefined;
   }
 
-  private convertNumericToRoomNumber(numericRoomNumber: number | string): number | string {
+  private convertNumericToRoomNumber(
+    numericRoomNumber: number | string
+  ): number | string {
     if (typeof numericRoomNumber === 'number') {
-      return this.reverseRoomDisplayNames[numericRoomNumber] ?? numericRoomNumber;
+      return (
+        this.reverseRoomDisplayNames[numericRoomNumber] ?? numericRoomNumber
+      );
     }
     return numericRoomNumber;
   }
 
   private calculateStage(stockDate?: string): string {
-    if (!stockDate) return 'Unknown';
-    const startDate = new Date(stockDate);
-    const currentDate = this.adjustToNearestFeedingDay(new Date());
-    const daysDiff = this.getDaysDifference(startDate, currentDate);
-    if (daysDiff < 2) return 'Babies';
-    else if (daysDiff < 7) return 'Extra Small';
+    if (!stockDate) return 'Unknown'; // Return 'Unknown' if no date is provided
+
+    const startDate = new Date(stockDate); // Convert stockDate to a Date object
+    const currentDate = new Date(); // Get the current date
+    const daysDiff = this.getDaysDifference(startDate, currentDate); // Calculate the difference in days
+
+    // Determine the stage based on the days difference
+    if (daysDiff < 3) return 'Babies';
+    else if (daysDiff < 8) return 'Extra Small';
     else if (daysDiff < 14) return 'Small';
-    else if (daysDiff < 28) return 'Medium';
-    else if (daysDiff < 35) return 'Large';
-    else if (daysDiff < 42) return 'Breeders';
+    else if (daysDiff < 21) return 'Medium';
+    else if (daysDiff < 28) return 'Large';
+    else if (daysDiff < 35) return 'Breeders';
     else if (daysDiff < 49) return 'Eggpots';
-    else return '-----';
+    else return '-----'; // Return a placeholder if it doesn't match any stage
   }
 
   private calculateScoops(stockDate?: string): string {
@@ -142,11 +159,11 @@ export class FoodandhydrationComponent implements OnInit {
     const startDate = new Date(stockDate);
     const currentDate = this.adjustToNearestFeedingDay(new Date());
     const daysDiff = this.getDaysDifference(startDate, currentDate);
-    if (daysDiff < 8) return '1/2 Scoop';
-    else if (daysDiff < 15) return '1 Scoop';
-    else if (daysDiff < 22) return '1-1/2 Scoops';
-    else if (daysDiff < 29) return '2 Scoops';
-    else if (daysDiff < 40) return '2-1/2 Scoops';
+    if (daysDiff < 7) return '1/2 Scoop';
+    else if (daysDiff < 14) return '1 Scoop';
+    else if (daysDiff < 21) return '1-1/2 Scoops';
+    else if (daysDiff < 28) return '2 Scoops';
+    else if (daysDiff < 43) return '2-1/2 Scoops';
     else if (daysDiff < 45) return '1/2 Scoop';
     else return 'Unknown';
   }
@@ -157,8 +174,9 @@ export class FoodandhydrationComponent implements OnInit {
     const currentDate = this.adjustToNearestFeedingDay(new Date());
     const daysDiff = this.getDaysDifference(startDate, currentDate);
     if (daysDiff < 14) return 'Sponge';
-    else if (daysDiff < 29) return '2 Rings';
-    else if (daysDiff < 50) return '1 Ring';
+    else if (daysDiff < 21) return '2 Rings';
+    else if (daysDiff < 44) return '1 Ring';
+    else if (daysDiff < 45) return '1 Ring / 1 Bottle';
     else return 'Unknown';
   }
 

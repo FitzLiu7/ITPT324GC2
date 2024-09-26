@@ -257,18 +257,21 @@ export class QRcodeComponent implements OnInit {
   }
 
   private calculateStage(stockDate?: string): string {
-    if (!stockDate) return 'Unknown';
-    const startDate = new Date(stockDate);
-    const currentDate = this.adjustToNearestFeedingDay(new Date());
-    const daysDiff = this.getDaysDifference(startDate, currentDate);
-    if (daysDiff < 2) return 'Babies';
-    else if (daysDiff < 7) return 'Extra Small';
+    if (!stockDate) return 'Unknown'; // Return 'Unknown' if no date is provided
+
+    const startDate = new Date(stockDate); // Convert stockDate to a Date object
+    const currentDate = new Date(); // Get the current date
+    const daysDiff = this.getDaysDifference(startDate, currentDate); // Calculate the difference in days
+
+    // Determine the stage based on the days difference
+    if (daysDiff < 3) return 'Babies';
+    else if (daysDiff < 8) return 'Extra Small';
     else if (daysDiff < 14) return 'Small';
-    else if (daysDiff < 28) return 'Medium';
-    else if (daysDiff < 35) return 'Large';
-    else if (daysDiff < 42) return 'Breeders';
+    else if (daysDiff < 21) return 'Medium';
+    else if (daysDiff < 28) return 'Large';
+    else if (daysDiff < 35) return 'Breeders';
     else if (daysDiff < 49) return 'Eggpots';
-    else return '-----';
+    else return '-----'; // Return a placeholder if it doesn't match any stage
   }
 
   private calculateScoops(stockDate?: string): string {
@@ -276,12 +279,12 @@ export class QRcodeComponent implements OnInit {
     const startDate = new Date(stockDate);
     const currentDate = this.adjustToNearestFeedingDay(new Date());
     const daysDiff = this.getDaysDifference(startDate, currentDate);
-    if (daysDiff < 8) return '1/2';
-    else if (daysDiff < 15) return '1';
-    else if (daysDiff < 22) return '1-1/2';
-    else if (daysDiff < 29) return '2';
-    else if (daysDiff < 40) return '2-1/2';
-    else if (daysDiff < 45) return '1/2';
+    if (daysDiff < 7) return '1/2 Scoop';
+    else if (daysDiff < 14) return '1 Scoop';
+    else if (daysDiff < 21) return '1-1/2 Scoops';
+    else if (daysDiff < 28) return '2 Scoops';
+    else if (daysDiff < 43) return '2-1/2 Scoops';
+    else if (daysDiff < 45) return '1/2 Scoop';
     else return 'Unknown';
   }
 
@@ -291,8 +294,9 @@ export class QRcodeComponent implements OnInit {
     const currentDate = this.adjustToNearestFeedingDay(new Date());
     const daysDiff = this.getDaysDifference(startDate, currentDate);
     if (daysDiff < 14) return 'Sponge';
-    else if (daysDiff < 29) return '2 Rings';
-    else if (daysDiff < 50) return '1 Ring';
+    else if (daysDiff < 21) return '2 Rings';
+    else if (daysDiff < 44) return '1 Ring';
+    else if (daysDiff < 45) return '1 Ring / 1 Bottle';
     else return 'Unknown';
   }
 
