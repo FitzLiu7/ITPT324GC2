@@ -48,13 +48,22 @@ const signUp = async (username, password, email) => {
     return new Promise((resolve, reject) => {
         userPool.signUp(username, password, attributeList, null, (err, result) => {
             if (err) {
-                reject(err);
+                // Check specific error codes to provide better feedback
+                if (err.code === 'UsernameExistsException') {
+                    reject(new Error("Username already exists. Please choose a different username."));
+                } else if (err.code === 'InvalidParameterException') {
+                    reject(new Error("Invalid parameters. Please check your inputs."));
+                } else {
+                    // For any other errors, provide a generic message
+                    reject(new Error("An error occurred during sign up. Please try again."));
+                }
             } else {
                 resolve(result.user);
             }
         });
     });
 };
+
 
 // Confirm Sign-Up function
 const confirmSignUp = async (username, code) => {
@@ -76,10 +85,23 @@ const confirmSignUp = async (username, code) => {
     });
 };
 
-// del user function
+// Delete User function
 const deleteUser = async (username) => {
+    const params = {
+        UserPoolId: process.env.COGNITO_USER_POOL_ID,
+        Username: username,
+    };
 
-}
+    return new Promise((resolve, reject) => {
+        cognitoIdentityServiceProvider.adminDeleteUser(params, (err) => {
+            if (err) {
+                console.error("Delete User error:", err);
+                return reject("Error deleting user. " + err.message);
+            }
+            resolve("User deleted successfully.");
+        });
+    });
+};
 
 // Sign-In function with role assignment
 const signIn = async (username, password) => {

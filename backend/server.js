@@ -100,15 +100,6 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(__dirname));
 app.use(bodyParser.json());
 
-// Serve signup.html
-app.get("/signup", (req, res) => {
-    res.sendFile(path.join(__dirname, "signup.html"));
-});
-
-// Serve dashboard.html
-app.get("/dashboard", (req, res) => {
-    res.sendFile(path.join(__dirname, "dashboard.html"));
-});
 
 // Add Employee Staff TaskList
 app.post("/addStaffTask", async (req, res) => {
@@ -433,21 +424,6 @@ app.put("/release-tubs", async (req, res) => {
 });
 
 
-// User Authentication Endpoints
-app.post("/sign-up", async (req, res) => {
-    const { username, password, email } = req.body;
-    try {
-        const user = await signUp(username, password, email);
-        res.status(200).json({
-            message:
-                "Sign-Up successful. Please check your email for the confirmation code.",
-            user,
-        });
-    } catch (error) {
-        res.status(500).json({ message: "Error signing up", error: error.message });
-    }
-});
-
 app.get('/getUserList', async (req, res) => {
     try {
         const result = await getUserList();
@@ -457,20 +433,39 @@ app.get('/getUserList', async (req, res) => {
     }
 })
 
-app.post("/confirm-sign-up", async (req, res) => {
-    const { username, confirmationCode } = req.body;
+app.post("/signup", async (req, res) => {
+    const { username, password, email } = req.body;
+
+    // Validate input
+    if (!username || !password || !email) {
+        return res.status(400).json({ message: "All fields are required." });
+    }
+
     try {
-        const result = await confirmSignUp(username, confirmationCode);
+        const user = await signUp(username, password, email);
         res.status(200).json({
-            message: "Confirmation successful. You can now sign in.",
-            result,
+            message: "Sign-Up successful. Please check your email for the confirmation code.",
+            user,
         });
     } catch (error) {
-        res
-            .status(500)
-            .json({ message: "Error confirming sign-up", error: error.message });
+        console.error("Sign-Up error:", error);
+        res.status(500).json({ message: error.message }); // Use the error message from the signUp function
     }
 });
+
+
+
+// Confirm sign-up route
+app.post('/confirm-signup', async (req, res) => {
+    try {
+      const { username, code } = req.body;
+      const result = await confirmSignUp(username, code);
+      res.status(200).json({ message: 'User confirmed successfully', result });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Confirmation failed', error: error.message });
+    }
+  });
 
 app.post("/sign-in", async (req, res) => {
     const { username, password } = req.body;

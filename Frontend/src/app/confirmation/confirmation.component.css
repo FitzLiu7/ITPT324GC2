@@ -1,0 +1,49 @@
+.confirmation-container {
+    display: flex;                 /* Use flexbox for centering */
+    flex-direction: column;       /* Arrange items in a column */
+    justify-content: center;       /* Center vertically */
+    align-items: center;          /* Center horizontally */
+    height: 100vh;                /* Full viewport height */
+    width: 100%;                  /* Full width */
+    margin: 0 auto;              /* Center block element */
+    padding: 20px;               /* Optional padding */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Optional shadow for better visibility */
+    background-color: #f9f9f9;   /* Optional background color */
+    border-radius: 8px;          /* Optional rounded corners */
+}
+
+h2 {
+    margin-bottom: 20px;         /* Space below heading */
+}
+
+form {
+    width: 100%;                 /* Make the form full width */
+    max-width: 400px;           /* Limit form width */
+}
+
+input {
+    width: 100%;                 /* Full width for input */
+    padding: 10px;              /* Padding inside the input */
+    margin-top: 5px;            /* Space above the input */
+    margin-bottom: 15px;         /* Space below the input */
+    border: 1px solid #ccc;      /* Border for input */
+    border-radius: 4px;         /* Rounded corners */
+}
+
+button {
+    padding: 10px 15px;         /* Button padding */
+    background-color: #007bff;  /* Button background color */
+    color: white;                /* Text color */
+    border: none;                /* No border */
+    border-radius: 4px;         /* Rounded corners */
+    cursor: pointer;             /* Pointer cursor on hover */
+}
+
+button:hover {
+    background-color: #0056b3;  /* Darker color on hover */
+}
+
+.message {
+    margin-top: 20px;           /* Space above message */
+    color: red;                 /* Message text color */
+}

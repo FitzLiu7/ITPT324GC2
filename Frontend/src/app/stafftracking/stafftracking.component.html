@@ -4,7 +4,6 @@
     <thead>
       <tr>
         <th class="py-2"></th>
-        <!-- Empty corner for alignment -->
         <th class="py-2 text-red-500">N1</th>
         <th class="py-2 text-red-500">N2</th>
         <th class="py-2 text-red-500">1</th>
@@ -23,136 +22,95 @@
     <tbody>
       <tr>
         <td class="py-3 text-lg font-bold">Tasks</td>
-        <!-- Header for tasks -->
-        <td class="py-3">
-          <span class="bg-yellow-400 text-white px-2 py-1 rounded">F</span>
-        </td>
-        <td class="py-3">
-          <span class="bg-blue-500 text-white px-2 py-1 rounded">W</span>
-        </td>
+        <td class="py-3"><span class="bg-yellow-400 text-white px-2 py-1 rounded">F</span></td>
+        <td class="py-3"><span class="bg-blue-500 text-white px-2 py-1 rounded">W</span></td>
         <td class="py-3"></td>
-        <td class="py-3">
-          <span class="bg-yellow-400 text-white px-2 py-1 rounded">F</span>
-        </td>
+        <td class="py-3"><span class="bg-yellow-400 text-white px-2 py-1 rounded">F</span></td>
         <td class="py-3"></td>
-        <td class="py-3">
-          <span class="bg-blue-500 text-white px-2 py-1 rounded">W</span>
-        </td>
-        <td class="py-3">
-          <span class="bg-yellow-400 text-white px-2 py-1 rounded">F</span>
-        </td>
-        <td class="py-3">
-          <span class="bg-blue-500 text-white px-2 py-1 rounded">W</span>
-        </td>
+        <td class="py-3"><span class="bg-blue-500 text-white px-2 py-1 rounded">W</span></td>
+        <td class="py-3"><span class="bg-yellow-400 text-white px-2 py-1 rounded">F</span></td>
+        <td class="py-3"><span class="bg-blue-500 text-white px-2 py-1 rounded">W</span></td>
         <td class="py-3"></td>
-        <td class="py-3">
-          <span class="bg-yellow-400 text-white px-2 py-1 rounded">F</span>
-        </td>
-        <td class="py-3">
-          <span class="bg-blue-500 text-white px-2 py-1 rounded">W</span>
-        </td>
+        <td class="py-3"><span class="bg-yellow-400 text-white px-2 py-1 rounded">F</span></td>
+        <td class="py-3"><span class="bg-blue-500 text-white px-2 py-1 rounded">W</span></td>
         <td class="py-3"></td>
         <td class="py-3"></td>
       </tr>
     </tbody>
   </table>
-</div>
-<!-- Columna vacía para ajuste -->
 
-<!-- Employee Table -->
-<div class="mt-6">
-  <table class="table-auto w-full text-center border-separate border-spacing-2">
-    <thead>
-      <tr class="bg-green-500 text-white">
-        <th class="py-3 px-4">Employee</th>
-        <th class="py-3 px-4">Status</th>
-        <th class="py-3 px-4">Room</th>
-        <th class="py-3 px-4">Start time</th>
-        <th class="py-3 px-4">End time</th>
-        <th class="py-3 px-4">Task</th>
-        <th class="py-3 px-4">Overtime</th>
-      </tr>
-    </thead>
-    <tbody>
-    <!--  Real Data   -->
-    <tr class="bg-gray-100" *ngFor="let employee of employeeList">
-      <td class="py-3 px-4">{{ employee.Username }}</td>
-      <td class="py-3 px-4 text-blue-500">{{ employee.working ? 'working' : 'Idle' }}</td>
-      <td class="py-3 px-4">{{ employee.roomNumber ? employee.roomNumber : '--' }}</td>
-      <td class="py-3 px-4">{{ employee.startTime ? employee.startTime : '--' }}</td>
-      <td class="py-3 px-4">--</td>
-      <td class="py-3 px-4">{{ employee.task ? employee.task : '--' }}</td>
-      <td class="py-3 px-4">--</td>
-    </tr>
+  <!-- Employee Table -->
+  <div class="mt-6">
+    <table class="table-auto w-full text-center border-separate border-spacing-2">
+      <thead>
+        <tr class="bg-green-500 text-white">
+          <th class="py-3 px-4">Employee</th>
+          <th class="py-3 px-4">Status</th>
+          <th class="py-3 px-4">Room</th>
+          <th class="py-3 px-4">Start time</th>
+          <th class="py-3 px-4">End time</th>
+          <th class="py-3 px-4">Task</th>
+          <th class="py-3 px-4">Overtime</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="bg-gray-100" *ngFor="let employee of employeeList">
+          <td class="py-3 px-4">{{ employee.Username }}</td>
+          <td class="py-3 px-4 text-blue-500">{{ employee.working ? 'Working' : 'Idle' }}</td>
+          <td class="py-3 px-4">{{ employee.roomNumber ? employee.roomNumber : '--' }}</td>
+          <td class="py-3 px-4">{{ employee.startTime ? employee.startTime : '--' }}</td>
+          <td class="py-3 px-4">--</td>
+          <td class="py-3 px-4">{{ employee.task ? employee.task : '--' }}</td>
+          <td class="py-3 px-4">--</td>
+        </tr>
+        <!-- Additional rows for demonstration -->
+        <tr class="bg-gray-100">
+          <td class="py-3 px-4">Employee 1</td>
+          <td class="py-3 px-4 text-blue-500">Idle</td>
+          <td class="py-3 px-4">--</td>
+          <td class="py-3 px-4">--</td>
+          <td class="py-3 px-4">--</td>
+          <td class="py-3 px-4">--</td>
+          <td class="py-3 px-4">--</td>
+        </tr>
+        <!-- Add more static or dynamic rows as needed -->
+      </tbody>
+    </table>
+  </div>
 
-      <!-- Row 1 -->
-      <tr class="bg-gray-100">
-        <td class="py-3 px-4">Employee 1</td>
-        <td class="py-3 px-4 text-blue-500">Idle</td>
-        <td class="py-3 px-4">--</td>
-        <td class="py-3 px-4">--</td>
-        <td class="py-3 px-4">--</td>
-        <td class="py-3 px-4">--</td>
-        <td class="py-3 px-4">--</td>
-      </tr>
-      <!-- Row 2 -->
-      <tr class="bg-gray-100">
-        <td class="py-3 px-4">Employee 2</td>
-        <td class="py-3 px-4 text-blue-500">Idle</td>
-        <td class="py-3 px-4">--</td>
-        <td class="py-3 px-4">--</td>
-        <td class="py-3 px-4">--</td>
-        <td class="py-3 px-4">--</td>
-        <td class="py-3 px-4">--</td>
-      </tr>
-      <!-- Row 3 -->
-      <tr class="bg-white">
-        <td class="py-3 px-4">Employee 3</td>
-        <td class="py-3 px-4 text-red-500">Working</td>
-        <td class="py-3 px-4 text-red-500">10</td>
-        <td class="py-3 px-4">07:00</td>
-        <td class="py-3 px-4">--</td>
-        <td class="py-3 px-4">
-          <span class="bg-yellow-400 text-white px-4 py-1 rounded">Food</span>
-        </td>
-        <td class="py-3 px-4 text-red-500">00:30</td>
-      </tr>
-      <!-- Row 4 -->
-      <tr class="bg-white">
-        <td class="py-3 px-4">Employee 4</td>
-        <td class="py-3 px-4 text-red-500">Working</td>
-        <td class="py-3 px-4 text-red-500">10</td>
-        <td class="py-3 px-4">07:00</td>
-        <td class="py-3 px-4">--</td>
-        <td class="py-3 px-4">
-          <span class="bg-yellow-400 text-white px-4 py-1 rounded">Food</span>
-        </td>
-        <td class="py-3 px-4 text-red-500">00:30</td>
-      </tr>
-      <!-- Row 5 -->
-      <tr class="bg-gray-100">
-        <td class="py-3 px-4">Employee 5</td>
-        <td class="py-3 px-4 text-red-500">Working</td>
-        <td class="py-3 px-4 text-red-500">3</td>
-        <td class="py-3 px-4">09:00</td>
-        <td class="py-3 px-4">--</td>
-        <td class="py-3 px-4">
-          <span class="bg-blue-500 text-white px-4 py-1 rounded">Water</span>
-        </td>
-        <td class="py-3 px-4 text-green-500">00:00</td>
-      </tr>
-      <!-- Row 6 -->
-      <tr class="bg-gray-100">
-        <td class="py-3 px-4">Employee 6</td>
-        <td class="py-3 px-4 text-red-500">Working</td>
-        <td class="py-3 px-4 text-red-500">3</td>
-        <td class="py-3 px-4">09:00</td>
-        <td class="py-3 px-4">--</td>
-        <td class="py-3 px-4">
-          <span class="bg-blue-500 text-white px-4 py-1 rounded">Water</span>
-        </td>
-        <td class="py-3 px-4 text-green-500">00:00</td>
-      </tr>
-    </tbody>
-  </table>
+    <!-- User Signup Form -->
+    <div class="mt-6 p-4 bg-gray-100 rounded shadow-md">
+      <h3 class="text-lg font-bold mb-4">Add New User</h3>
+      <form [formGroup]="signupForm" (ngSubmit)="onSubmit()">
+        <div class="mb-2">
+          <label for="username" class="block">Username</label>
+          <input id="username" formControlName="username" required class="border rounded p-2 w-full"/>
+          <div *ngIf="signupForm.get('username')?.invalid && signupForm.get('username')?.touched" class="text-red-500 text-sm">
+            Username is required.
+          </div>
+        </div>
+  
+        <div class="mb-2">
+          <label for="password" class="block">Password</label>
+          <input id="password" type="password" formControlName="password" required class="border rounded p-2 w-full"/>
+          <div *ngIf="signupForm.get('password')?.invalid && signupForm.get('password')?.touched" class="text-red-500 text-sm">
+            Password must be at least 6 characters long.
+          </div>
+        </div>
+  
+        <div class="mb-2">
+          <label for="email" class="block">Email</label>
+          <input id="email" type="email" formControlName="email" required class="border rounded p-2 w-full"/>
+          <div *ngIf="signupForm.get('email')?.invalid && signupForm.get('email')?.touched" class="text-red-500 text-sm">
+            Please enter a valid email address.
+          </div>
+        </div>
+  
+        <button type="submit" [disabled]="signupForm.invalid" class="bg-green-500 text-white px-4 py-2 rounded">Add User</button>
+      </form>
+  
+      <!-- Display success or error message -->
+      <div *ngIf="userAddedMessage" class="mt-2 text-red-500">{{ userAddedMessage }}</div>
+    </div>
+    
 </div>

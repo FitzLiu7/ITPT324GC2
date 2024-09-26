@@ -1,0 +1,16 @@
+<div class="confirmation-container">
+    <h2>Account Confirmation</h2>
+    <form [formGroup]="confirmationForm" (ngSubmit)="onConfirmCode()">
+      <div>
+        <label>Confirmation Code:</label>
+        <input formControlName="code" />
+        <div *ngIf="confirmationForm.get('code')?.invalid && confirmationForm.get('code')?.touched">
+          Confirmation code is required
+        </div>
+      </div>
+      <button type="submit">Confirm Account</button>
+    </form>
+  
+    <div *ngIf="message" class="message">{{ message }}</div>
+  </div>
+  
