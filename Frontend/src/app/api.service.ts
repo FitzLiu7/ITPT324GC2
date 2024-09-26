@@ -81,6 +81,15 @@ export class ApiService {
   }
 
   // API methods
+  signUp(username: string, password: string, email: string): Observable<any> {
+    const userData = { username, password, email };
+    return this.http.post<any>(`${this.apiUrl}/signup`, userData);
+  }
+
+  confirmSignUp(username: string, code: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/confirm-signup`, { username, code });
+  }
+
   getUserList(): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/getUserList`);
   }

@@ -1,18 +1,39 @@
 import { Component, OnInit } from '@angular/core';
 import { ApiService } from '../api.service';
-import { NgForOf, NgClass, CommonModule } from '@angular/common';
+import { NgForOf } from '@angular/common';
+import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
+import {
+  ReactiveFormsModule,
+  FormBuilder,
+  FormGroup,
+  Validators,
+} from '@angular/forms';
 
 @Component({
   selector: 'app-stafftracking',
   standalone: true,
-  imports: [NgForOf, NgClass, CommonModule],
+  imports: [NgForOf, CommonModule, ReactiveFormsModule],
   templateUrl: './stafftracking.component.html',
   styleUrls: ['./stafftracking.component.css'],
 })
 export class StafftrackingComponent implements OnInit {
   employeeList: Array<any> = [];
+  signupForm: FormGroup;
+  userAddedMessage: string = '';
 
-  constructor(private apiService: ApiService) {}
+  constructor(
+    private apiService: ApiService,
+    private fb: FormBuilder,
+    private router: Router
+  ) {
+    // Initialize the signup form with validation rules
+    this.signupForm = this.fb.group({
+      username: ['', [Validators.required]],
+      password: ['', [Validators.required, Validators.minLength(6)]],
+      email: ['', [Validators.required, Validators.email]],
+    });
+  }
 
   ngOnInit() {
     // Fetch the user list
@@ -33,34 +54,14 @@ export class StafftrackingComponent implements OnInit {
         // Fetch the staff task list
         this.apiService.getStaffTaskList().subscribe(
           (res) => {
-            this.employeeList.forEach((employee, index) => {
-              // Find the task data for the corresponding employee
-              const taskData = res.find(
-                (task: any) => task.userName === employee.Username
-              );
-
-              if (taskData) {
-                this.employeeList[index] = {
-                  ...employee,
-                  status: taskData.working ? 'working' : 'Idle',
-                  startTime: taskData.startTime
-                    ? new Date(taskData.startTime).toLocaleTimeString()
-                    : '--',
-                  // Make sure that `endTime` is only shown when `working` is false
-                  endTime:
-                    !taskData.working && taskData.endTime
-                      ? new Date(taskData.endTime).toLocaleTimeString()
-                      : '--',
-                  task: taskData.task || '--',
-                  roomNumber: taskData.roomNumber || '--',
-                };
+            this.employeeList.forEach((e, index) => {
+              for (let i = 0; i < res.length; i++) {
+                if (e.Username === res[i].userName) {
+                  this.employeeList[index] = Object.assign(e, res[i]);
+                }
               }
             });
-
-            console.log(
-              'Updated employeeList data with task information:',
-              this.employeeList
-            );
+            console.log('employeeList data:', this.employeeList);
           },
           (error) => {
             console.error('Error fetching staff task list:', error);
@@ -71,5 +72,23 @@ export class StafftrackingComponent implements OnInit {
         console.error('Error fetching user data', error);
       }
     );
+  }
+
+  // Method to handle form submission
+  onSubmit(): void {
+    if (this.signupForm.valid) {
+      const { username, password, email } = this.signupForm.value;
+
+      this.apiService.signUp(username, password, email).subscribe({
+        next: (response) => {
+          this.userAddedMessage = 'User added successfully!';
+          this.router.navigate(['/confirm'], { queryParams: { username } });
+          this.signupForm.reset(); // Reset the form after successful signup
+        },
+        error: (err) => {
+          this.userAddedMessage = 'Error adding user: ' + err.message;
+        },
+      });
+    }
   }
 }
