@@ -1,25 +1,25 @@
-import {Component, OnInit} from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ZXingScannerModule } from '@zxing/ngx-scanner';
 import { ApiService } from '../api.service';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MinutesSecondsPipe } from '../minutes-seconds.pipe';
-import {getCurrentUser} from "aws-amplify/auth"; // Import the pipe
+import { getCurrentUser } from 'aws-amplify/auth';
 
 @Component({
   selector: 'app-qrcode',
   standalone: true,
   templateUrl: './qrcode.component.html',
   styleUrls: ['./qrcode.component.css'],
-  imports: [CommonModule, ZXingScannerModule, MinutesSecondsPipe], // Add the pipe here
+  imports: [CommonModule, ZXingScannerModule, MinutesSecondsPipe],
 })
 export class QRcodeComponent implements OnInit {
-  isScannerOpen = true; // Controls whether the camera is open
-  roomData: any = null; // Scanned room data
+  isScannerOpen = true;
+  roomData: any = null;
   scannerResult: string | null = null;
-  scanSuccess = false; // Indicates whether the scan was successful
-  scanError = false; // Flag for showing an error message
-  scanErrorMessage = ''; // Error message to display
+  scanSuccess = false;
+  scanError = false;
+  scanErrorMessage = '';
   userName: string = '';
   foodTimer: any = null;
   waterTimer: any = null;
@@ -27,35 +27,27 @@ export class QRcodeComponent implements OnInit {
   waterStartTime: Date | null = null;
   waterEndTime: Date | null = null;
   foodEndTime: Date | null = null;
-  foodElapsedTime: number = 0; // Time elapsed in seconds for food
-  waterElapsedTime: number = 0; // Time elapsed in seconds for water
+  foodElapsedTime: number = 0;
+  waterElapsedTime: number = 0;
   isFoodTimerRunning = false;
   isWaterTimerRunning = false;
   status: string = 'Vacant';
   taskList: Array<any> = [];
-  currentUserTask: any  = {};
-  currentRoomNumber: number= 0 ;
+  currentUserTask: any = {};
+  currentRoomNumber: number = 0;
+
   constructor(private apiService: ApiService, private router: Router) {}
 
   ngOnInit() {
-    this.currentAuthenticatedUser()
+    this.currentAuthenticatedUser();
     this.apiService.getStaffTaskList().subscribe(
       (res) => {
-        this.taskList = res
+        this.taskList = res;
       },
       (error) => {
         console.log(error);
       }
-    )
-  }
-  // Opens the scanner
-  openQrScanner() {
-    this.isScannerOpen = true;
-    this.roomData = null; // Resets the room data
-    this.scanSuccess = false; // Reset the success flag
-    this.scanError = false; // Reset error flag
-    this.scanErrorMessage = ''; // Clear error message
-    this.resetTimers(); // Reset timers when opening scanner
+    );
   }
 
   async currentAuthenticatedUser() {
@@ -67,37 +59,46 @@ export class QRcodeComponent implements OnInit {
     }
   }
 
-  // Handles the result of the scanned QR code
+  openQrScanner() {
+    this.isScannerOpen = true;
+    this.roomData = null;
+    this.scanSuccess = false;
+    this.scanError = false;
+    this.scanErrorMessage = '';
+    this.resetTimers();
+  }
+
   onCodeResult(resultString: string) {
     this.scannerResult = resultString.trim();
     console.log('Scanned QR:', resultString);
 
-    // Reset error and success states
     this.scanError = false;
     this.scanSuccess = false;
-    let roomNumber : any;
+    let roomNumber: any;
 
-    if (new RegExp(/^ITPT324GC2\s(\d+|N1|N2)$/).test(this.scannerResult)){
-      debugger
-      roomNumber = this.scannerResult.split(' ')[this.scannerResult.split(' ').length-1]
+    if (new RegExp(/^ITPT324GC2\s(\d+|N1|N2)$/).test(this.scannerResult)) {
+      roomNumber =
+        this.scannerResult.split(' ')[this.scannerResult.split(' ').length - 1];
     } else {
-      alert('Error of QRcode')
+      alert('Error with QR code');
     }
 
-    // Map N1 to 1001 and N2 to 1002
     if (roomNumber === 'N1') {
       roomNumber = 1001;
     } else if (roomNumber === 'N2') {
       roomNumber = 1002;
     }
 
-    if(![1001,1002,1,3,4,8,9,10,11,12,13,14,15].includes(Number(roomNumber))){
+    if (
+      ![1001, 1002, 1, 3, 4, 8, 9, 10, 11, 12, 13, 14, 15].includes(
+        Number(roomNumber)
+      )
+    ) {
       this.scanError = true;
       this.scanErrorMessage = 'Invalid QR code';
       return;
     }
 
-    // Fetch the room data based on the mapped room number
     this.apiService.getRoomData(roomNumber).subscribe(
       (data) => {
         if (!data) {
@@ -105,26 +106,22 @@ export class QRcodeComponent implements OnInit {
           this.scanErrorMessage = 'Room not found in the database';
           return;
         }
-        this.currentRoomNumber = roomNumber
+        this.currentRoomNumber = roomNumber;
         this.taskList.forEach((task) => {
-          if (this.userName == task.userName) {
-            this.currentUserTask = task
-            console.log('currentUserTask', this.currentUserTask)
+          if (this.userName === task.userName) {
+            this.currentUserTask = task;
           }
-        })
+        });
 
         console.log('Room data:', data);
         this.roomData = data;
-
         this.roomData.Stage = this.calculateStage(this.roomData.Date);
         this.roomData.Scoops = this.calculateScoops(this.roomData.Date);
         this.roomData.Bottles = this.calculateBottles(this.roomData.Date);
 
-        // Reset timers before allowing a new scan
         this.resetTimers();
-
-        this.scanSuccess = true; // Indicate that the scan was successful
-        this.isScannerOpen = false; // Closes the camera after scanning
+        this.scanSuccess = true;
+        this.isScannerOpen = false;
       },
       (error) => {
         console.error('Error fetching room data:', error);
@@ -134,7 +131,6 @@ export class QRcodeComponent implements OnInit {
     );
   }
 
-  // Resets both timers
   resetTimers() {
     if (this.foodTimer) clearInterval(this.foodTimer);
     if (this.waterTimer) clearInterval(this.waterTimer);
@@ -149,31 +145,31 @@ export class QRcodeComponent implements OnInit {
     this.status = 'Vacant';
   }
 
-  // Start or stop the food timer
   toggleFoodTimer() {
-
     if (this.isFoodTimerRunning) {
-
       let params = {
         userName: this.userName,
         startTime: this.currentUserTask.startTime,
         task: 'food',
         working: false,
         roomNumber: this.currentRoomNumber as number,
-      }
+        endTime: new Date().getTime(),
+      };
 
       this.apiService.updateStaffTask(params).subscribe(
-        //
-      )
-
-      // Stop the timer and set the end time
-      clearInterval(this.foodTimer);
-      this.foodEndTime = new Date(); // Set the end time correctly
-      this.isFoodTimerRunning = false;
-      this.updateStatus();
+        () => {
+          clearInterval(this.foodTimer);
+          this.foodEndTime = new Date();
+          this.isFoodTimerRunning = false;
+          this.updateStatus();
+        },
+        (error) => {
+          console.error('Failed to update staff task:', error);
+          alert('Error stopping the timer. Please try again.');
+        }
+      );
     } else {
-      if (this.isWaterTimerRunning) return; // Prevent starting if water timer is running
-
+      if (this.isWaterTimerRunning) return;
 
       const params = {
         userName: this.userName,
@@ -181,23 +177,35 @@ export class QRcodeComponent implements OnInit {
         task: 'food',
         working: true,
         roomNumber: this.currentRoomNumber as number,
-      }
-      this.currentUserTask = params
-      if (Object.keys(this.currentUserTask).length > 0){
+      };
+      this.currentUserTask = params;
+
+      if (Object.keys(this.currentUserTask).length > 0) {
         this.apiService.updateStaffTask(params).subscribe(
-          // success ...
-        )
+          () => {
+            this.startFoodTimer();
+          },
+          (error) => {
+            console.error('Failed to update staff task:', error);
+          }
+        );
       } else {
         this.apiService.addStaffTask(params).subscribe(
-          // success ...
-        )
+          () => {
+            this.startFoodTimer();
+          },
+          (error) => {
+            console.error('Failed to add staff task:', error);
+          }
+        );
       }
-
     }
+  }
 
-    this.foodStartTime = new Date(); // Set the start time
-    this.foodEndTime = null; // Reset the end time
-    this.foodElapsedTime = 0; // Reset elapsed time
+  startFoodTimer() {
+    this.foodStartTime = new Date();
+    this.foodEndTime = null;
+    this.foodElapsedTime = 0;
     this.isFoodTimerRunning = true;
     this.foodTimer = setInterval(() => {
       this.foodElapsedTime = Math.floor(
@@ -207,19 +215,18 @@ export class QRcodeComponent implements OnInit {
     this.updateStatus();
   }
 
-  // Start or stop the water timer
   toggleWaterTimer() {
     if (this.isWaterTimerRunning) {
-      // Stop the timer and set the end time
       clearInterval(this.waterTimer);
-      this.waterEndTime = new Date(); // Set the end time correctly
+      this.waterEndTime = new Date();
       this.isWaterTimerRunning = false;
       this.updateStatus();
     } else {
-      if (this.isFoodTimerRunning) return; // Prevent starting if food timer is running
-      this.waterStartTime = new Date(); // Set the start time
-      this.waterEndTime = null; // Reset the end time
-      this.waterElapsedTime = 0; // Reset elapsed time
+      if (this.isFoodTimerRunning) return;
+
+      this.waterStartTime = new Date();
+      this.waterEndTime = null;
+      this.waterElapsedTime = 0;
       this.isWaterTimerRunning = true;
       this.waterTimer = setInterval(() => {
         this.waterElapsedTime = Math.floor(
@@ -229,6 +236,7 @@ export class QRcodeComponent implements OnInit {
       this.updateStatus();
     }
   }
+
   updateStatus() {
     this.status =
       this.isFoodTimerRunning || this.isWaterTimerRunning
@@ -236,7 +244,6 @@ export class QRcodeComponent implements OnInit {
         : 'Vacant';
   }
 
-  // Helper function to format elapsed time
   formatTime(seconds: number): string {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -245,12 +252,10 @@ export class QRcodeComponent implements OnInit {
       .padStart(2, '0')}`;
   }
 
-  // Go back to the previous page
   goBack() {
     this.router.navigate(['/fyh']);
   }
 
-  // Helper functions to calculate data (unchanged from your original code)
   private calculateStage(stockDate?: string): string {
     if (!stockDate) return 'Unknown';
     const startDate = new Date(stockDate);
