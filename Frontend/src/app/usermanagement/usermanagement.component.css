@@ -1,0 +1,102 @@
+/* usermanagement.component.css */
+
+/* General body styling */
+body {
+    background-color: #f7fafc; /* Light gray background for the body */
+    margin: 0; /* Remove default margin */
+    padding: 0; /* Remove default padding */
+}
+
+/* Styling for the main form container */
+.w-full {
+    width: 100%;
+}
+
+/* Max-width for form and table */
+.max-w-md {
+    max-width: 600px; /* Maximum width for form */
+}
+
+.max-w-2xl {
+    max-width: 800px; /* Maximum width for table */
+}
+
+/* Padding for containers */
+.p-6 {
+    padding: 1.5rem; /* Padding around containers */
+}
+
+/* Shadow and rounded corners for containers */
+.rounded-lg {
+    border-radius: 0.5rem; /* Rounded corners */
+}
+
+.shadow-md {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Light shadow effect */
+}
+
+/* Headings styles */
+h3 {
+    margin-bottom: 1rem; /* Bottom margin for headings */
+}
+
+/* Margin top for the table */
+.mt-4 {
+    margin-top: 1rem; /* Margin for spacing above the table */
+}
+
+/* Button styles */
+button {
+    cursor: pointer; /* Pointer cursor on hover */
+    transition: background-color 0.2s ease; /* Transition for hover effects */
+}
+
+button:hover {
+    background-color: #2b6cb0; /* Darker blue on hover */
+}
+
+/* Table styling */
+table {
+    width: 100%; /* Full width for the table */
+    border-collapse: collapse; /* Remove gaps between cells */
+}
+
+thead {
+    background-color: #edf2f7; /* Light gray background for table headers */
+}
+
+th, td {
+    border: 1px solid #cbd5e0; /* Light gray borders */
+    padding: 0.5rem; /* Padding for table cells */
+    text-align: left; /* Left align text in cells */
+}
+
+td {
+    position: relative; /* For positioning delete button */
+}
+
+/* Delete button style */
+.bg-red-500 {
+    background-color: #f56565; /* Red background for delete button */
+}
+
+.bg-red-500:hover {
+    background-color: #e53e3e; /* Darker red on hover */
+}
+
+/* Text styling for messages */
+.text-red-500 {
+    color: #f56565; /* Red text for error messages */
+}
+
+.text-center {
+    text-align: center; /* Center text */
+}
+
+/* Media query for responsiveness */
+@media (max-width: 768px) {
+    .max-w-md,
+    .max-w-2xl {
+        width: 90%; /* Full width for smaller screens */
+    }
+}

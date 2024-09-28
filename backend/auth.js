@@ -93,12 +93,12 @@ const deleteUser = async (username) => {
     };
 
     return new Promise((resolve, reject) => {
-        cognitoIdentityServiceProvider.adminDeleteUser(params, (err) => {
+        cognitoIdentityServiceProvider.adminDeleteUser(params, (err, data) => {
             if (err) {
-                console.error("Delete User error:", err);
-                return reject("Error deleting user. " + err.message);
+                reject(err);
+            } else {
+                resolve(data);
             }
-            resolve("User deleted successfully.");
         });
     });
 };
@@ -139,4 +139,4 @@ const signIn = async (username, password) => {
     });
 };
 
-module.exports = { signUp, confirmSignUp, signIn, getUserList };
+module.exports = { signUp, confirmSignUp, signIn, getUserList, deleteUser };

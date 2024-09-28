@@ -40,7 +40,7 @@ export class ConfirmationComponent {
       this.signupService.confirmSignUp(this.username, code).subscribe(
         (response) => {
           this.message = 'User confirmed successfully.';
-          setTimeout(() => this.router.navigate(['/stafftracking']), 3000); // Redirect to login page after 3 seconds
+          setTimeout(() => this.router.navigate(['/user']), 3000); // Redirect to login page after 3 seconds
         },
         (error) => {
           this.message = `Error: ${error.error.message || 'Confirmation failed'}`;

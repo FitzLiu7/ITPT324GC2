@@ -90,6 +90,10 @@ export class ApiService {
     return this.http.post(`${this.apiUrl}/confirm-signup`, { username, code });
   }
 
+  deleteUser(username: string) {
+    return this.http.delete(`${this.apiUrl}/delete-user`, { body: { username } });
+  }
+
   getUserList(): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/getUserList`);
   }

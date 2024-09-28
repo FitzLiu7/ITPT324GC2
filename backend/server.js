@@ -6,7 +6,7 @@ const http = require("http");
 const WebSocket = require("ws");
 const app = express();
 const cors = require("cors");
-const { signUp, confirmSignUp, signIn, getUserList } = require("./auth");
+const { signUp, confirmSignUp, signIn, getUserList, deleteUser } = require("./auth");
 require("dotenv").config();
 
 // CORS configuration
@@ -436,7 +436,6 @@ app.get('/getUserList', async (req, res) => {
 app.post("/signup", async (req, res) => {
     const { username, password, email } = req.body;
 
-    // Validate input
     if (!username || !password || !email) {
         return res.status(400).json({ message: "All fields are required." });
     }
@@ -453,8 +452,6 @@ app.post("/signup", async (req, res) => {
     }
 });
 
-
-
 // Confirm sign-up route
 app.post('/confirm-signup', async (req, res) => {
     try {
@@ -466,6 +463,21 @@ app.post('/confirm-signup', async (req, res) => {
       res.status(500).json({ message: 'Confirmation failed', error: error.message });
     }
   });
+
+app.delete('/delete-user', async (req, res) => {
+const { username } = req.body;
+
+if (!username) {
+    return res.status(400).json({ message: "Username is required." });
+}
+try {
+    await deleteUser(username);
+    res.status(200).json({ message: "User deleted successfully." });
+} catch (error) {
+    console.error("Delete User error:", error);
+    res.status(500).json({ message: "Error deleting user", error: error.message });    
+    }
+});
 
 app.post("/sign-in", async (req, res) => {
     const { username, password } = req.body;
