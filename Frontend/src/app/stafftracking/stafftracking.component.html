@@ -1,135 +1,122 @@
 <div class="container mx-auto p-2">
   <!-- Top Calendar styled table with reduced size -->
   <div class="overflow-x-auto mt-10 mx-2 lg:ml-24 lg:mr-4">
-    <div class="overflow-x-auto mt-10 mx-2 lg:ml-24 lg:mr-4">
+    <table
+      class="min-w-full bg-white shadow-md rounded-md overflow-hidden border border-gray-300"
+    >
+      <thead>
+        <tr>
+          <th
+            class="px-2 py-1 bg-green-600 text-white text-lg font-bold text-center border-b border-gray-300"
+          ></th>
+          <th
+            *ngFor="let room of rooms"
+            class="px-2 py-1 bg-green-600 text-white text-lg font-bold text-center border-b border-gray-300"
+          >
+            {{ room }}
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="hover:bg-gray-100">
+          <td
+            class="px-2 py-1 text-lg font-bold text-center border-b border-r border-gray-300"
+          >
+            Tasks
+          </td>
+          <td
+            *ngFor="let room of rooms"
+            class="px-2 py-1 text-center border-b border-r border-gray-300"
+          >
+            <!-- FOOD (F) Task -->
+            <span
+              *ngIf="isTaskCompleted(room, 'FOOD')"
+              class="bg-yellow-400 text-white font-bold px-1 py-1 rounded"
+              >F</span
+            >
+            <!-- WATER (W) Task -->
+            <span
+              *ngIf="isTaskCompleted(room, 'WATER')"
+              class="bg-blue-500 text-white font-bold px-1 py-1 rounded"
+              >W</span
+            >
+            <!-- Tick when both tasks are completed -->
+            <span
+              *ngIf="isRoomCompleted(room)"
+              class="ml-2 text-green-600"
+              style="font-size: 20px"
+              >&#10003;</span
+            >
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Employee Table adjusted size -->
+  <div class="overflow-x-auto mt-1 mx-2 lg:ml-24 lg:mr-4">
+    <div class="mt-4">
       <table
         class="min-w-full bg-white shadow-md rounded-md overflow-hidden border border-gray-300"
       >
         <thead>
-          <tr>
-            <th
-              class="px-2 py-1 bg-green-600 text-white text-lg font-bold text-center border-b border-gray-300"
-            ></th>
-            <th
-              *ngFor="let room of rooms"
-              class="px-2 py-1 bg-green-600 text-white text-lg font-bold text-center border-b border-gray-300"
-            >
-              {{ room }}
-            </th>
+          <tr class="bg-green-600 text-white text-lg font-bold text-center">
+            <th class="px-2 py-1 border-b border-gray-300">Employee</th>
+            <th class="px-2 py-1 border-b border-gray-300">Status</th>
+            <th class="px-2 py-1 border-b border-gray-300">Room</th>
+            <th class="px-2 py-1 border-b border-gray-300">Start time</th>
+            <th class="px-2 py-1 border-b border-gray-300">End time</th>
+            <th class="px-2 py-1 border-b border-gray-300">Task</th>
+            <th class="px-2 py-1 border-b border-gray-300">Elapsed Time</th>
           </tr>
         </thead>
         <tbody>
-          <tr class="hover:bg-gray-100">
+          <!-- Render employee details dynamically -->
+          <tr *ngFor="let employee of employeeList" class="hover:bg-gray-100">
             <td
-              class="px-2 py-1 text-lg font-bold text-center border-b border-r border-gray-300"
+              class="px-2 py-1 text-center border-b border-r border-gray-300 font-bold"
             >
-              Tasks
+              {{ employee.Username }}
             </td>
             <td
-              *ngFor="let room of rooms"
               class="px-2 py-1 text-center border-b border-r border-gray-300"
+              [ngClass]="{
+                'text-blue-700 bg-blue-100': employee.status === 'Idle',
+                'text-red-700 bg-red-100': employee.status === 'Working'
+              }"
             >
-              <!-- FOOD (F) Task -->
-              <span
-                *ngIf="isTaskCompleted(room, 'FOOD')"
-                class="bg-yellow-400 text-white font-bold px-1 py-1 rounded"
-              >
-                F
-              </span>
-
-              <!-- WATER (W) Task -->
-              <span
-                *ngIf="isTaskCompleted(room, 'WATER')"
-                class="bg-blue-500 text-white font-bold px-1 py-1 rounded"
-              >
-                W
-              </span>
-
-              <!-- Tick when both tasks are completed -->
-              <span
-                *ngIf="isRoomCompleted(room)"
-                class="ml-2 text-green-600"
-                style="font-size: 20px"
-                >&#10003;</span
-              >
+              {{ employee.status }}
+            </td>
+            <td
+              class="px-2 py-1 text-center border-b border-r border-gray-300 font-bold text-red-600"
+            >
+              {{ employee.roomNumber }}
+            </td>
+            <td class="px-2 py-1 text-center border-b border-r border-gray-300">
+              {{ employee.startTime }}
+            </td>
+            <td class="px-2 py-1 text-center border-b border-r border-gray-300">
+              {{ employee.endTime }}
+            </td>
+            <td class="px-2 py-1 text-center border-b border-r border-gray-300">
+              {{ employee.task }}
+            </td>
+            <td class="px-2 py-1 text-center border-b border-r border-gray-300">
+              {{ employee.elapsedTime }}
             </td>
           </tr>
         </tbody>
       </table>
     </div>
+  </div>
 
-    <div class="overflow-x-auto mt-1 mx-2 lg:ml-24 lg:mr-4">
-      <!-- Employee Table adjusted size -->
-      <div class="mt-4">
-        <table
-          class="min-w-full bg-white shadow-md rounded-md overflow-hidden border border-gray-300"
-        >
-          <thead>
-            <tr class="bg-green-600 text-white text-lg font-bold text-center">
-              <th class="px-2 py-1 border-b border-gray-300">Employee</th>
-              <th class="px-2 py-1 border-b border-gray-300">Status</th>
-              <th class="px-2 py-1 border-b border-gray-300">Room</th>
-              <th class="px-2 py-1 border-b border-gray-300">Start time</th>
-              <th class="px-2 py-1 border-b border-gray-300">End time</th>
-              <th class="px-2 py-1 border-b border-gray-300">Task</th>
-              <th class="px-2 py-1 border-b border-gray-300">Elapsed Time</th>
-              <th class="px-2 py-1 border-b border-gray-300">Overtime</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let employee of employeeList" class="hover:bg-gray-100">
-              <td
-                class="px-2 py-1 text-center border-b border-r border-gray-300 font-bold"
-              >
-                {{ employee.Username }}
-              </td>
-              <td
-                class="px-2 py-1 text-center border-b border-r border-gray-300"
-                [ngClass]="{
-                  'text-blue-700 bg-blue-100': employee.status === 'Idle',
-                  'text-red-700 bg-red-100': employee.status === 'working'
-                }"
-              >
-                {{ employee.status }}
-              </td>
-              <td
-                class="px-2 py-1 text-center border-b border-r border-gray-300 font-bold text-red-600"
-              >
-                {{ employee.roomNumber }}
-              </td>
-              <td
-                class="px-2 py-1 text-center border-b border-r border-gray-300"
-              >
-                {{ employee.startTime }}
-              </td>
-              <td
-                class="px-2 py-1 text-center border-b border-r border-gray-300"
-              >
-                {{ employee.endTime }}
-              </td>
-              <td
-                class="px-2 py-1 text-center border-b border-r border-gray-300"
-              >
-                {{ employee.task }}
-              </td>
-              <td
-                class="px-2 py-1 text-center border-b border-r border-gray-300"
-              >
-                {{ employee.elapsedTime }} min
-              </td>
-              <td
-                class="px-2 py-1 text-center border-b border-r border-gray-300"
-                [ngClass]="{
-                  'text-green-600': employee.overtimeDisplay === '00:00:00',
-                  'text-red-600': employee.overtimeDisplay !== '00:00:00'
-                }"
-              >
-                {{ employee.overtimeDisplay }}
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
+  <!-- Refresh Button positioned at the bottom right -->
+  <div class="fixed bottom-4 right-4">
+    <button
+      class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+      (click)="refreshPage()"
+    >
+      Refresh
+    </button>
   </div>
 </div>
