@@ -38,7 +38,12 @@ export class FoodandhydrationComponent implements OnInit {
     12,
     13,
     14,
+    141,
+    142,
+    143,
     15,
+    151,
+    152,
   ];
 
   userRole: string = ''; // Store the user role
@@ -159,12 +164,12 @@ export class FoodandhydrationComponent implements OnInit {
     const startDate = new Date(stockDate);
     const currentDate = this.adjustToNearestFeedingDay(new Date());
     const daysDiff = this.getDaysDifference(startDate, currentDate);
-    if (daysDiff < 7) return '1/2 Scoop';
-    else if (daysDiff < 14) return '1 Scoop';
-    else if (daysDiff < 21) return '1-1/2 Scoops';
-    else if (daysDiff < 28) return '2 Scoops';
-    else if (daysDiff < 43) return '2-1/2 Scoops';
-    else if (daysDiff < 45) return '1/2 Scoop';
+    if (daysDiff < 7) return '1/2 ';
+    else if (daysDiff < 14) return '1 ';
+    else if (daysDiff < 21) return '1-1/2 ';
+    else if (daysDiff < 28) return '2 ';
+    else if (daysDiff < 43) return '2-1/2 ';
+    else if (daysDiff < 45) return '1/2 ';
     else return 'Unknown';
   }
 

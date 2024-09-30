@@ -18,8 +18,8 @@ export class ReleaseModalComponent implements OnInit {
 
   // Map for converting display names to numeric values
   roomDisplayNames: { [key: string]: number } = {
-    'N1': 1001,
-    'N2': 1002,
+    N1: 1001,
+    N2: 1002,
     '1': 1,
     '2': 2,
     '3': 3,
@@ -31,7 +31,13 @@ export class ReleaseModalComponent implements OnInit {
     '12': 12,
     '13': 13,
     '14': 14,
+    '141': 141,
+    '142': 142,
+    '143': 143,
+
     '15': 15,
+    '151': 151,
+    '152': 152,
   };
 
   // Array for dropdown options
@@ -49,7 +55,12 @@ export class ReleaseModalComponent implements OnInit {
     { display: '12', value: 12 },
     { display: '13', value: 13 },
     { display: '14', value: 14 },
+    { display: '141', value: 141 },
+    { display: '142', value: 142 },
+    { display: '143', value: 143 },
     { display: '15', value: 15 },
+    { display: '151', value: 151 },
+    { display: '152', value: 152 },
   ];
 
   constructor(private apiService: ApiService) {}
@@ -74,19 +85,23 @@ export class ReleaseModalComponent implements OnInit {
     }
 
     // Call the API service to release Tubs
-    this.apiService.releaseTubsFromRoom(numericRoomNumber, this.amountToRemove).subscribe(
-      (data) => {
-        console.log('Release successful:', data);
-        this.closeModal(); // Close the modal after successful API call
-      },
-      (error) => {
-        console.error('Error releasing tubs:', error);
-      }
-    );
+    this.apiService
+      .releaseTubsFromRoom(numericRoomNumber, this.amountToRemove)
+      .subscribe(
+        (data) => {
+          console.log('Release successful:', data);
+          this.closeModal(); // Close the modal after successful API call
+        },
+        (error) => {
+          console.error('Error releasing tubs:', error);
+        }
+      );
   }
 
   // Convert display names to numeric values
-  private convertRoomNumberToNumeric(roomNumber: number | string | undefined): number | undefined {
+  private convertRoomNumberToNumeric(
+    roomNumber: number | string | undefined
+  ): number | undefined {
     if (typeof roomNumber === 'string') {
       // Return the numeric value from the map if it exists
       return this.roomDisplayNames[roomNumber] ?? undefined;

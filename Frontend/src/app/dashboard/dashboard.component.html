@@ -6,66 +6,119 @@
     class="room bg-white rounded-lg shadow-md p-4 flex flex-col border border-gray-200"
     *ngFor="let room of rooms"
   >
-    <!-- Displays the Room Number -->
-    <div
-      class="flex justify-between items-center border-b border-gray-300 pb-2 mb-2"
+    <!-- If the room has sub-rooms, display a table -->
+    <ng-container
+      *ngIf="room.subRooms && room.subRooms.length; else singleRoom"
     >
-      <div class="text-base sm:text-xl font-semibold text-gray-700">Room:</div>
-      <div class="text-3xl sm:text-2xl font-bold text-red-600">
-        {{ room.RoomNumber }}
-      </div>
-    </div>
-
-    <!-- Displays the Week and Stage, centered -->
-    <div class="flex flex-col items-center border-b border-gray-300 pb-2 mb-2">
-      <div class="flex w-full items-center">
-        <div
-          class="text-sm sm:text-base font-medium text-gray-600 w-1/2 text-center"
-        >
-          Week:
+      <div
+        class="flex justify-between items-center border-b border-gray-300 pb-2 mb-2"
+      >
+        <div class="text-base sm:text-xl font-semibold text-gray-700">
+          Room:
         </div>
-        <div class="border-l border-gray-300 h-6 mx-2"></div>
-        <div class="text-lg sm:text-xl text-gray-800 w-1/2 text-center">
-          {{ room.Week }}
+        <div class="text-2xl font-bold text-red-600">{{ room.RoomNumber }}</div>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left table-auto border-collapse">
+          <thead>
+            <tr class="bg-gray-100 text-xs">
+              <th class="px-1 py-1 border-b text-gray-600">Room</th>
+              <th class="px-1 py-1 border-b text-gray-600">Week</th>
+              <th class="px-1 py-1 border-b text-gray-600">Stage</th>
+              <th class="px-1 py-1 border-b text-gray-600">Qty</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              *ngFor="let subRoom of room.subRooms"
+              class="border-t border-gray-300 text-xs"
+            >
+              <td class="px-1 py-0.5">{{ subRoom.RoomNumber }}</td>
+              <td class="px-1 py-0.5">{{ subRoom.Week }}</td>
+              <td class="px-1 py-0.5">
+                <span
+                  class="inline-block py-0.5 px-1 rounded-full text-xs font-medium"
+                  [ngClass]="{
+                    'bg-yellow-100 text-yellow-700': subRoom.Stage === 'Large',
+                    'bg-green-100 text-green-700': subRoom.Stage === 'Medium',
+                    'bg-red-100 text-red-700': subRoom.Stage === 'Small',
+                    'bg-blue-200 text-blue-900':
+                      subRoom.Stage === 'Extra Small',
+                    'bg-purple-100 text-purple-700': subRoom.Stage === 'Babies',
+                    'bg-blue-100 text-blue-700': subRoom.Stage === 'Breeders',
+                    'bg-amber-100 text-amber-700': subRoom.Stage === 'Eggpots'
+                  }"
+                >
+                  {{ subRoom.Stage || "_" }}
+                </span>
+              </td>
+              <td class="px-1 py-0.5">{{ subRoom.Tubs || 0 }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </ng-container>
+
+    <!-- Display single room info when no sub-rooms are present -->
+    <ng-template #singleRoom>
+      <div
+        class="flex justify-between items-center border-b border-gray-300 pb-2 mb-2"
+      >
+        <div class="text-base sm:text-xl font-semibold text-gray-700">
+          Room:
+        </div>
+        <div class="text-3xl sm:text-2xl font-bold text-red-600">
+          {{ room.RoomNumber }}
         </div>
       </div>
-
-      <div class="flex w-full items-center mt-2">
-        <div
-          class="text-sm sm:text-base font-medium text-gray-600 w-1/2 text-center"
-        >
-          Stage:
+      <!-- Displays the Week and Stage, centered -->
+      <div
+        class="flex flex-col items-center border-b border-gray-300 pb-2 mb-2"
+      >
+        <div class="flex w-full items-center">
+          <div
+            class="text-sm sm:text-base font-medium text-gray-600 w-1/2 text-center"
+          >
+            Week:
+          </div>
+          <div class="border-l border-gray-300 h-6 mx-2"></div>
+          <div class="text-lg sm:text-xl text-gray-800 w-1/2 text-center">
+            {{ room.Week }}
+          </div>
         </div>
-        <div class="border-l border-gray-300 h-6 mx-2"></div>
-        <!-- Stage is color-coded based on its value -->
-        <div
-          class="text-xs sm:text-sm py-1 sm:py-2 px-2 sm:px-3 rounded-full font-medium w-1/2 text-center border-b border-r"
-          [ngClass]="{
-            'bg-yellow-100 text-yellow-700': room.Stage === 'Large',
-            'bg-green-100 text-green-700': room.Stage === 'Medium',
-            'bg-red-100 text-red-700': room.Stage === 'Small',
-            'bg-blue-200 text-blue-900': room.Stage === 'Extra Small',
-            'bg-purple-100 text-purple-700': room.Stage === 'Babies',
-            'bg-blue-100 text-blue-700': room.Stage === 'Breeders',
-            'bg-amber-100 text-amber-700': room.Stage === 'Eggpots'
-          }"
-        >
-          {{ room.Stage || "_" }}
+        <div class="flex w-full items-center mt-2">
+          <div
+            class="text-sm sm:text-base font-medium text-gray-600 w-1/2 text-center"
+          >
+            Stage:
+          </div>
+          <div class="border-l border-gray-300 h-6 mx-2"></div>
+          <div
+            class="text-xs sm:text-sm py-1 sm:py-2 px-2 sm:px-3 rounded-full font-medium w-1/2 text-center border-b border-r"
+            [ngClass]="{
+              'bg-yellow-100 text-yellow-700': room.Stage === 'Large',
+              'bg-green-100 text-green-700': room.Stage === 'Medium',
+              'bg-red-100 text-red-700': room.Stage === 'Small',
+              'bg-blue-200 text-blue-900': room.Stage === 'Extra Small',
+              'bg-purple-100 text-purple-700': room.Stage === 'Babies',
+              'bg-blue-100 text-blue-700': room.Stage === 'Breeders',
+              'bg-amber-100 text-amber-700': room.Stage === 'Eggpots'
+            }"
+          >
+            {{ room.Stage || "_" }}
+          </div>
         </div>
       </div>
-    </div>
-
-    <!-- Displays the Quantity of Tubs -->
-    <div class="flex justify-between items-center">
-      <div class="text-sm sm:text-base font-medium text-gray-600">
-        Quantity:
+      <div class="flex justify-between items-center">
+        <div class="text-sm sm:text-base font-medium text-gray-600">
+          Quantity:
+        </div>
+        <div class="text-lg sm:text-xl font-semibold text-gray-800">
+          {{ room.Tubs }}
+        </div>
       </div>
-      <div class="text-lg sm:text-xl font-semibold text-gray-800">
-        {{ room.Tubs }}
-      </div>
-    </div>
-
-    <!-- Floating button component -->
+    </ng-template>
   </div>
 </div>
+
 <app-floating-button></app-floating-button>

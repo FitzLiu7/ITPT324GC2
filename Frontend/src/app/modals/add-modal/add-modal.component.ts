@@ -47,7 +47,12 @@ export class AddModalComponent implements OnInit {
       12,
       13,
       14,
+      141,
+      142,
+      143,
       15,
+      151,
+      152,
     ];
     this.Week = this.getWeekNumber(new Date());
   }

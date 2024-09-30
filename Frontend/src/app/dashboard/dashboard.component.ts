@@ -13,6 +13,7 @@ interface Room {
   WaterType?: string;
   RoomNumber: number | string;
   Stage?: string;
+  subRooms?: Room[];
 }
 
 @Component({
@@ -37,7 +38,12 @@ export default class DashboardComponent implements OnInit {
     12,
     13,
     14,
+    141,
+    142,
+    143,
     15,
+    151,
+    152,
   ]; // List of fixed room numbers to display
 
   constructor(private apiService: ApiService) {} // Injecting the ApiService
@@ -68,25 +74,54 @@ export default class DashboardComponent implements OnInit {
 
   // Function to fill in room data, ensuring all fixed rooms are represented
   populateRooms(data: Room[]) {
-    this.rooms = this.fixedRooms.map((roomNumber) => {
-      // Map N1 and N2 to numeric equivalents to match backend data
-      const mappedRoomNumber =
-        roomNumber === 'N1' ? 1001 : roomNumber === 'N2' ? 1002 : roomNumber;
+    this.rooms = this.fixedRooms
+      .filter(
+        (roomNumber) =>
+          ![141, 142, 143, 151, 152].includes(roomNumber as number)
+      )
+      .map((roomNumber) => {
+        // Map N1 and N2 to numeric equivalents to match backend data
+        const mappedRoomNumber =
+          roomNumber === 'N1' ? 1001 : roomNumber === 'N2' ? 1002 : roomNumber;
 
-      // Find the room data if it exists in the incoming data
-      const existingRoom = data.find(
-        (room) => room.RoomNumber === mappedRoomNumber
-      );
+        // Find the room data if it exists in the incoming data
+        const existingRoom = data.find(
+          (room) => room.RoomNumber === mappedRoomNumber
+        );
 
-      // Return the room data or a default room object
-      return existingRoom
-        ? {
-            ...existingRoom,
+        // Check if the room should display sub-rooms
+        if (roomNumber === 14 || roomNumber === 15) {
+          // Find sub-rooms
+          const subRooms = data
+            .filter((room) =>
+              roomNumber === 14
+                ? [14, 141, 142, 143].includes(room.RoomNumber as number)
+                : [15, 151, 152].includes(room.RoomNumber as number)
+            )
+            .map((subRoom) => ({
+              ...subRoom,
+              Stage: this.calculateStage(subRoom.Date), // Apply calculateStage to each sub-room
+            }));
+
+          // Return a room with subRooms included
+          return {
             RoomNumber: roomNumber,
-            Stage: this.calculateStage(existingRoom.Date),
-          }
-        : { RoomNumber: roomNumber, Stock: 0, Week: 0, Stage: '-' };
-    });
+            subRooms,
+            Week: existingRoom?.Week || 0,
+            Stage: this.calculateStage(existingRoom?.Date),
+            Stock: existingRoom?.Stock || 0,
+          };
+        }
+
+        // Return the room data or a default room object
+        return existingRoom
+          ? {
+              ...existingRoom,
+              RoomNumber: roomNumber,
+              Stage: this.calculateStage(existingRoom.Date),
+            }
+          : { RoomNumber: roomNumber, Stock: 0, Week: 0, Stage: '-' };
+      });
   }
 
   // Private function to calculate the stage of the room based on the stock date

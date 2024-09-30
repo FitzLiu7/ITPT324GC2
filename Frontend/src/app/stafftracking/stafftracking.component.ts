@@ -101,11 +101,9 @@ export class StafftrackingComponent implements OnInit, OnDestroy {
             }
           }
         });
-
-        this.loadRoomTasks(); // Load room tasks after updating employee list
       },
       (error) => {
-        console.error('Error fetching staff task list:', error);
+        console.error('Error loading staff tasks:', error);
       }
     );
   }

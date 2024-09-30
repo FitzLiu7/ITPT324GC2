@@ -32,8 +32,28 @@ export class UpdateModalComponent implements OnInit {
   ngOnInit() {
     // Add both numeric and non-numeric room options
     this.availableRooms = [
-      '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15',
-      'N1', 'N2' // Non-numeric room identifiers
+      '1',
+      '2',
+      '3',
+      '4',
+      '5',
+      '6',
+      '7',
+      '8',
+      '9',
+      '10',
+      '11',
+      '12',
+      '13',
+      '14',
+      '141',
+      '142',
+      '143',
+      '15',
+      '151',
+      '152',
+      'N1',
+      'N2', // Non-numeric room identifiers
     ];
     this.Week = this.getWeekNumber(new Date());
   }
