@@ -30,13 +30,13 @@
           >
             <!-- FOOD (F) Task -->
             <span
-              *ngIf="isTaskCompleted(room, 'FOOD')"
+              *ngIf="isTaskCompleted(room, 'Food')"
               class="bg-yellow-400 text-white font-bold px-1 py-1 rounded"
               >F</span
             >
             <!-- WATER (W) Task -->
             <span
-              *ngIf="isTaskCompleted(room, 'WATER')"
+              *ngIf="isTaskCompleted(room, 'Water')"
               class="bg-blue-500 text-white font-bold px-1 py-1 rounded"
               >W</span
             >
@@ -98,9 +98,16 @@
             <td class="px-2 py-1 text-center border-b border-r border-gray-300">
               {{ employee.endTime }}
             </td>
-            <td class="px-2 py-1 text-center border-b border-r border-gray-300">
+            <td
+              class="px-2 py-1 text-center border-b border-r border-gray-300"
+              [ngClass]="{
+                'text-yellow-700 bg-yellow-100 ': employee.task === 'Food',
+                'text-blue-700 bg-blue-100': employee.task === 'Water'
+              }"
+            >
               {{ employee.task }}
             </td>
+
             <td class="px-2 py-1 text-center border-b border-r border-gray-300">
               {{ employee.elapsedTime }}
             </td>

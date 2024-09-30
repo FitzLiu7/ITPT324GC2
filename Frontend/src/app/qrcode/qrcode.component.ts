@@ -181,10 +181,14 @@ export class QRcodeComponent implements OnInit {
 
   toggleFoodTimer() {
     if (this.isFoodTimerRunning) {
+      // Confirmation message for ending the task
+      const confirmEnd = confirm('Are you sure you want to end the Food task?');
+      if (!confirmEnd) return; // Exit if the user clicks 'No'
+
       let params = {
         userName: this.userName,
         startTime: this.currentUserTask.startTime,
-        task: 'food',
+        task: 'Food',
         working: false,
         roomNumber: this.currentRoomNumber as number,
         endTime: new Date().getTime(), // Ensure endTime is set
@@ -205,10 +209,16 @@ export class QRcodeComponent implements OnInit {
     } else {
       if (this.isWaterTimerRunning) return;
 
+      // Confirmation message for starting the task
+      const confirmStart = confirm(
+        'Are you sure you want to start the Food task?'
+      );
+      if (!confirmStart) return; // Exit if the user clicks 'No'
+
       const params = {
         userName: this.userName,
         startTime: new Date().getTime(),
-        task: 'food',
+        task: 'Food',
         working: true,
         roomNumber: this.currentRoomNumber as number,
       };
@@ -251,11 +261,16 @@ export class QRcodeComponent implements OnInit {
 
   toggleWaterTimer() {
     if (this.isWaterTimerRunning) {
-      // Set endTime to the current time
+      // Confirmation message for ending the task
+      const confirmEnd = confirm(
+        'Are you sure you want to end the Water task?'
+      );
+      if (!confirmEnd) return; // Exit if the user clicks 'No'
+
       let params = {
         userName: this.userName,
         startTime: this.currentUserTask.startTime,
-        task: 'water',
+        task: 'Water',
         working: false,
         roomNumber: this.currentRoomNumber as number,
         endTime: new Date().getTime(), // Ensure endTime is set
@@ -276,11 +291,17 @@ export class QRcodeComponent implements OnInit {
     } else {
       if (this.isFoodTimerRunning) return; // Prevent starting water timer if food timer is running
 
+      // Confirmation message for starting the task
+      const confirmStart = confirm(
+        'Are you sure you want to start the Water task?'
+      );
+      if (!confirmStart) return; // Exit if the user clicks 'No'
+
       // Start the Water timer and add task to the database
       const params = {
         userName: this.userName,
         startTime: new Date().getTime(),
-        task: 'water',
+        task: 'Water',
         working: true,
         roomNumber: this.currentRoomNumber as number,
       };
