@@ -132,11 +132,11 @@ app.post("/addStaffTask", async (req, res) => {
 
 // Update Staff Task
 app.put("/updateStaffTask", async (req, res) => {
-    let { userName, roomNumber, startTime, task, working } = req.body;
+    let { userName, roomNumber, startTime, endTime, task, working } = req.body;
     if (working === undefined || working === null) {
         working = false;
     }
-    if (!userName || !roomNumber || !startTime || !task) {
+    if (!userName || !roomNumber || !startTime || !task || !endTime) {
         return res.status(400).send("Missing required fields");
     }
 
@@ -152,16 +152,18 @@ app.put("/updateStaffTask", async (req, res) => {
             userName: userName,
         },
         UpdateExpression:
-            "set #rn = :roomNumber, #s = :startTime, #t = :task, #wk = :working",
+            "set #rn = :roomNumber, #s = :startTime, #et = :endTime, #t = :task, #wk = :working",
         ExpressionAttributeNames: {
             "#rn": "roomNumber",
             "#s": "startTime",
+            "#et": "endTime",
             "#t": "task",
             "#wk": "working"
         },
         ExpressionAttributeValues: {
             ":roomNumber": roomNumber,
             ":startTime": startTime,
+            ":endTime": endTime,
             ":task": task,
             ":working": working,
         },
@@ -179,6 +181,7 @@ app.put("/updateStaffTask", async (req, res) => {
         res.status(500).send(`Error updating data: ${error.message}`);
     }
 });
+
 
 // Get Staff Task List
 app.get("/getStaffTaskList", async (req, res) => {
