@@ -102,11 +102,23 @@ export class ApiService {
     return this.http.get<any>(`${this.apiUrl}/getStaffTaskList`);
   }
 
-  addStaffTask(obj: { userName: string; startTime: number; roomNumber: string | number; task: string }): Observable<any> {
+  addStaffTask(obj: {
+    userName: string;
+    startTime: number;
+    roomNumber: string | number;
+    task: string;
+    endTime?: number; // Added endTime
+  }): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/addStaffTask`, obj);
   }
 
-  updateStaffTask(obj: { userName: string; startTime: number; roomNumber: string | number; task: string }): Observable<any> {
+  updateStaffTask(obj: {
+    userName: string;
+    startTime: number;
+    roomNumber: string | number;
+    task: string;
+    endTime?: number; // Added endTime
+  }): Observable<any> {
     return this.http.put<any>(`${this.apiUrl}/updateStaffTask`, obj);
   }
 

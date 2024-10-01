@@ -1,10 +1,20 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ZXingScannerModule } from '@zxing/ngx-scanner';
 import { ApiService } from '../api.service';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MinutesSecondsPipe } from '../minutes-seconds.pipe';
 import { getCurrentUser } from 'aws-amplify/auth';
+
+interface StaffTask {
+  userName: string;
+  roomNumber: number;
+  startTime: number;
+  endTime?: number;
+  task: string;
+  working: boolean;
+  elapsedTime?: number;
+}
 
 @Component({
   selector: 'app-qrcode',
@@ -13,7 +23,7 @@ import { getCurrentUser } from 'aws-amplify/auth';
   styleUrls: ['./qrcode.component.css'],
   imports: [CommonModule, ZXingScannerModule, MinutesSecondsPipe],
 })
-export class QRcodeComponent implements OnInit {
+export class QRcodeComponent implements OnInit, OnDestroy {
   isScannerOpen = true;
   roomData: any = null;
   scannerResult: string | null = null;
@@ -32,8 +42,8 @@ export class QRcodeComponent implements OnInit {
   isFoodTimerRunning = false;
   isWaterTimerRunning = false;
   status: string = 'Vacant';
-  taskList: Array<any> = [];
-  currentUserTask: any = {};
+  taskList: StaffTask[] = [];
+  currentUserTask: StaffTask | null = null;
   currentRoomNumber: number = 0;
 
   constructor(private apiService: ApiService, private router: Router) {}
@@ -41,13 +51,21 @@ export class QRcodeComponent implements OnInit {
   ngOnInit() {
     this.currentAuthenticatedUser();
     this.apiService.getStaffTaskList().subscribe(
-      (res) => {
-        this.taskList = res;
+      (res: StaffTask[]) => {
+        this.taskList = res.map((task) => ({
+          ...task,
+          elapsedTime: task.endTime ? task.endTime - task.startTime : 0,
+        }));
       },
       (error) => {
         console.log(error);
       }
     );
+  }
+
+  ngOnDestroy() {
+    if (this.foodTimer) clearInterval(this.foodTimer);
+    if (this.waterTimer) clearInterval(this.waterTimer);
   }
 
   async currentAuthenticatedUser() {
@@ -77,97 +95,103 @@ export class QRcodeComponent implements OnInit {
     let roomNumber: any;
 
     if (new RegExp(/^ITPT324GC2\s(\d+|N1|N2)$/).test(this.scannerResult)) {
-      roomNumber =
-        this.scannerResult.split(' ')[this.scannerResult.split(' ').length - 1];
+      roomNumber = this.scannerResult.split(' ').pop();
     } else {
       alert('Error with QR code');
+      return;
     }
 
-    if (roomNumber === 'N1') {
-      roomNumber = 1001;
-    } else if (roomNumber === 'N2') {
-      roomNumber = 1002;
-    }
+    roomNumber = this.resolveRoomNumber(roomNumber);
 
-    if (
-      ![1001, 1002, 1, 3, 4, 8, 9, 10, 11, 12, 13, 14, 15].includes(
-        Number(roomNumber)
-      )
-    ) {
+    if (![1001, 1002, 1, 3, 4, 8, 9, 10, 11, 12, 13, 14, 15].includes(Number(roomNumber))) {
       this.scanError = true;
       this.scanErrorMessage = 'Invalid QR code';
       return;
     }
 
-    // Fetch data for room 14 or 15 along with their sub-rooms
     if (roomNumber === 14 || roomNumber === 15) {
-      const subRoomNumbers =
-        roomNumber === 14 ? [14, 141, 142, 143] : [15, 151, 152];
-      let roomRequests = subRoomNumbers.map((subRoomNum) =>
-        this.apiService.getRoomData(subRoomNum).toPromise()
-      );
-
-      // Fetch data for the main room and all its sub-rooms
-      Promise.all(roomRequests)
-        .then((allRoomsData) => {
-          // Map the data to the same format used in the dashboard component
-          this.roomData = {
-            RoomNumber: roomNumber,
-            subRooms: allRoomsData.map((room) => ({
-              ...room,
-              Stage: this.calculateStage(room.Date),
-              Scoops: this.calculateScoops(room.Date),
-              Bottles: this.calculateBottles(room.Date),
-            })),
-          };
-
-          this.resetTimers();
-          this.scanSuccess = true;
-          this.isScannerOpen = false;
-        })
-        .catch((error) => {
-          console.error('Error fetching room data:', error);
-          this.scanError = true;
-          this.scanErrorMessage = 'Error fetching room data';
-        });
+      this.fetchSubRoomData(roomNumber);
     } else {
-      // Normal room data handling for rooms other than 14 and 15
-      this.apiService.getRoomData(roomNumber).subscribe(
-        (data) => {
-          if (!data) {
-            this.scanError = true;
-            this.scanErrorMessage = 'Room not found in the database';
-            return;
-          }
-          this.currentRoomNumber = roomNumber;
-          this.taskList.forEach((task) => {
-            if (this.userName === task.userName) {
-              this.currentUserTask = task;
-            }
-          });
-
-          console.log('Room data:', data);
-          this.roomData = data;
-          this.roomData.Stage = this.calculateStage(this.roomData.Date);
-          this.roomData.Scoops = this.calculateScoops(this.roomData.Date);
-          this.roomData.Bottles = this.calculateBottles(this.roomData.Date);
-
-          this.resetTimers();
-          this.scanSuccess = true;
-          this.isScannerOpen = false;
-        },
-        (error) => {
-          console.error('Error fetching room data:', error);
-          this.scanError = true;
-          this.scanErrorMessage = 'Error fetching room data';
-        }
-      );
+      this.fetchRoomData(roomNumber);
     }
   }
 
+  resolveRoomNumber(roomNumber: string): number {
+    if (roomNumber === 'N1') return 1001;
+    if (roomNumber === 'N2') return 1002;
+    return Number(roomNumber);
+  }
+
+  fetchSubRoomData(mainRoomNumber: number) {
+    const subRoomNumbers = mainRoomNumber === 14 ? [14, 141, 142, 143] : [15, 151, 152];
+    const roomRequests = subRoomNumbers.map((subRoomNum) =>
+      this.apiService.getRoomData(subRoomNum).toPromise()
+    );
+
+    Promise.all(roomRequests)
+      .then((allRoomsData) => {
+        this.roomData = {
+          RoomNumber: mainRoomNumber,
+          subRooms: allRoomsData.map((room) => ({
+            ...room,
+            Stage: this.calculateStage(room.Date),
+            Scoops: this.calculateScoops(room.Date),
+            Bottles: this.calculateBottles(room.Date),
+          })),
+        };
+
+        this.resetTimers();
+        this.scanSuccess = true;
+        this.isScannerOpen = false;
+      })
+      .catch((error) => {
+        console.error('Error fetching room data:', error);
+        this.scanError = true;
+        this.scanErrorMessage = 'Error fetching room data';
+      });
+  }
+
+  fetchRoomData(roomNumber: number) {
+    this.apiService.getRoomData(roomNumber).subscribe(
+      (data) => {
+        if (!data) {
+          this.scanError = true;
+          this.scanErrorMessage = 'Room not found in the database';
+          return;
+        }
+
+        this.currentRoomNumber = roomNumber;
+        this.currentUserTask = this.taskList.find((task) => task.userName === this.userName) || null;
+
+        console.log('Room data:', data);
+        this.roomData = {
+          ...data,
+          Stage: this.calculateStage(data.Date),
+          Scoops: this.calculateScoops(data.Date),
+          Bottles: this.calculateBottles(data.Date),
+        };
+
+        this.resetTimers();
+        this.scanSuccess = true;
+        this.isScannerOpen = false;
+      },
+      (error) => {
+        console.error('Error fetching room data:', error);
+        this.scanError = true;
+        this.scanErrorMessage = 'Error fetching room data';
+      }
+    );
+  }
+
   resetTimers() {
-    if (this.foodTimer) clearInterval(this.foodTimer);
-    if (this.waterTimer) clearInterval(this.waterTimer);
+    if (this.foodTimer) {
+      clearInterval(this.foodTimer);
+      this.foodTimer = null;
+    }
+    if (this.waterTimer) {
+      clearInterval(this.waterTimer);
+      this.waterTimer = null;
+    }
     this.foodStartTime = null;
     this.waterStartTime = null;
     this.foodEndTime = null;
@@ -181,23 +205,24 @@ export class QRcodeComponent implements OnInit {
 
   toggleFoodTimer() {
     if (this.isFoodTimerRunning) {
-      // Confirmation message for ending the task
-      const confirmEnd = confirm('Are you sure you want to end the Food task?');
-      if (!confirmEnd) return; // Exit if the user clicks 'No'
+      if (!this.currentUserTask) {
+        console.error('No active task found.');
+        return;
+      }
 
-      let params = {
-        userName: this.userName,
-        startTime: this.currentUserTask.startTime,
+      if (!confirm('Are you sure you want to end the Food task?')) return;
+
+      const params = {
+        ...this.currentUserTask,
         task: 'Food',
         working: false,
-        roomNumber: this.currentRoomNumber as number,
-        endTime: new Date().getTime(), // Ensure endTime is set
+        endTime: Date.now(),
       };
 
       this.apiService.updateStaffTask(params).subscribe(
         () => {
           clearInterval(this.foodTimer);
-          this.foodEndTime = new Date(); // Set the endTime as the current date
+          this.foodEndTime = new Date();
           this.isFoodTimerRunning = false;
           this.updateStatus();
         },
@@ -208,41 +233,26 @@ export class QRcodeComponent implements OnInit {
       );
     } else {
       if (this.isWaterTimerRunning) return;
+      if (!confirm('Are you sure you want to start the Food task?')) return;
 
-      // Confirmation message for starting the task
-      const confirmStart = confirm(
-        'Are you sure you want to start the Food task?'
-      );
-      if (!confirmStart) return; // Exit if the user clicks 'No'
-
-      const params = {
+      const params: StaffTask = {
         userName: this.userName,
-        startTime: new Date().getTime(),
+        startTime: Date.now(),
         task: 'Food',
         working: true,
-        roomNumber: this.currentRoomNumber as number,
+        roomNumber: this.currentRoomNumber,
       };
+
       this.currentUserTask = params;
 
-      if (Object.keys(this.currentUserTask).length > 0) {
-        this.apiService.updateStaffTask(params).subscribe(
-          () => {
-            this.startFoodTimer();
-          },
-          (error) => {
-            console.error('Failed to update staff task:', error);
-          }
-        );
-      } else {
-        this.apiService.addStaffTask(params).subscribe(
-          () => {
-            this.startFoodTimer();
-          },
-          (error) => {
-            console.error('Failed to add staff task:', error);
-          }
-        );
-      }
+      this.apiService.addStaffTask(params).subscribe(
+        () => {
+          this.startFoodTimer();
+        },
+        (error) => {
+          console.error('Failed to add staff task:', error);
+        }
+      );
     }
   }
 
@@ -252,175 +262,105 @@ export class QRcodeComponent implements OnInit {
     this.foodElapsedTime = 0;
     this.isFoodTimerRunning = true;
     this.foodTimer = setInterval(() => {
-      this.foodElapsedTime = Math.floor(
-        (new Date().getTime() - this.foodStartTime!.getTime()) / 1000
-      );
+      this.foodElapsedTime = Math.floor((Date.now() - this.foodStartTime!.getTime()) / 1000);
     }, 1000);
     this.updateStatus();
   }
 
   toggleWaterTimer() {
     if (this.isWaterTimerRunning) {
-      // Confirmation message for ending the task
-      const confirmEnd = confirm(
-        'Are you sure you want to end the Water task?'
-      );
-      if (!confirmEnd) return; // Exit if the user clicks 'No'
+      if (!this.currentUserTask) {
+        console.error('No active task found.');
+        return;
+      }
 
-      let params = {
-        userName: this.userName,
-        startTime: this.currentUserTask.startTime,
+      if (!confirm('Are you sure you want to end the Water task?')) return;
+
+      const params = {
+        ...this.currentUserTask,
         task: 'Water',
         working: false,
-        roomNumber: this.currentRoomNumber as number,
-        endTime: new Date().getTime(), // Ensure endTime is set
+        endTime: Date.now(),
       };
 
       this.apiService.updateStaffTask(params).subscribe(
         () => {
-          clearInterval(this.waterTimer); // Stop the water timer
-          this.waterEndTime = new Date(); // Set the endTime as the current date
+          clearInterval(this.waterTimer);
+          this.waterEndTime = new Date();
           this.isWaterTimerRunning = false;
           this.updateStatus();
         },
         (error) => {
           console.error('Failed to update staff task:', error);
-          alert('Error stopping the water timer. Please try again.');
+          alert('Error stopping the timer. Please try again.');
         }
       );
     } else {
-      if (this.isFoodTimerRunning) return; // Prevent starting water timer if food timer is running
+      if (this.isFoodTimerRunning) return;
+      if (!confirm('Are you sure you want to start the Water task?')) return;
 
-      // Confirmation message for starting the task
-      const confirmStart = confirm(
-        'Are you sure you want to start the Water task?'
-      );
-      if (!confirmStart) return; // Exit if the user clicks 'No'
-
-      // Start the Water timer and add task to the database
-      const params = {
+      const params: StaffTask = {
         userName: this.userName,
-        startTime: new Date().getTime(),
+        startTime: Date.now(),
         task: 'Water',
         working: true,
-        roomNumber: this.currentRoomNumber as number,
+        roomNumber: this.currentRoomNumber,
       };
+
       this.currentUserTask = params;
 
-      if (Object.keys(this.currentUserTask).length > 0) {
-        this.apiService.updateStaffTask(params).subscribe(
-          () => {
-            this.startWaterTimer();
-          },
-          (error) => {
-            console.error('Failed to update staff task:', error);
-          }
-        );
-      } else {
-        this.apiService.addStaffTask(params).subscribe(
-          () => {
-            this.startWaterTimer();
-          },
-          (error) => {
-            console.error('Failed to add staff task:', error);
-          }
-        );
-      }
+      this.apiService.addStaffTask(params).subscribe(
+        () => {
+          this.startWaterTimer();
+        },
+        (error) => {
+          console.error('Failed to add staff task:', error);
+        }
+      );
     }
   }
 
   startWaterTimer() {
-    this.waterStartTime = new Date(); // Set the start time to the current time
-    this.waterEndTime = null; // Clear any previous end time
-    this.waterElapsedTime = 0; // Reset the elapsed time to zero
-    this.isWaterTimerRunning = true; // Set the running status to true
-
-    // Start the interval to update elapsed time every second
+    this.waterStartTime = new Date();
+    this.waterEndTime = null;
+    this.waterElapsedTime = 0;
+    this.isWaterTimerRunning = true;
     this.waterTimer = setInterval(() => {
-      this.waterElapsedTime = Math.floor(
-        (new Date().getTime() - this.waterStartTime!.getTime()) / 1000
-      );
+      this.waterElapsedTime = Math.floor((Date.now() - this.waterStartTime!.getTime()) / 1000);
     }, 1000);
-
-    this.updateStatus(); // Update the status to reflect the change
+    this.updateStatus();
   }
 
   updateStatus() {
-    this.status =
-      this.isFoodTimerRunning || this.isWaterTimerRunning
-        ? 'Occupied'
-        : 'Vacant';
+    if (this.isFoodTimerRunning) {
+      this.status = 'Food Task';
+    } else if (this.isWaterTimerRunning) {
+      this.status = 'Water Task';
+    } else {
+      this.status = 'Vacant';
+    }
   }
 
-  formatTime(seconds: number): string {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs
-      .toString()
-      .padStart(2, '0')}`;
+  calculateStage(date: any): number {
+    return Math.floor((new Date().getTime() - new Date(date).getTime()) / (1000 * 60 * 60 * 24));
   }
 
-  goBack() {
+  calculateScoops(date: any): number {
+    return this.calculateStage(date) * 2;
+  }
+
+  calculateBottles(date: any): number {
+    return this.calculateStage(date) * 3;
+  }
+
+  goBack(): void {
     this.router.navigate(['/fyh']);
   }
 
-  private calculateStage(stockDate?: string): string {
-    if (!stockDate) return 'Unknown'; // Return 'Unknown' if no date is provided
+  formatTime(time: number): string {
 
-    const startDate = new Date(stockDate); // Convert stockDate to a Date object
-    const currentDate = new Date(); // Get the current date
-    const daysDiff = this.getDaysDifference(startDate, currentDate); // Calculate the difference in days
-
-    // Determine the stage based on the days difference
-    if (daysDiff < 3) return 'Babies';
-    else if (daysDiff < 8) return 'Extra Small';
-    else if (daysDiff < 14) return 'Small';
-    else if (daysDiff < 21) return 'Medium';
-    else if (daysDiff < 28) return 'Large';
-    else if (daysDiff < 35) return 'Breeders';
-    else if (daysDiff < 49) return 'Eggpots';
-    else return '-----'; // Return a placeholder if it doesn't match any stage
-  }
-
-  private calculateScoops(stockDate?: string): string {
-    if (!stockDate) return 'Unknown';
-    const startDate = new Date(stockDate);
-    const currentDate = this.adjustToNearestFeedingDay(new Date());
-    const daysDiff = this.getDaysDifference(startDate, currentDate);
-    if (daysDiff < 7) return '1/2 Scoop';
-    else if (daysDiff < 14) return '1 Scoop';
-    else if (daysDiff < 21) return '1-1/2 Scoops';
-    else if (daysDiff < 28) return '2 Scoops';
-    else if (daysDiff < 43) return '2-1/2 Scoops';
-    else if (daysDiff < 45) return '1/2 Scoop';
-    else return 'Unknown';
-  }
-
-  private calculateBottles(stockDate?: string): string {
-    if (!stockDate) return 'Unknown';
-    const startDate = new Date(stockDate);
-    const currentDate = this.adjustToNearestFeedingDay(new Date());
-    const daysDiff = this.getDaysDifference(startDate, currentDate);
-    if (daysDiff < 14) return 'Sponge';
-    else if (daysDiff < 21) return '2 Rings';
-    else if (daysDiff < 44) return '1 Ring';
-    else if (daysDiff < 45) return '1 Ring / 1 Bottle';
-    else return 'Unknown';
-  }
-
-  private adjustToNearestFeedingDay(date: Date): Date {
-    const day = date.getDay();
-    if (day === 2) {
-      date.setDate(date.getDate() + 1);
-    } else if (day === 0 || day === 4 || day === 6) {
-      const daysToAdd = (1 + 7 - day) % 7;
-      date.setDate(date.getDate() + daysToAdd);
-    }
-    return date;
-  }
-
-  private getDaysDifference(startDate: Date, currentDate: Date): number {
-    const msPerDay = 1000 * 60 * 60 * 24;
-    return Math.floor((currentDate.getTime() - startDate.getTime()) / msPerDay);
+    const minutes = Math.floor(time / 60);
+    const seconds = time % 60;
+    return `${minutes}m ${seconds}s`;
   }
 }

@@ -103,7 +103,7 @@ app.use(bodyParser.json());
 
 // Add Employee Staff TaskList
 app.post("/addStaffTask", async (req, res) => {
-    let { userName, roomNumber, startTime, task } = req.body;
+    let { userName, roomNumber, startTime, endTime, task } = req.body;
 
     if (!userName || !roomNumber || !startTime || !task) {
         return res.status(400).send("Missing required fields");
@@ -114,7 +114,12 @@ app.post("/addStaffTask", async (req, res) => {
     const params = {
         TableName: "InsectProductionStaffTimes",
         Item: {
-            userName, roomNumber, startTime, task, working: false
+            userName, 
+            roomNumber, 
+            startTime, 
+            endTime: endTime || null,
+            task, 
+            working: false
         }
     };
 
@@ -182,7 +187,6 @@ app.put("/updateStaffTask", async (req, res) => {
     }
 });
 
-
 // Get Staff Task List
 app.get("/getStaffTaskList", async (req, res) => {
     const params = {
@@ -191,7 +195,12 @@ app.get("/getStaffTaskList", async (req, res) => {
 
     try {
         const data = await dynamoDB.scan(params).promise();
-        res.json(data.Items);
+        // Include endTime in the response data if it exists
+        const tasks = data.Items.map(item => ({
+            ...item,
+            endTime: item.endTime || null,
+        }));
+        res.json(tasks);
     } catch (err) {
         console.error(
             "Unable to scan the table. Error JSON:",
@@ -200,6 +209,7 @@ app.get("/getStaffTaskList", async (req, res) => {
         res.status(500).json({ error: "Could not retrieve data" });
     }
 });
+
 
 // Add Data
 app.post("/add-data", async (req, res) => {
