@@ -4,8 +4,31 @@ import { Injectable } from '@angular/core';
   providedIn: 'root',
 })
 export class AuthService {
+  private readonly tokenKey = 'authToken';
+  private readonly userKey = 'user';
 
   constructor() {}
+
+  // Store user info (including role) in sessionStorage
+  setCurrentUser(user: any): void {
+    sessionStorage.setItem(this.userKey, JSON.stringify(user));
+  }
+
+  // Get the currently logged-in user (if any) from sessionStorage
+  getCurrentUser(): any {
+    const user = sessionStorage.getItem(this.userKey);
+    return user ? JSON.parse(user) : null;
+  }
+
+  // Clear user info on logout
+  clearCurrentUser(): void {
+    sessionStorage.removeItem(this.userKey);
+  }
+
+  // Check if user is authenticated
+  isAuthenticated(): boolean {
+    return !!this.getCurrentUser();
+  }
 
   // Determine role based on the username prefix
   getRoleFromUsername(username: string): string {
@@ -16,21 +39,5 @@ export class AuthService {
     } else {
       return 'Unknown';
     }
-  }
-
-  // Store user info (including role) in localStorage
-  setCurrentUser(user: any): void {
-    sessionStorage.setItem('user', JSON.stringify(user));
-  }
-
-  // Get the currently logged-in user (if any) from localStorage
-  getCurrentUser(): any {
-    const user = sessionStorage.getItem('user');
-    return user ? JSON.parse(user) : null;
-  }
-
-  // Clear user info on logout
-  clearCurrentUser(): void {
-    sessionStorage.removeItem('user');
   }
 }
