@@ -234,3 +234,45 @@ body {
     z-index: 100;
   }
 }
+
+/* CSS for mobile responsiveness */
+@media only screen and (max-width: 640px) {
+  .topbar {
+    padding: 0.5rem; /* Reduce padding */
+    font-size: 0.875rem; /* Adjust font size */
+  }
+
+  .topbar img {
+    width: 32px; /* Adjust logo size */
+    height: 32px;
+  }
+
+  .topbar .text-lg {
+    font-size: 1rem; /* Adjust title font size */
+  }
+
+  .topbar .flex-col span {
+    font-size: 0.75rem; /* Reduce font size for week, date, and time */
+  }
+
+  .topbar .fa-user-circle {
+    font-size: 1.5rem; /* Adjust user icon size */
+  }
+
+  .topbar .ml-2 {
+    font-size: 1rem; /* Adjust dropdown arrow size */
+  }
+
+  .topbar .flex-col .text-sm {
+    font-size: 0.75rem; /* Adjust username font size */
+  }
+
+  .topbar .w-48 {
+    width: 100%; /* Make dropdown menu take full width */
+  }
+
+  .topbar .px-4 {
+    padding-left: 0.5rem; /* Adjust dropdown padding */
+    padding-right: 0.5rem;
+  }
+}

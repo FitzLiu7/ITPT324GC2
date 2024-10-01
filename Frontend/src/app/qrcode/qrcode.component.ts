@@ -24,32 +24,33 @@ interface StaffTask {
   imports: [CommonModule, ZXingScannerModule, MinutesSecondsPipe],
 })
 export class QRcodeComponent implements OnInit, OnDestroy {
-  isScannerOpen = true;
-  roomData: any = null;
-  scannerResult: string | null = null;
-  scanSuccess = false;
-  scanError = false;
-  scanErrorMessage = '';
-  userName: string = '';
-  foodTimer: any = null;
-  waterTimer: any = null;
-  foodStartTime: Date | null = null;
-  waterStartTime: Date | null = null;
-  waterEndTime: Date | null = null;
-  foodEndTime: Date | null = null;
-  foodElapsedTime: number = 0;
-  waterElapsedTime: number = 0;
-  isFoodTimerRunning = false;
-  isWaterTimerRunning = false;
-  status: string = 'Vacant';
-  taskList: StaffTask[] = [];
-  currentUserTask: StaffTask | null = null;
-  currentRoomNumber: number = 0;
+  isScannerOpen = true; // Indicates if the scanner is active
+  roomData: any = null; // Holds room data after a successful scan
+  scannerResult: string | null = null; // Result from the QR code scan
+  scanSuccess = false; // Indicates a successful scan
+  scanError = false; // Indicates if there was an error scanning
+  scanErrorMessage = ''; // Holds the error message in case of a scan failure
+  userName: string = ''; // Stores the authenticated user's name
+  foodTimer: any = null; // Interval reference for the food timer
+  waterTimer: any = null; // Interval reference for the water timer
+  foodStartTime: Date | null = null; // Start time for the food task
+  waterStartTime: Date | null = null; // Start time for the water task
+  waterEndTime: Date | null = null; // End time for the water task
+  foodEndTime: Date | null = null; // End time for the food task
+  foodElapsedTime: number = 0; // Tracks the elapsed time for the food task
+  waterElapsedTime: number = 0; // Tracks the elapsed time for the water task
+  isFoodTimerRunning = false; // Indicates if the food timer is running
+  isWaterTimerRunning = false; // Indicates if the water timer is running
+  status: string = 'Vacant'; // Current status display
+  taskList: StaffTask[] = []; // List of tasks retrieved from the backend
+  currentUserTask: StaffTask | null = null; // The current task for the logged-in user
+  currentRoomNumber: number = 0; // Stores the currently scanned room number
 
   constructor(private apiService: ApiService, private router: Router) {}
 
   ngOnInit() {
     this.currentAuthenticatedUser();
+    // Retrieve the list of staff tasks when component is initialized
     this.apiService.getStaffTaskList().subscribe(
       (res: StaffTask[]) => {
         this.taskList = res.map((task) => ({
@@ -64,10 +65,12 @@ export class QRcodeComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
+    // Clear timers when the component is destroyed
     if (this.foodTimer) clearInterval(this.foodTimer);
     if (this.waterTimer) clearInterval(this.waterTimer);
   }
 
+  // Retrieve the currently authenticated user
   async currentAuthenticatedUser() {
     try {
       const { username } = await getCurrentUser();
@@ -77,6 +80,7 @@ export class QRcodeComponent implements OnInit, OnDestroy {
     }
   }
 
+  // Open QR scanner and reset necessary data
   openQrScanner() {
     this.isScannerOpen = true;
     this.roomData = null;
@@ -86,6 +90,7 @@ export class QRcodeComponent implements OnInit, OnDestroy {
     this.resetTimers();
   }
 
+  // Handle the QR code scan result
   onCodeResult(resultString: string) {
     this.scannerResult = resultString.trim();
     console.log('Scanned QR:', resultString);
@@ -103,12 +108,18 @@ export class QRcodeComponent implements OnInit, OnDestroy {
 
     roomNumber = this.resolveRoomNumber(roomNumber);
 
-    if (![1001, 1002, 1, 3, 4, 8, 9, 10, 11, 12, 13, 14, 15].includes(Number(roomNumber))) {
+    // Validate if the room number is among the allowed ones
+    if (
+      ![1001, 1002, 1, 3, 4, 8, 9, 10, 11, 12, 13, 14, 15].includes(
+        Number(roomNumber)
+      )
+    ) {
       this.scanError = true;
       this.scanErrorMessage = 'Invalid QR code';
       return;
     }
 
+    // Fetch room data or sub-room data based on room number
     if (roomNumber === 14 || roomNumber === 15) {
       this.fetchSubRoomData(roomNumber);
     } else {
@@ -116,20 +127,24 @@ export class QRcodeComponent implements OnInit, OnDestroy {
     }
   }
 
+  // Resolve room number from scan result
   resolveRoomNumber(roomNumber: string): number {
     if (roomNumber === 'N1') return 1001;
     if (roomNumber === 'N2') return 1002;
     return Number(roomNumber);
   }
 
+  // Fetch data for rooms 14 or 15 and their sub-rooms
   fetchSubRoomData(mainRoomNumber: number) {
-    const subRoomNumbers = mainRoomNumber === 14 ? [14, 141, 142, 143] : [15, 151, 152];
+    const subRoomNumbers =
+      mainRoomNumber === 14 ? [14, 141, 142, 143] : [15, 151, 152];
     const roomRequests = subRoomNumbers.map((subRoomNum) =>
       this.apiService.getRoomData(subRoomNum).toPromise()
     );
 
     Promise.all(roomRequests)
       .then((allRoomsData) => {
+        // Populate data for the room and its sub-rooms
         this.roomData = {
           RoomNumber: mainRoomNumber,
           subRooms: allRoomsData.map((room) => ({
@@ -151,6 +166,7 @@ export class QRcodeComponent implements OnInit, OnDestroy {
       });
   }
 
+  // Fetch data for a single room
   fetchRoomData(roomNumber: number) {
     this.apiService.getRoomData(roomNumber).subscribe(
       (data) => {
@@ -161,9 +177,10 @@ export class QRcodeComponent implements OnInit, OnDestroy {
         }
 
         this.currentRoomNumber = roomNumber;
-        this.currentUserTask = this.taskList.find((task) => task.userName === this.userName) || null;
+        this.currentUserTask =
+          this.taskList.find((task) => task.userName === this.userName) || null;
 
-        console.log('Room data:', data);
+        // Populate data for the room
         this.roomData = {
           ...data,
           Stage: this.calculateStage(data.Date),
@@ -183,6 +200,7 @@ export class QRcodeComponent implements OnInit, OnDestroy {
     );
   }
 
+  // Reset timer-related variables
   resetTimers() {
     if (this.foodTimer) {
       clearInterval(this.foodTimer);
@@ -203,6 +221,7 @@ export class QRcodeComponent implements OnInit, OnDestroy {
     this.status = 'Vacant';
   }
 
+  // Toggle the food timer on or off
   toggleFoodTimer() {
     if (this.isFoodTimerRunning) {
       if (!this.currentUserTask) {
@@ -256,17 +275,21 @@ export class QRcodeComponent implements OnInit, OnDestroy {
     }
   }
 
+  // Start the food timer and update its elapsed time
   startFoodTimer() {
     this.foodStartTime = new Date();
     this.foodEndTime = null;
     this.foodElapsedTime = 0;
     this.isFoodTimerRunning = true;
     this.foodTimer = setInterval(() => {
-      this.foodElapsedTime = Math.floor((Date.now() - this.foodStartTime!.getTime()) / 1000);
+      this.foodElapsedTime = Math.floor(
+        (Date.now() - this.foodStartTime!.getTime()) / 1000
+      );
     }, 1000);
     this.updateStatus();
   }
 
+  // Toggle the water timer on or off
   toggleWaterTimer() {
     if (this.isWaterTimerRunning) {
       if (!this.currentUserTask) {
@@ -320,47 +343,97 @@ export class QRcodeComponent implements OnInit, OnDestroy {
     }
   }
 
+  // Start the water timer and update its elapsed time
   startWaterTimer() {
     this.waterStartTime = new Date();
     this.waterEndTime = null;
     this.waterElapsedTime = 0;
     this.isWaterTimerRunning = true;
     this.waterTimer = setInterval(() => {
-      this.waterElapsedTime = Math.floor((Date.now() - this.waterStartTime!.getTime()) / 1000);
+      this.waterElapsedTime = Math.floor(
+        (Date.now() - this.waterStartTime!.getTime()) / 1000
+      );
     }, 1000);
     this.updateStatus();
   }
 
+  // Update the status based on the current task
   updateStatus() {
     if (this.isFoodTimerRunning) {
-      this.status = 'Food Task';
+      this.status = 'Occupied';
     } else if (this.isWaterTimerRunning) {
-      this.status = 'Water Task';
+      this.status = 'Occupied';
     } else {
       this.status = 'Vacant';
     }
   }
 
-  calculateStage(date: any): number {
-    return Math.floor((new Date().getTime() - new Date(date).getTime()) / (1000 * 60 * 60 * 24));
+  private calculateStage(stockDate?: string): string {
+    if (!stockDate) return 'Unknown'; // Return 'Unknown' if no date is provided
+
+    const startDate = new Date(stockDate); // Convert stockDate to a Date object
+    const currentDate = new Date(); // Get the current date
+    const daysDiff = this.getDaysDifference(startDate, currentDate); // Calculate the difference in days
+
+    // Determine the stage based on the days difference
+    if (daysDiff < 3) return 'Babies';
+    else if (daysDiff < 8) return 'Extra Small';
+    else if (daysDiff < 14) return 'Small';
+    else if (daysDiff < 21) return 'Medium';
+    else if (daysDiff < 28) return 'Large';
+    else if (daysDiff < 35) return 'Breeders';
+    else if (daysDiff < 49) return 'Eggpots';
+    else return '-----'; // Return a placeholder if it doesn't match any stage
   }
 
-  calculateScoops(date: any): number {
-    return this.calculateStage(date) * 2;
+  private calculateScoops(stockDate?: string): string {
+    if (!stockDate) return 'Unknown';
+    const startDate = new Date(stockDate);
+    const currentDate = this.adjustToNearestFeedingDay(new Date());
+    const daysDiff = this.getDaysDifference(startDate, currentDate);
+    if (daysDiff < 7) return '1/2 ';
+    else if (daysDiff < 14) return '1 ';
+    else if (daysDiff < 21) return '1-1/2 ';
+    else if (daysDiff < 28) return '2 ';
+    else if (daysDiff < 43) return '2-1/2 ';
+    else if (daysDiff < 45) return '1/2 ';
+    else return 'Unknown';
   }
 
-  calculateBottles(date: any): number {
-    return this.calculateStage(date) * 3;
+  private calculateBottles(stockDate?: string): string {
+    if (!stockDate) return 'Unknown';
+    const startDate = new Date(stockDate);
+    const currentDate = this.adjustToNearestFeedingDay(new Date());
+    const daysDiff = this.getDaysDifference(startDate, currentDate);
+    if (daysDiff < 14) return 'Sponge';
+    else if (daysDiff < 21) return '2 Rings';
+    else if (daysDiff < 44) return '1 Ring';
+    else if (daysDiff < 45) return '1 Ring / 1 Bottle';
+    else return 'Unknown';
   }
 
+  private adjustToNearestFeedingDay(date: Date): Date {
+    const day = date.getDay();
+    if (day === 2) {
+      date.setDate(date.getDate() + 1);
+    } else if (day === 0 || day === 4 || day === 6) {
+      const daysToAdd = (1 + 7 - day) % 7;
+      date.setDate(date.getDate() + daysToAdd);
+    }
+    return date;
+  }
   goBack(): void {
     this.router.navigate(['/fyh']);
   }
 
   formatTime(time: number): string {
-
     const minutes = Math.floor(time / 60);
     const seconds = time % 60;
     return `${minutes}m ${seconds}s`;
+  }
+
+  private getDaysDifference(startDate: Date, currentDate: Date): number {
+    const msPerDay = 1000 * 60 * 60 * 24;
+    return Math.floor((currentDate.getTime() - startDate.getTime()) / msPerDay);
   }
 }
