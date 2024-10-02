@@ -1,60 +1,8 @@
-<div class="container mx-auto p-2">
+<div class="container mx-auto mt-9 p-2">
   <!-- Top Calendar styled table with reduced size -->
-  <div class="overflow-x-auto mt-10 mx-2 lg:ml-24 lg:mr-4">
-    <table
-      class="min-w-full bg-white shadow-md rounded-md overflow-hidden border border-gray-300"
-    >
-      <thead>
-        <tr>
-          <th
-            class="px-2 py-1 bg-green-600 text-white text-lg font-bold text-center border-b border-gray-300"
-          ></th>
-          <th
-            *ngFor="let room of rooms"
-            class="px-2 py-1 bg-green-600 text-white text-lg font-bold text-center border-b border-gray-300"
-          >
-            {{ room }}
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr class="hover:bg-gray-100">
-          <td
-            class="px-2 py-1 text-lg font-bold text-center border-b border-r border-gray-300"
-          >
-            Tasks
-          </td>
-          <td
-            *ngFor="let room of rooms"
-            class="px-2 py-1 text-center border-b border-r border-gray-300"
-          >
-            <!-- FOOD (F) Task -->
-            <span
-              *ngIf="isTaskCompleted(room, 'Food')"
-              class="bg-yellow-400 text-white font-bold px-1 py-1 rounded"
-              >F</span
-            >
-            <!-- WATER (W) Task -->
-            <span
-              *ngIf="isTaskCompleted(room, 'Water')"
-              class="bg-blue-500 text-white font-bold px-1 py-1 rounded"
-              >W</span
-            >
-            <!-- Tick when both tasks are completed -->
-            <span
-              *ngIf="isRoomCompleted(room)"
-              class="ml-2 text-green-600"
-              style="font-size: 20px"
-              >&#10003;</span
-            >
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
 
   <!-- Employee Table adjusted size -->
-  <div class="overflow-x-auto mt-1 mx-2 lg:ml-24 lg:mr-4">
+  <div class="overflow-x-auto mt-10 mx-2 lg:ml-24 lg:mr-4">
     <div class="mt-4">
       <table
         class="min-w-full bg-white shadow-md rounded-md overflow-hidden border border-gray-300"
@@ -115,6 +63,87 @@
         </tbody>
       </table>
     </div>
+  </div>
+  <!-- completation room table -->
+  <div class="overflow-x-auto mt-6 mx-2 lg:ml-24 lg:mr-4">
+    <table
+      class="min-w-full bg-white shadow-md rounded-md overflow-hidden border border-gray-300"
+    >
+      <thead>
+        <tr>
+          <th
+            rowspan="2"
+            class="px-4 py-2 bg-green-600 text-white text-lg font-bold text-center border-b border-gray-300"
+          >
+            Room
+          </th>
+          <th
+            colspan="4"
+            class="px-4 py-2 bg-yellow-400 text-white text-lg font-bold text-center border-b border-gray-300"
+          >
+            FOOD
+          </th>
+          <th
+            colspan="4"
+            class="px-4 py-2 bg-blue-500 text-white text-lg font-bold text-center border-b border-gray-300"
+          >
+            WATER
+          </th>
+        </tr>
+        <tr
+          class="bg-gray-100 text-xs font-semibold text-gray-700 uppercase tracking-wide"
+        >
+          <th class="px-2 py-1 border-b border-gray-300">Start Time</th>
+          <th class="px-2 py-1 border-b border-gray-300">End Time</th>
+          <th class="px-2 py-1 border-b border-gray-300">Staff</th>
+          <th class="px-2 py-1 border-b border-gray-300">Elapsed</th>
+          <th class="px-2 py-1 border-b border-gray-300">Start Time</th>
+          <th class="px-2 py-1 border-b border-gray-300">End Time</th>
+          <th class="px-2 py-1 border-b border-gray-300">Staff</th>
+          <th class="px-2 py-1 border-b border-gray-300">Elapsed</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let room of rooms" class="hover:bg-gray-100">
+          <td
+            class="px-4 py-2 text-center font-bold border-b border-gray-300"
+            [ngClass]="{
+              'text-red-600':
+                room === 'N1' || room === 'N2' || room === '14' || room === '15'
+            }"
+          >
+            {{ room }}
+          </td>
+          <!-- Food Section -->
+          <td class="px-2 py-1 text-center border-b border-gray-300">
+            {{ roomTasks[room]?.foodStartTime || "--" }}
+          </td>
+          <td class="px-2 py-1 text-center border-b border-gray-300">
+            {{ roomTasks[room]?.foodEndTime || "--" }}
+          </td>
+          <td class="px-2 py-1 text-center border-b border-gray-300">
+            {{ roomTasks[room]?.foodStaff || "--" }}
+          </td>
+          <td class="px-2 py-1 text-center border-b border-gray-300">
+            {{ roomTasks[room]?.foodElapsed || "--" }}
+          </td>
+
+          <!-- Water Section -->
+          <td class="px-2 py-1 text-center border-b border-gray-300">
+            {{ roomTasks[room]?.waterStartTime || "--" }}
+          </td>
+          <td class="px-2 py-1 text-center border-b border-gray-300">
+            {{ roomTasks[room]?.waterEndTime || "--" }}
+          </td>
+          <td class="px-2 py-1 text-center border-b border-gray-300">
+            {{ roomTasks[room]?.waterStaff || "--" }}
+          </td>
+          <td class="px-2 py-1 text-center border-b border-gray-300">
+            {{ roomTasks[room]?.waterElapsed || "--" }}
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 
   <!-- Refresh Button positioned at the bottom right -->
