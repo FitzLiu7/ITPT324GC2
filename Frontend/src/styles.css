@@ -276,3 +276,60 @@ body {
     padding-right: 0.5rem;
   }
 }
+/* Global Styles for Sidebar */
+
+/* Default styles for larger screens */
+.sidebar {
+  width: 4rem; /* Adjust the default width for larger screens if necessary */
+}
+
+/* For small screens (mobile view) */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 3rem;
+    margin-top: 30px; /* Adjust the sidebar width for smaller screens */
+  }
+
+  .sidebar-header {
+    padding: 0.5rem; /* Adjust padding for smaller space */
+  }
+
+  .sidebar .logo {
+    height: 2rem; /* Make the logo smaller for mobile */
+  }
+
+  .sidebar-link {
+    font-size: 0.6rem; /* Smaller text size */
+    padding: 0.3rem; /* Less padding for links */
+  }
+
+  .sidebar-link i {
+    font-size: 0.8rem; /* Smaller icon size */
+  }
+
+  /* Hide the text on small screens to save space */
+  .sidebar-link span {
+    display: none;
+  }
+
+  /* Adjust content area */
+  .content {
+    margin-left: 3rem; /* Align content with the smaller sidebar width */
+    padding: 1rem; /* Adjust padding for mobile */
+  }
+}
+
+/* For extra small screens (very narrow mobile phones) */
+@media (max-width: 480px) {
+  .sidebar {
+    width: 2.5rem; /* Further reduce the sidebar width */
+  }
+
+  .sidebar .logo {
+    height: 1.5rem; /* Further reduce logo size */
+  }
+
+  .content {
+    margin-left: 2.5rem; /* Align content with smaller sidebar */
+  }
+}
