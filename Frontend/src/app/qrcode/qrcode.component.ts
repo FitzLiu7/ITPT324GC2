@@ -109,6 +109,8 @@ export class QRcodeComponent implements OnInit, OnDestroy {
 
     roomNumber = this.resolveRoomNumber(roomNumber);
 
+    this.currentRoomNumber = roomNumber;
+
     // Validate if the room number is among the allowed ones
     if (
       ![1001, 1002, 1, 3, 4, 8, 9, 10, 11, 12, 13, 14, 15].includes(
@@ -255,7 +257,7 @@ export class QRcodeComponent implements OnInit, OnDestroy {
     this.waterElapsedTime = 0;
     this.isFoodTimerRunning = false;
     this.isWaterTimerRunning = false;
-    this.status = 'Vacant';
+    this.status = 'Idle';
   }
 
   // Toggle the food timer on or off
@@ -273,7 +275,10 @@ export class QRcodeComponent implements OnInit, OnDestroy {
         task: 'Food',
         working: false,
         endTime: Date.now(),
+        roomNumber: this.currentRoomNumber,
       };
+
+      console.log('Sending the following params to the API:', params);
 
       this.apiService.updateStaffTask(params).subscribe(
         () => {
@@ -299,11 +304,14 @@ export class QRcodeComponent implements OnInit, OnDestroy {
         roomNumber: this.currentRoomNumber,
       };
 
+      console.log('Sending the following params to the API:', params);
+
       this.currentUserTask = params;
 
       this.apiService.addStaffTask(params).subscribe(
         () => {
           this.startFoodTimer();
+          this.updateStatus();
         },
         (error) => {
           console.error('Failed to add staff task:', error);
@@ -341,6 +349,7 @@ export class QRcodeComponent implements OnInit, OnDestroy {
         task: 'Water',
         working: false,
         endTime: Date.now(),
+        roomNumber: this.currentRoomNumber,
       };
 
       this.apiService.updateStaffTask(params).subscribe(
@@ -397,16 +406,16 @@ export class QRcodeComponent implements OnInit, OnDestroy {
   // Update the status based on the current task
   updateStatus() {
     if (this.isFoodTimerRunning) {
-      this.status = 'Occupied';
+      this.status = 'Working';
     } else if (this.isWaterTimerRunning) {
-      this.status = 'Occupied';
+      this.status = 'Working';
     } else {
-      this.status = 'Vacant';
+      this.status = 'Idle';
     }
   }
 
   private calculateStage(stockDate?: string): string {
-    if (!stockDate) return 'Unknown'; // Return 'Unknown' if no date is provided
+    if (!stockDate) return '--'; // Return 'Unknown' if no date is provided
 
     const startDate = new Date(stockDate); // Convert stockDate to a Date object
     const currentDate = new Date(); // Get the current date
@@ -424,7 +433,7 @@ export class QRcodeComponent implements OnInit, OnDestroy {
   }
 
   private calculateScoops(stockDate?: string): string {
-    if (!stockDate) return 'Unknown';
+    if (!stockDate) return '--';
     const startDate = new Date(stockDate);
     const currentDate = this.adjustToNearestFeedingDay(new Date());
     const daysDiff = this.getDaysDifference(startDate, currentDate);
@@ -434,11 +443,11 @@ export class QRcodeComponent implements OnInit, OnDestroy {
     else if (daysDiff < 28) return '2 ';
     else if (daysDiff < 43) return '2-1/2 ';
     else if (daysDiff < 45) return '1/2 ';
-    else return 'Unknown';
+    else return '--';
   }
 
   private calculateBottles(stockDate?: string): string {
-    if (!stockDate) return 'Unknown';
+    if (!stockDate) return '--';
     const startDate = new Date(stockDate);
     const currentDate = this.adjustToNearestFeedingDay(new Date());
     const daysDiff = this.getDaysDifference(startDate, currentDate);
@@ -446,7 +455,7 @@ export class QRcodeComponent implements OnInit, OnDestroy {
     else if (daysDiff < 21) return '2 Rings';
     else if (daysDiff < 44) return '1 Ring';
     else if (daysDiff < 45) return '1 Ring / 1 Bottle';
-    else return 'Unknown';
+    else return '--';
   }
 
   private adjustToNearestFeedingDay(date: Date): Date {

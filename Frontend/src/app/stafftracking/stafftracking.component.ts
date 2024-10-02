@@ -43,11 +43,12 @@ export class StafftrackingComponent implements OnInit, OnDestroy {
     this.rooms = this.rooms.map((roomName: any) => {
       return {
         name: roomName,
-        roomNumber: roomName === 'N1' ? 1001 : roomName === 'N2' ? 1002 : roomName,
+        roomNumber:
+          roomName === 'N1' ? 1001 : roomName === 'N2' ? 1002 : roomName,
         food: null,
-        water: null
-      }
-    })
+        water: null,
+      };
+    });
 
     this.apiService.getUserList().subscribe(
       (data) => {
@@ -91,7 +92,8 @@ export class StafftrackingComponent implements OnInit, OnDestroy {
               // Update employee details with task information
               this.employeeList[index] = {
                 ...e,
-                status: res[i].working ? 'Working' : 'Idle',
+                // Check if working or idle based on startTime and endTime
+                status: startTime && !endTime ? 'Working' : 'Idle',
                 startTime: startTime ? startTime.toLocaleTimeString() : '--',
                 endTime: endTime ? endTime.toLocaleTimeString() : '--',
                 task: res[i].task || '--',
@@ -108,20 +110,19 @@ export class StafftrackingComponent implements OnInit, OnDestroy {
                 this.stopElapsedTime(index); // Stop the interval when endTime is received
               }
 
-              // map data
-              this.rooms.forEach((room:any) => {
+              // map data to the rooms (similar to the current logic)
+              this.rooms.forEach((room: any) => {
                 if (room.roomNumber === this.employeeList[index].roomNumber) {
-                  if(this.employeeList[index].task === 'Food') {
-                    room.food = this.employeeList[index]
+                  if (this.employeeList[index].task === 'Food') {
+                    room.food = this.employeeList[index];
                   }
-                  if(this.employeeList[index].task === 'Water') {
-                    room.water = this.employeeList[index]
+                  if (this.employeeList[index].task === 'Water') {
+                    room.water = this.employeeList[index];
                   }
                 }
-              })
+              });
             }
           }
-
         });
       },
       (error) => {
@@ -173,7 +174,7 @@ export class StafftrackingComponent implements OnInit, OnDestroy {
   // Load tasks completed by each room
   loadRoomTasks() {
     // Initialize roomTasks for each room with default values
-    this.rooms.forEach((room:any) => {
+    this.rooms.forEach((room: any) => {
       this.roomTasks[room] = { FOOD: false, WATER: false, completed: false };
       this.employeeList.forEach((employee) => {
         if (employee.roomNumber == room && employee.task === 'FOOD') {
