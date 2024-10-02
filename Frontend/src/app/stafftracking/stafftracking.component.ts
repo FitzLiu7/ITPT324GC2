@@ -18,7 +18,7 @@ import {
   styleUrls: ['./stafftracking.component.css'],
 })
 export class StafftrackingComponent implements OnInit, OnDestroy {
-  rooms = ['N1', 'N2', 1, 3, 4, 8, 9, 10, 11, 12, 13, 14, 15]; // List of room labels/numbers
+  rooms: any = ['N1', 'N2', 1, 3, 4, 8, 9, 10, 11, 12, 13, 14, 15]; // List of room labels/numbers
   roomTasks: any = {}; // Stores completed tasks by room
   employeeList: Array<any> = []; // List of employees to be displayed
   signupForm: FormGroup;
@@ -40,6 +40,15 @@ export class StafftrackingComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     // Fetch initial user data when the component is initialized
+    this.rooms = this.rooms.map((roomName: any) => {
+      return {
+        name: roomName,
+        roomNumber: roomName === 'N1' ? 1001 : roomName === 'N2' ? 1002 : roomName,
+        food: null,
+        water: null
+      }
+    })
+
     this.apiService.getUserList().subscribe(
       (data) => {
         // Initialize employee list with default values
@@ -98,8 +107,21 @@ export class StafftrackingComponent implements OnInit, OnDestroy {
               } else if (endTime) {
                 this.stopElapsedTime(index); // Stop the interval when endTime is received
               }
+
+              // map data
+              this.rooms.forEach((room:any) => {
+                if (room.roomNumber === this.employeeList[index].roomNumber) {
+                  if(this.employeeList[index].task === 'Food') {
+                    room.food = this.employeeList[index]
+                  }
+                  if(this.employeeList[index].task === 'Water') {
+                    room.water = this.employeeList[index]
+                  }
+                }
+              })
             }
           }
+
         });
       },
       (error) => {
@@ -151,7 +173,7 @@ export class StafftrackingComponent implements OnInit, OnDestroy {
   // Load tasks completed by each room
   loadRoomTasks() {
     // Initialize roomTasks for each room with default values
-    this.rooms.forEach((room) => {
+    this.rooms.forEach((room:any) => {
       this.roomTasks[room] = { FOOD: false, WATER: false, completed: false };
       this.employeeList.forEach((employee) => {
         if (employee.roomNumber == room && employee.task === 'FOOD') {

@@ -119,7 +119,7 @@ app.post("/addStaffTask", async (req, res) => {
             startTime, 
             endTime: endTime || null,
             task, 
-            working: false
+            working: true
         }
     };
 
@@ -138,10 +138,12 @@ app.post("/addStaffTask", async (req, res) => {
 // Update Staff Task
 app.put("/updateStaffTask", async (req, res) => {
     let { userName, roomNumber, startTime, endTime, task, working } = req.body;
+
     if (working === undefined || working === null) {
         working = false;
     }
-    if (!userName || !roomNumber || !startTime || !task || !endTime) {
+
+    if (!userName || !roomNumber || !startTime || !task) {
         return res.status(400).send("Missing required fields");
     }
 

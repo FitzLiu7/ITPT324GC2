@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MinutesSecondsPipe } from '../minutes-seconds.pipe';
 import { getCurrentUser } from 'aws-amplify/auth';
+import {log} from "@angular-devkit/build-angular/src/builders/ssr-dev-server";
 
 interface StaffTask {
   userName: string;
@@ -177,8 +178,7 @@ export class QRcodeComponent implements OnInit, OnDestroy {
         }
 
         this.currentRoomNumber = roomNumber;
-        this.currentUserTask =
-          this.taskList.find((task) => task.userName === this.userName) || null;
+
 
         // Populate data for the room
         this.roomData = {
@@ -189,6 +189,37 @@ export class QRcodeComponent implements OnInit, OnDestroy {
         };
 
         this.resetTimers();
+        this.currentUserTask =
+          this.taskList.find((task) => task.userName === this.userName) || null;
+
+        if(this.currentUserTask) {
+          if(this.currentUserTask.working) {
+            this.status = 'Occupied';
+            if(this.currentUserTask.task === 'Food') {
+              this.isFoodTimerRunning = true
+              this.foodStartTime = new Date(this.currentUserTask.startTime);
+              this.foodTimer = setInterval(() => {
+                this.foodElapsedTime = Math.floor(
+                  (Date.now() - this.foodStartTime!.getTime()) / 1000
+                );
+              }, 1000);
+            }
+
+            if(this.currentUserTask.task === 'Water') {
+              this.isWaterTimerRunning = true
+              this.waterStartTime = new Date(this.currentUserTask.startTime);
+              this.waterTimer = setInterval(() => {
+                this.waterElapsedTime = Math.floor(
+                  (Date.now() - this.waterStartTime!.getTime()) / 1000
+                );
+              }, 1000);
+            }
+          }
+        }
+
+
+
+
         this.scanSuccess = true;
         this.isScannerOpen = false;
       },
@@ -241,7 +272,7 @@ export class QRcodeComponent implements OnInit, OnDestroy {
       this.apiService.updateStaffTask(params).subscribe(
         () => {
           clearInterval(this.foodTimer);
-          this.foodEndTime = new Date();
+          this.foodEndTime = new Date()
           this.isFoodTimerRunning = false;
           this.updateStatus();
         },

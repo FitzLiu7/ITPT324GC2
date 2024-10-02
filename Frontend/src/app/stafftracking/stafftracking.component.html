@@ -112,34 +112,34 @@
                 room === 'N1' || room === 'N2' || room === '14' || room === '15'
             }"
           >
-            {{ room }}
+            {{ room.name }}
           </td>
           <!-- Food Section -->
           <td class="px-2 py-1 text-center border-b border-gray-300">
-            {{ roomTasks[room]?.foodStartTime || "--" }}
+            {{ room.food?.startTime || "--" }}
           </td>
           <td class="px-2 py-1 text-center border-b border-gray-300">
-            {{ roomTasks[room]?.foodEndTime || "--" }}
+            {{ room.food?.endTime || "--" }}
           </td>
           <td class="px-2 py-1 text-center border-b border-gray-300">
-            {{ roomTasks[room]?.foodStaff || "--" }}
+            {{ room.food?.Username || "--" }}
           </td>
           <td class="px-2 py-1 text-center border-b border-gray-300">
-            {{ roomTasks[room]?.foodElapsed || "--" }}
+            {{ room.food?.elapsedTime || "--" }}
           </td>
 
           <!-- Water Section -->
           <td class="px-2 py-1 text-center border-b border-gray-300">
-            {{ roomTasks[room]?.waterStartTime || "--" }}
+            {{ room.water?.startTime || "--" }}
           </td>
           <td class="px-2 py-1 text-center border-b border-gray-300">
-            {{ roomTasks[room]?.waterEndTime || "--" }}
+            {{ room.water?.endTime || "--" }}
           </td>
           <td class="px-2 py-1 text-center border-b border-gray-300">
-            {{ roomTasks[room]?.waterStaff || "--" }}
+            {{ room.water?.Username || "--" }}
           </td>
           <td class="px-2 py-1 text-center border-b border-gray-300">
-            {{ roomTasks[room]?.waterElapsed || "--" }}
+            {{ room.water?.elapsedTime || "--" }}
           </td>
         </tr>
       </tbody>
