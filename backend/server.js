@@ -403,6 +403,7 @@ app.put("/release-tubs", async (req, res) => {
         return res.status(400).json({ error: "Invalid RoomNumber" });
     }
 
+    // Step 1: Decrease the Tubs value
     const params = {
         TableName: process.env.DYNAMODB_TABLE || "InsectProductionStock",
         Key: {
@@ -417,24 +418,53 @@ app.put("/release-tubs", async (req, res) => {
             ":amount": amount, // The amount to subtract
         },
         ReturnValues: "UPDATED_NEW", // Return the updated value
+        ConditionExpression: "#tubsStock >= :amount", // Ensure there's enough stock to release
     };
 
     try {
         const result = await dynamoDB.update(params).promise(); // Update the stock in DynamoDB
-        if (result.Attributes) {
-            res.status(200).json({ message: "Tubs released successfully", updatedTubsStock: result.Attributes.Tubs });
+
+        // Check if the Tubs value has reached 0
+        if (result.Attributes.Tubs === 0) {
+            // Step 2: Set other fields to null when Tubs reach 0
+            const clearParams = {
+                TableName: process.env.DYNAMODB_TABLE || "InsectProductionStock",
+                Key: {
+                    RoomNumber: partitionKey,
+                },
+                UpdateExpression: "SET #d = :nullVal, #ft = :nullVal, #wt = :nullVal, #w = :nullVal, #s = :nullVal, #st = :nullVal", 
+                ExpressionAttributeNames: {
+                    "#d": "Date",
+                    "#ft": "FoodType",
+                    "#wt": "WaterType",
+                    "#w": "Week",
+                    "#s": "Stock",
+                    "#st": "StockType",
+                },
+                ExpressionAttributeValues: {
+                    ":nullVal": null, // Set the values to null
+                },
+                ReturnValues: "UPDATED_NEW",
+            };
+
+            // Set the fields to null in the table
+            await dynamoDB.update(clearParams).promise();
 
             // Optionally, broadcast update via WebSocket if needed
-            broadcastUpdate({ message: "Tubs released", data: { RoomNumber: partitionKey, Tubs: result.Attributes.Tubs } });
-        } else {
-            res.status(404).json({ error: "Room not found or insufficient stock" });
+            broadcastUpdate({ message: "Tubs reached 0; other data cleared", data: { RoomNumber: partitionKey } });
         }
+
+        res.status(200).json({ message: "Tubs released successfully", updatedTubsStock: result.Attributes.Tubs });
     } catch (error) {
         console.error("Error releasing tubs:", error);
         // Enhance error handling
+        if (error.code === "ConditionalCheckFailedException") {
+            return res.status(400).json({ error: "Insufficient tubs available" });
+        }
         res.status(500).json({ error: `Error releasing tubs: ${error.message}` });
     }
 });
+
 
 
 app.get('/getUserList', async (req, res) => {

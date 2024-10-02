@@ -114,9 +114,9 @@ export class FoodandhydrationComponent implements OnInit {
             RoomNumber: roomNumber,
             Stock: 0,
             Week: 0,
-            Stage: '',
-            FoodType: '',
-            WaterType: '',
+            Stage: '-',
+            FoodType: '-',
+            WaterType: '-',
           };
     });
   }
@@ -142,7 +142,7 @@ export class FoodandhydrationComponent implements OnInit {
   }
 
   private calculateStage(stockDate?: string): string {
-    if (!stockDate) return 'Unknown'; // Return 'Unknown' if no date is provided
+    if (!stockDate) return '-'; // Return 'Unknown' if no date is provided
 
     const startDate = new Date(stockDate); // Convert stockDate to a Date object
     const currentDate = new Date(); // Get the current date
@@ -160,7 +160,7 @@ export class FoodandhydrationComponent implements OnInit {
   }
 
   private calculateScoops(stockDate?: string): string {
-    if (!stockDate) return 'Unknown';
+    if (!stockDate) return '-';
     const startDate = new Date(stockDate);
     const currentDate = this.adjustToNearestFeedingDay(new Date());
     const daysDiff = this.getDaysDifference(startDate, currentDate);
@@ -174,7 +174,7 @@ export class FoodandhydrationComponent implements OnInit {
   }
 
   private calculateBottles(stockDate?: string): string {
-    if (!stockDate) return 'Unknown';
+    if (!stockDate) return '-';
     const startDate = new Date(stockDate);
     const currentDate = this.adjustToNearestFeedingDay(new Date());
     const daysDiff = this.getDaysDifference(startDate, currentDate);

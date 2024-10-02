@@ -34,7 +34,7 @@
               class="border-t border-gray-300 text-xs"
             >
               <td class="px-1 py-0.5">{{ subRoom.RoomNumber }}</td>
-              <td class="px-1 py-0.5">{{ subRoom.Week }}</td>
+              <td class="px-1 py-0.5">{{ subRoom.Week ?? 'N/A' }}</td> <!-- Provide default -->
               <td class="px-1 py-0.5">
                 <span
                   class="inline-block py-0.5 px-1 rounded-full text-xs font-medium"
@@ -49,10 +49,10 @@
                     'bg-amber-100 text-amber-700': subRoom.Stage === 'Eggpots'
                   }"
                 >
-                  {{ subRoom.Stage || "_" }}
+                  {{ subRoom.Stage || "N/A" }} <!-- Provide default -->
                 </span>
               </td>
-              <td class="px-1 py-0.5">{{ subRoom.Tubs || 0 }}</td>
+              <td class="px-1 py-0.5">{{ subRoom.Tubs || 0 }}</td> <!-- Provide default -->
             </tr>
           </tbody>
         </table>
@@ -83,7 +83,7 @@
           </div>
           <div class="border-l border-gray-300 h-6 mx-2"></div>
           <div class="text-lg sm:text-xl text-gray-800 w-1/2 text-center">
-            {{ room.Week }}
+            {{ room.Week ?? 'N/A' }} <!-- Provide default -->
           </div>
         </div>
         <div class="flex w-full items-center mt-2">
@@ -105,7 +105,7 @@
               'bg-amber-100 text-amber-700': room.Stage === 'Eggpots'
             }"
           >
-            {{ room.Stage || "_" }}
+            {{ room.Stage || "N/A" }} <!-- Provide default -->
           </div>
         </div>
       </div>
@@ -114,7 +114,7 @@
           Quantity:
         </div>
         <div class="text-lg sm:text-xl font-semibold text-gray-800">
-          {{ room.Tubs }}
+          {{ room.Tubs || 0 }} <!-- Provide default -->
         </div>
       </div>
     </ng-template>

@@ -36,6 +36,8 @@ export class AuthService {
       return 'Manager';
     } else if (username.startsWith('ST')) {
       return 'Staff';
+   } else if (username.startsWith('SP')) {
+      return 'Manager'; 
     } else {
       return 'Unknown';
     }

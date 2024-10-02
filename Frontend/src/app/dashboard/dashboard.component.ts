@@ -6,13 +6,13 @@ import { FloatingButtonComponent } from '../floating-button/floating-button.comp
 // Defining the structure of a Room object
 interface Room {
   Date?: string;
-  Stock?: number;
-  Week?: number;
-  FoodType?: string;
-  Tubs?: string;
-  WaterType?: string;
+  Stock?: number | null; // Allow Stock to be null
+  Week?: number | null; // Allow Week to be null
+  FoodType?: string | null; // Allow FoodType to be null
+  Tubs?: string | null; // Allow Tubs to be null
+  WaterType?: string | null; // Allow WaterType to be null
   RoomNumber: number | string;
-  Stage?: string;
+  Stage?: string | null; // Allow Stage to be null
   subRooms?: Room[];
 }
 
@@ -107,9 +107,9 @@ export default class DashboardComponent implements OnInit {
           return {
             RoomNumber: roomNumber,
             subRooms,
-            Week: existingRoom?.Week || 0,
+            Week: existingRoom?.Week ?? 0, // Use 0 as default
             Stage: this.calculateStage(existingRoom?.Date),
-            Stock: existingRoom?.Stock || 0,
+            Stock: existingRoom?.Stock ?? 0, // Use 0 as default
           };
         }
 
@@ -125,8 +125,8 @@ export default class DashboardComponent implements OnInit {
   }
 
   // Private function to calculate the stage of the room based on the stock date
-  private calculateStage(stockDate?: string): string {
-    if (!stockDate) return 'Unknown'; // Return 'Unknown' if no date is provided
+  private calculateStage(stockDate?: string | null): string {
+    if (!stockDate) return 'Empty'; // Return 'Not Available' if no date is provided
 
     const startDate = new Date(stockDate); // Convert stockDate to a Date object
     const currentDate = new Date(); // Get the current date
