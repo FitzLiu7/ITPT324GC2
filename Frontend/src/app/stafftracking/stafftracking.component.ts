@@ -97,7 +97,11 @@ export class StafftrackingComponent implements OnInit, OnDestroy {
                 startTime: startTime ? startTime.toLocaleTimeString() : '--',
                 endTime: endTime ? endTime.toLocaleTimeString() : '--',
                 task: res[i].task || '--',
-                roomNumber: res[i].roomNumber || '--',
+                // Ensure roomNumber is always a valid number or placeholder
+                roomNumber:
+                  res[i].roomNumber && res[i].roomNumber !== '--'
+                    ? res[i].roomNumber
+                    : 9999,
                 elapsedTime: startTime
                   ? this.calculateElapsedTime(startTime, endTime || new Date())
                   : '--',
@@ -123,6 +127,24 @@ export class StafftrackingComponent implements OnInit, OnDestroy {
               });
             }
           }
+        });
+
+        // Sort the employee list by roomNumber ensuring valid comparison
+        this.employeeList.sort((a, b) => {
+          const roomA =
+            typeof a.roomNumber === 'number'
+              ? a.roomNumber
+              : parseInt(a.roomNumber, 10);
+          const roomB =
+            typeof b.roomNumber === 'number'
+              ? b.roomNumber
+              : parseInt(b.roomNumber, 10);
+
+          // Handle invalid room numbers, sorting them last
+          if (isNaN(roomA)) return 1;
+          if (isNaN(roomB)) return -1;
+
+          return roomA - roomB;
         });
       },
       (error) => {
