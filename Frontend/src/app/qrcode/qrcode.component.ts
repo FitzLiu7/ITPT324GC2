@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MinutesSecondsPipe } from '../minutes-seconds.pipe';
 import { getCurrentUser } from 'aws-amplify/auth';
-import {log} from "@angular-devkit/build-angular/src/builders/ssr-dev-server";
+import { log } from '@angular-devkit/build-angular/src/builders/ssr-dev-server';
 
 interface StaffTask {
   userName: string;
@@ -137,33 +137,43 @@ export class QRcodeComponent implements OnInit, OnDestroy {
 
   // Fetch data for rooms 14 or 15 and their sub-rooms
   fetchSubRoomData(mainRoomNumber: number) {
+    // Define sub-room numbers for room 14 and 15
     const subRoomNumbers =
-      mainRoomNumber === 14 ? [14, 141, 142, 143] : [15, 151, 152];
+      mainRoomNumber === 14
+        ? [14, 141, 142, 143]
+        : mainRoomNumber === 15
+        ? [15, 151]
+        : [];
+
+    // Create an array of promises to fetch data for each sub-room
     const roomRequests = subRoomNumbers.map((subRoomNum) =>
       this.apiService.getRoomData(subRoomNum).toPromise()
     );
 
+    // Use Promise.all to wait for all room data to be fetched
     Promise.all(roomRequests)
       .then((allRoomsData) => {
-        // Populate data for the room and its sub-rooms
+        // Populate the roomData object with room and sub-room data
         this.roomData = {
           RoomNumber: mainRoomNumber,
           subRooms: allRoomsData.map((room) => ({
             ...room,
-            Stage: this.calculateStage(room.Date),
-            Scoops: this.calculateScoops(room.Date),
-            Bottles: this.calculateBottles(room.Date),
+            Stage: this.calculateStage(room.Date), // Custom logic to calculate stage
+            Scoops: this.calculateScoops(room.Date), // Custom logic for scoops
+            Bottles: this.calculateBottles(room.Date), // Custom logic for bottles
           })),
         };
 
+        // Reset timers for the rooms and indicate a successful scan
         this.resetTimers();
         this.scanSuccess = true;
         this.isScannerOpen = false;
       })
       .catch((error) => {
+        // Handle errors when fetching room data
         console.error('Error fetching room data:', error);
         this.scanError = true;
-        this.scanErrorMessage = 'Error fetching room data';
+        this.scanErrorMessage = 'Error fetching room data. Please try again.';
       });
   }
 
@@ -179,7 +189,6 @@ export class QRcodeComponent implements OnInit, OnDestroy {
 
         this.currentRoomNumber = roomNumber;
 
-
         // Populate data for the room
         this.roomData = {
           ...data,
@@ -192,11 +201,11 @@ export class QRcodeComponent implements OnInit, OnDestroy {
         this.currentUserTask =
           this.taskList.find((task) => task.userName === this.userName) || null;
 
-        if(this.currentUserTask) {
-          if(this.currentUserTask.working) {
+        if (this.currentUserTask) {
+          if (this.currentUserTask.working) {
             this.status = 'Occupied';
-            if(this.currentUserTask.task === 'Food') {
-              this.isFoodTimerRunning = true
+            if (this.currentUserTask.task === 'Food') {
+              this.isFoodTimerRunning = true;
               this.foodStartTime = new Date(this.currentUserTask.startTime);
               this.foodTimer = setInterval(() => {
                 this.foodElapsedTime = Math.floor(
@@ -205,8 +214,8 @@ export class QRcodeComponent implements OnInit, OnDestroy {
               }, 1000);
             }
 
-            if(this.currentUserTask.task === 'Water') {
-              this.isWaterTimerRunning = true
+            if (this.currentUserTask.task === 'Water') {
+              this.isWaterTimerRunning = true;
               this.waterStartTime = new Date(this.currentUserTask.startTime);
               this.waterTimer = setInterval(() => {
                 this.waterElapsedTime = Math.floor(
@@ -216,9 +225,6 @@ export class QRcodeComponent implements OnInit, OnDestroy {
             }
           }
         }
-
-
-
 
         this.scanSuccess = true;
         this.isScannerOpen = false;
@@ -272,7 +278,7 @@ export class QRcodeComponent implements OnInit, OnDestroy {
       this.apiService.updateStaffTask(params).subscribe(
         () => {
           clearInterval(this.foodTimer);
-          this.foodEndTime = new Date()
+          this.foodEndTime = new Date();
           this.isFoodTimerRunning = false;
           this.updateStatus();
         },
