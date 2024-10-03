@@ -54,31 +54,26 @@ export class ApiService {
   private setupWebSocket() {
     this.socket$
       .pipe(
-        debounceTime(200),
-        switchMap(() => this.getList().pipe(
-          catchError((error) => {
-            console.error('Error fetching list in WebSocket stream:', error);
-            return []; // Return empty array on error to continue the WebSocket flow
-          })
-        )),
+        debounceTime(200), // Adjust debounce time as needed
+        switchMap(() => this.getList()), // Fetch updated data on receiving a WebSocket message
         catchError((error) => {
           console.error('Error in WebSocket stream:', error);
-          return []; // Ensure the observable completes even after an error
+          return [];
         })
       )
       .subscribe(
         (data) => {
           if (Array.isArray(data)) {
+            // Ensure data is an array
             console.log('WebSocket data received:', data);
-            this.dataSubject.next(data);
+            this.dataSubject.next(data); // Emit WebSocket data
           } else {
             console.error('Unexpected WebSocket data format:', data);
           }
         },
-        (err) => console.error('WebSocket subscription error:', err) // Log any additional subscription errors
+        (err) => console.error('WebSocket error:', err)
       );
- }
- 
+  }
 
   // Observable to subscribe to data changes
   getDataUpdates(): Observable<any> {
