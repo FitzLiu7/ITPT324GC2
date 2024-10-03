@@ -103,17 +103,19 @@ app.use(bodyParser.json());
 
 // Add Employee Staff TaskList
 app.post("/addStaffTask", async (req, res) => {
-    let { userName, roomNumber, startTime, endTime, task } = req.body;
+    let { TaskID, userName, roomNumber, startTime, endTime, task } = req.body;
 
-    if (!userName || !roomNumber || !startTime || !task) {
+    // Validate required fields
+    if (!TaskID || !userName || !roomNumber || !startTime || !task) {
         return res.status(400).send("Missing required fields");
     }
 
-    roomNumber = getPartitionKey(roomNumber);
+    roomNumber = getPartitionKey(roomNumber); // If needed, depending on your use case
 
     const params = {
-        TableName: "InsectProductionStaffTimes",
+        TableName: "StaffTaskCompletion",
         Item: {
+            TaskID,         // Use TaskID as the partition key
             userName, 
             roomNumber, 
             startTime, 
@@ -137,13 +139,14 @@ app.post("/addStaffTask", async (req, res) => {
 
 // Update Staff Task
 app.put("/updateStaffTask", async (req, res) => {
-    let { userName, roomNumber, startTime, endTime, task, working } = req.body;
+    let { TaskID, userName, roomNumber, startTime, endTime, task, working } = req.body;
 
     if (working === undefined || working === null) {
         working = false;
     }
 
-    if (!userName || !roomNumber || !startTime || !task) {
+    // Validate required fields
+    if (!TaskID || !userName || !roomNumber || !startTime || !task) {
         return res.status(400).send("Missing required fields");
     }
 
@@ -154,9 +157,9 @@ app.put("/updateStaffTask", async (req, res) => {
     }
 
     const params = {
-        TableName: "InsectProductionStaffTimes",
+        TableName: "StaffTaskCompletion",
         Key: {
-            userName: userName,
+            TaskID,       // Use TaskID as the key
         },
         UpdateExpression:
             "set #rn = :roomNumber, #s = :startTime, #et = :endTime, #t = :task, #wk = :working",
@@ -192,7 +195,7 @@ app.put("/updateStaffTask", async (req, res) => {
 // Get Staff Task List
 app.get("/getStaffTaskList", async (req, res) => {
     const params = {
-        TableName: "InsectProductionStaffTimes",
+        TableName: "StaffTaskCompletion",
     };
 
     try {
