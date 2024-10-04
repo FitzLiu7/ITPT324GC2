@@ -111,7 +111,7 @@ app.post("/addStaffTask", async (req, res) => {
 
     roomNumber = getPartitionKey(roomNumber);
 
-    // Generate unique ID using Date.now()
+    // Generate unique ID using Date.now() for storage
     const uniqueUserKey = `${userName}_${Date.now()}`;
 
     const params = {
@@ -120,11 +120,13 @@ app.post("/addStaffTask", async (req, res) => {
             userName: uniqueUserKey, // Use unique key for each task entry
             roomNumber, 
             startTime, 
-            endTime: endTime || null,
+            endTime: endTime || null, // Handle endTime appropriately
             task, 
             working: true
         }
     };
+
+    console.log("Adding task with the following parameters:", JSON.stringify(params.Item, null, 2));
 
     try {
         await dynamoDB.put(params).promise();
@@ -157,10 +159,13 @@ app.put("/updateStaffTask", async (req, res) => {
         return res.status(400).send("Invalid RoomNumber");
     }
 
+    // Log the original userName for clarity
+    console.log("Updating task for user:", userName);
+
     const params = {
         TableName: "InsectProductionStaffTimes",
         Key: {
-            userName: userName, // Pass full key with Date.now() part
+            userName: userName, // Pass the full unique user name with timestamp
         },
         UpdateExpression:
             "set #rn = :roomNumber, #s = :startTime, #et = :endTime, #t = :task, #wk = :working",
@@ -181,6 +186,8 @@ app.put("/updateStaffTask", async (req, res) => {
         ReturnValues: "UPDATED_NEW",
     };
 
+    console.log("Updating task with the following parameters:", JSON.stringify(params, null, 2));
+
     try {
         const result = await dynamoDB.update(params).promise();
         res.status(200).json(result.Attributes);
@@ -192,6 +199,7 @@ app.put("/updateStaffTask", async (req, res) => {
         res.status(500).send(`Error updating data: ${error.message}`);
     }
 });
+
 
 
 // Get Staff Task List
@@ -216,7 +224,6 @@ app.get("/getStaffTaskList", async (req, res) => {
         res.status(500).json({ error: "Could not retrieve data" });
     }
 });
-
 
 // Add Data
 app.post("/add-data", async (req, res) => {

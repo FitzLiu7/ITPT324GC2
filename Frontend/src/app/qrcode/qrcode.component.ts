@@ -5,7 +5,6 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MinutesSecondsPipe } from '../minutes-seconds.pipe';
 import { getCurrentUser } from 'aws-amplify/auth';
-import { log } from '@angular-devkit/build-angular/src/builders/ssr-dev-server';
 
 interface StaffTask {
   userName: string;
@@ -25,34 +24,34 @@ interface StaffTask {
   imports: [CommonModule, ZXingScannerModule, MinutesSecondsPipe],
 })
 export class QRcodeComponent implements OnInit, OnDestroy {
-  isScannerOpen = true; // Indicates if the scanner is active
-  roomData: any = null; // Holds room data after a successful scan
-  scannerResult: string | null = null; // Result from the QR code scan
-  scanSuccess = false; // Indicates a successful scan
-  scanError = false; // Indicates if there was an error scanning
-  scanErrorMessage = ''; // Holds the error message in case of a scan failure
-  userName: string = ''; // Stores the authenticated user's name
-  foodTimer: any = null; // Interval reference for the food timer
-  waterTimer: any = null; // Interval reference for the water timer
-  foodStartTime: Date | null = null; // Start time for the food task
-  waterStartTime: Date | null = null; // Start time for the water task
-  waterEndTime: Date | null = null; // End time for the water task
-  foodEndTime: Date | null = null; // End time for the food task
-  foodElapsedTime: number = 0; // Tracks the elapsed time for the food task
-  waterElapsedTime: number = 0; // Tracks the elapsed time for the water task
-  isFoodTimerRunning = false; // Indicates if the food timer is running
-  isWaterTimerRunning = false; // Indicates if the water timer is running
-  status: string = 'Vacant'; // Current status display
-  taskList: StaffTask[] = []; // List of tasks retrieved from the backend
-  currentUserTask: StaffTask | null = null; // The current task for the logged-in user
-  currentRoomNumber: number = 0; // Stores the currently scanned room number
-  uniqueUserName: string | null = null; // To store the unique username with Date.now() appended
+  isScannerOpen = true;
+  roomData: any = null;
+  scannerResult: string | null = null;
+  scanSuccess = false;
+  scanError = false;
+  scanErrorMessage = '';
+  userName: string = '';
+  foodTimer: any = null;
+  waterTimer: any = null;
+  foodStartTime: Date | null = null;
+  waterStartTime: Date | null = null;
+  waterEndTime: Date | null = null;
+  foodEndTime: Date | null = null;
+  foodElapsedTime: number = 0;
+  waterElapsedTime: number = 0;
+  isFoodTimerRunning = false;
+  isWaterTimerRunning = false;
+  status: string = 'Vacant';
+  taskList: StaffTask[] = [];
+  currentUserTask: StaffTask | null = null;
+  currentRoomNumber: number = 0;
+  uniqueUserName: string | null = null; // Store the unique username with timestamp
 
   constructor(private apiService: ApiService, private router: Router) {}
 
   ngOnInit() {
     this.currentAuthenticatedUser();
-    // Retrieve the list of staff tasks when component is initialized
+    // Retrieve the list of staff tasks when the component is initialized
     this.apiService.getStaffTaskList().subscribe(
       (res: StaffTask[]) => {
         this.taskList = res.map((task) => ({
@@ -72,7 +71,6 @@ export class QRcodeComponent implements OnInit, OnDestroy {
     if (this.waterTimer) clearInterval(this.waterTimer);
   }
 
-  // Retrieve the currently authenticated user
   async currentAuthenticatedUser() {
     try {
       const { username } = await getCurrentUser();
@@ -82,7 +80,6 @@ export class QRcodeComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Open QR scanner and reset necessary data
   openQrScanner() {
     this.isScannerOpen = true;
     this.roomData = null;
@@ -92,7 +89,6 @@ export class QRcodeComponent implements OnInit, OnDestroy {
     this.resetTimers();
   }
 
-  // Handle the QR code scan result
   onCodeResult(resultString: string) {
     this.scannerResult = resultString.trim();
     console.log('Scanned QR:', resultString);
@@ -109,15 +105,9 @@ export class QRcodeComponent implements OnInit, OnDestroy {
     }
 
     roomNumber = this.resolveRoomNumber(roomNumber);
-
     this.currentRoomNumber = roomNumber;
 
-    // Validate if the room number is among the allowed ones
-    if (
-      ![1001, 1002, 1, 3, 4, 8, 9, 10, 11, 12, 13, 14, 15].includes(
-        Number(roomNumber)
-      )
-    ) {
+    if (![1001, 1002, 1, 3, 4, 8, 9, 10, 11, 12, 13, 14, 15].includes(Number(roomNumber))) {
       this.scanError = true;
       this.scanErrorMessage = 'Invalid QR code';
       return;
@@ -131,14 +121,12 @@ export class QRcodeComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Resolve room number from scan result
   resolveRoomNumber(roomNumber: string): number {
     if (roomNumber === 'N1') return 1001;
     if (roomNumber === 'N2') return 1002;
     return Number(roomNumber);
   }
 
-  // Fetch data for rooms 14 or 15 and their sub-rooms
   fetchSubRoomData(mainRoomNumber: number) {
     const subRoomNumbers =
       mainRoomNumber === 14
@@ -193,7 +181,7 @@ export class QRcodeComponent implements OnInit, OnDestroy {
 
         this.resetTimers();
         this.currentUserTask =
-          this.taskList.find((task) => task.userName === this.userName) || null;
+          this.taskList.find((task) => task.userName.startsWith(this.userName)) || null; // Check for unique userName
 
         if (this.currentUserTask) {
           if (this.currentUserTask.working) {
@@ -253,63 +241,72 @@ export class QRcodeComponent implements OnInit, OnDestroy {
 
   toggleFoodTimer() {
     if (this.isFoodTimerRunning) {
-      if (!this.currentUserTask) {
-        console.error('No active task found.');
-        return;
-      }
-
-      if (!confirm('Are you sure you want to end the Food task?')) return;
-
-      const params = {
-        ...this.currentUserTask,
-        task: 'Food',
-        working: false,
-        endTime: Date.now(),
-        roomNumber: this.currentRoomNumber,
-      };
-
-      console.log('Sending the following params to the API:', params);
-
-      this.apiService.updateStaffTask(params).subscribe(
-        () => {
-          clearInterval(this.foodTimer);
-          this.foodEndTime = new Date();
-          this.isFoodTimerRunning = false;
-          this.updateStatus();
-        },
-        (error) => {
-          console.error('Failed to update staff task:', error);
-          alert('Error stopping the timer. Please try again.');
+        // Stopping the timer
+        if (!this.currentUserTask) {
+            console.error('No active task found.');
+            return;
         }
-      );
+
+        if (!confirm('Are you sure you want to end the Food task?')) return;
+
+        const params = {
+            userName: this.currentUserTask.userName, // Use the unique userName stored in the task
+            task: 'Food',
+            working: false,
+            endTime: Date.now(),
+            roomNumber: this.currentRoomNumber,
+            startTime: this.currentUserTask.startTime, // Keep the original start time
+        };
+
+        console.log('Sending the following params to the API:', params);
+
+        this.apiService.updateStaffTask(params).subscribe(
+            () => {
+                clearInterval(this.foodTimer);
+                this.foodEndTime = new Date();
+                this.isFoodTimerRunning = false;
+                this.updateStatus();
+            },
+            (error) => {
+                console.error('Failed to update staff task:', error);
+                alert('Error stopping the timer. Please try again.');
+            }
+        );
     } else {
-      if (this.isWaterTimerRunning) return;
-      if (!confirm('Are you sure you want to start the Food task?')) return;
+        // Starting the timer
+        if (!confirm('Are you sure you want to start the Food task?')) return;
 
-      const params: StaffTask = {
-        userName: this.userName,
-        startTime: Date.now(),
-        task: 'Food',
-        working: true,
-        roomNumber: this.currentRoomNumber,
-      };
-
-      console.log('Sending the following params to the API:', params);
-
-      this.currentUserTask = params;
-
-      this.apiService.addStaffTask(params).subscribe(
-        (response: any) => {
-          this.uniqueUserName = response.data.userName; // Store uniqueUserName
-          this.startFoodTimer();
-          this.updateStatus();
-        },
-        (error) => {
-          console.error('Failed to add staff task:', error);
+        // Check if there's already an active task for this user
+        if (this.taskList.some(task => task.userName.startsWith(this.userName) && task.working)) {
+            console.error('An active task already exists for this user.');
+            alert('You already have an active task. Please stop it before starting a new one.');
+            return;
         }
-      );
+
+        const params: StaffTask = {
+            userName: this.userName, // Store the initial user name
+            startTime: Date.now(),
+            task: 'Food',
+            working: true,
+            roomNumber: this.currentRoomNumber,
+        };
+
+        console.log('Sending the following params to the API:', params);
+
+        this.apiService.addStaffTask(params).subscribe(
+            (response: any) => {
+                this.uniqueUserName = response.data.userName; // Store the unique user name
+                this.currentUserTask = response.data; // Set the current user task
+                this.startFoodTimer();
+                this.updateStatus();
+            },
+            (error) => {
+                console.error('Failed to add staff task:', error);
+            }
+        );
     }
-  }
+}
+
 
   startFoodTimer() {
     this.foodStartTime = new Date();
@@ -326,58 +323,67 @@ export class QRcodeComponent implements OnInit, OnDestroy {
 
   toggleWaterTimer() {
     if (this.isWaterTimerRunning) {
-      if (!this.currentUserTask) {
-        console.error('No active task found.');
-        return;
-      }
-
-      if (!confirm('Are you sure you want to end the Water task?')) return;
-
-      const params = {
-        ...this.currentUserTask,
-        task: 'Water',
-        working: false,
-        endTime: Date.now(),
-        roomNumber: this.currentRoomNumber,
-      };
-
-      this.apiService.updateStaffTask(params).subscribe(
-        () => {
-          clearInterval(this.waterTimer);
-          this.waterEndTime = new Date();
-          this.isWaterTimerRunning = false;
-          this.updateStatus();
-        },
-        (error) => {
-          console.error('Failed to update staff task:', error);
-          alert('Error stopping the timer. Please try again.');
+        // Stopping the timer
+        if (!this.currentUserTask) {
+            console.error('No active task found.');
+            return;
         }
-      );
+
+        if (!confirm('Are you sure you want to end the Water task?')) return;
+
+        const params = {
+            userName: this.currentUserTask.userName, // Use the unique userName stored in the task
+            task: 'Water',
+            working: false,
+            endTime: Date.now(),
+            roomNumber: this.currentRoomNumber,
+            startTime: this.currentUserTask.startTime, // Keep the original start time
+        };
+
+        this.apiService.updateStaffTask(params).subscribe(
+            () => {
+                clearInterval(this.waterTimer);
+                this.waterEndTime = new Date();
+                this.isWaterTimerRunning = false;
+                this.updateStatus();
+            },
+            (error) => {
+                console.error('Failed to update staff task:', error);
+                alert('Error stopping the timer. Please try again.');
+            }
+        );
     } else {
-      if (this.isFoodTimerRunning) return;
-      if (!confirm('Are you sure you want to start the Water task?')) return;
+        // Starting the timer
+        if (!confirm('Are you sure you want to start the Water task?')) return;
 
-      const params: StaffTask = {
-        userName: this.userName,
-        startTime: Date.now(),
-        task: 'Water',
-        working: true,
-        roomNumber: this.currentRoomNumber,
-      };
-
-      this.currentUserTask = params;
-
-      this.apiService.addStaffTask(params).subscribe(
-        (response: any) => {
-          this.uniqueUserName = response.data.userName; // Store uniqueUserName
-          this.startWaterTimer();
-        },
-        (error) => {
-          console.error('Failed to add staff task:', error);
+        // Check if there's already an active task for this user
+        if (this.taskList.some(task => task.userName.startsWith(this.userName) && task.working)) {
+            console.error('An active task already exists for this user.');
+            alert('You already have an active task. Please stop it before starting a new one.');
+            return;
         }
-      );
+
+        const params: StaffTask = {
+            userName: this.userName, // Store the initial user name
+            startTime: Date.now(),
+            task: 'Water',
+            working: true,
+            roomNumber: this.currentRoomNumber,
+        };
+
+        this.apiService.addStaffTask(params).subscribe(
+            (response: any) => {
+                this.uniqueUserName = response.data.userName; // Store the unique user name
+                this.currentUserTask = response.data; // Set the current user task
+                this.startWaterTimer();
+            },
+            (error) => {
+                console.error('Failed to add staff task:', error);
+            }
+        );
     }
-  }
+}
+
 
   startWaterTimer() {
     this.waterStartTime = new Date();

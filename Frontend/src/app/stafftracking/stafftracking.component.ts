@@ -76,82 +76,64 @@ export class StafftrackingComponent implements OnInit, OnDestroy {
     );
   }
 
-  // Load the staff task list from the backend
-  loadStaffTaskList() {
-    this.apiService.getStaffTaskList().subscribe(
+// Load the staff task list from the backend
+loadStaffTaskList() {
+  this.apiService.getStaffTaskList().subscribe(
       (res) => {
-        this.employeeList.forEach((e, index) => {
-          for (let i = 0; i < res.length; i++) {
-            if (e.Username === res[i].userName) {
-              // Convert startTime and endTime to Date objects
-              const startTime = res[i].startTime
-                ? new Date(res[i].startTime)
-                : null;
-              const endTime = res[i].endTime ? new Date(res[i].endTime) : null;
+          // Reset food and water entries in each room
+          this.rooms.forEach((room: any) => {
+              room.food = null;  // Clear food tasks
+              room.water = null; // Clear water tasks
+          });
 
-              // Update employee details with task information
-              this.employeeList[index] = {
-                ...e,
-                // Check if working or idle based on startTime and endTime
-                status: startTime && !endTime ? 'Working' : 'Idle',
-                startTime: startTime ? startTime.toLocaleTimeString() : '--',
-                endTime: endTime ? endTime.toLocaleTimeString() : '--',
-                task: res[i].task || '--',
-                // Ensure roomNumber is always a valid number or placeholder
-                roomNumber:
-                  res[i].roomNumber && res[i].roomNumber !== '--'
-                    ? res[i].roomNumber
-                    : 9999,
-                elapsedTime: startTime
-                  ? this.calculateElapsedTime(startTime, endTime || new Date())
-                  : '--',
-              };
+          // Update employee list based on the response
+          this.employeeList.forEach((e, index) => {
+              for (let i = 0; i < res.length; i++) {
+                  // Check if the userName matches either the old format or the new unique identifier format
+                  if (e.Username === res[i].userName || e.Username === res[i].userName.split('_')[0]) {
+                      // Convert startTime and endTime to Date objects
+                      const startTime = res[i].startTime ? new Date(res[i].startTime) : null;
+                      const endTime = res[i].endTime ? new Date(res[i].endTime) : null;
 
-              // Start counting elapsed time if startTime exists and endTime is not yet available
-              if (startTime && !endTime) {
-                this.startElapsedTime(index, startTime);
-              } else if (endTime) {
-                this.stopElapsedTime(index); // Stop the interval when endTime is received
+                      // Update employee details with task information
+                      this.employeeList[index] = {
+                          ...e,
+                          status: startTime && !endTime ? 'Working' : 'Idle',
+                          startTime: startTime ? startTime.toLocaleTimeString() : '--',
+                          endTime: endTime ? endTime.toLocaleTimeString() : '--',
+                          task: res[i].task || '--',
+                          roomNumber: res[i].roomNumber && res[i].roomNumber !== '--' ? res[i].roomNumber : 9999,
+                          elapsedTime: startTime ? this.calculateElapsedTime(startTime, endTime || new Date()) : '--',
+                      };
+
+                      // Start counting elapsed time if startTime exists and endTime is not yet available
+                      if (startTime && !endTime) {
+                          this.startElapsedTime(index, startTime);
+                      } else if (endTime) {
+                          this.stopElapsedTime(index); // Stop the interval when endTime is received
+                      }
+
+                      // Map data to the rooms
+                      this.rooms.forEach((room: any) => {
+                          if (room.roomNumber === this.employeeList[index].roomNumber) {
+                              if (this.employeeList[index].task === 'Food') {
+                                  room.food = this.employeeList[index];
+                              }
+                              if (this.employeeList[index].task === 'Water') {
+                                  room.water = this.employeeList[index];
+                              }
+                          }
+                      });
+                  }
               }
-
-              // map data to the rooms (similar to the current logic)
-              this.rooms.forEach((room: any) => {
-                if (room.roomNumber === this.employeeList[index].roomNumber) {
-                  if (this.employeeList[index].task === 'Food') {
-                    room.food = this.employeeList[index];
-                  }
-                  if (this.employeeList[index].task === 'Water') {
-                    room.water = this.employeeList[index];
-                  }
-                }
-              });
-            }
-          }
-        });
-
-        // Sort the employee list by roomNumber ensuring valid comparison
-        this.employeeList.sort((a, b) => {
-          const roomA =
-            typeof a.roomNumber === 'number'
-              ? a.roomNumber
-              : parseInt(a.roomNumber, 10);
-          const roomB =
-            typeof b.roomNumber === 'number'
-              ? b.roomNumber
-              : parseInt(b.roomNumber, 10);
-
-          // Handle invalid room numbers, sorting them last
-          if (isNaN(roomA)) return 1;
-          if (isNaN(roomB)) return -1;
-
-          return roomA - roomB;
-        });
+          });
       },
       (error) => {
-        console.error('Error loading staff tasks:', error);
+          console.error('Error loading staff tasks:', error);
       }
-    );
-  }
+  );
+}
+
 
   // Method to refresh the page
   refreshPage() {

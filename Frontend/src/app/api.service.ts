@@ -99,8 +99,14 @@ export class ApiService {
   }
 
   getStaffTaskList(): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/getStaffTaskList`);
-  }
+    return this.http.get<any>(`${this.apiUrl}/getStaffTaskList`).pipe(
+        tap(data => console.log("Staff tasks retrieved:", data)), // Log the retrieved data
+        catchError(error => {
+            console.error('Error fetching staff tasks:', error);
+            return []; // Return an empty array on error
+        })
+    );
+}
 
   addStaffTask(obj: {
     userName: string;
