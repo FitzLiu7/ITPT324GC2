@@ -101,7 +101,7 @@ app.use(express.static(__dirname));
 app.use(bodyParser.json());
 
 
-// Add Employee Staff TaskList
+// Add Employee Staff Task
 app.post("/addStaffTask", async (req, res) => {
     let { userName, roomNumber, startTime, endTime, task } = req.body;
 
@@ -111,10 +111,13 @@ app.post("/addStaffTask", async (req, res) => {
 
     roomNumber = getPartitionKey(roomNumber);
 
+    // Generate unique ID using Date.now()
+    const uniqueUserKey = `${userName}_${Date.now()}`;
+
     const params = {
         TableName: "InsectProductionStaffTimes",
         Item: {
-            userName, 
+            userName: uniqueUserKey, // Use unique key for each task entry
             roomNumber, 
             startTime, 
             endTime: endTime || null,
@@ -125,7 +128,7 @@ app.post("/addStaffTask", async (req, res) => {
 
     try {
         await dynamoDB.put(params).promise();
-        res.status(201).json({ message: "Data added successfully" });
+        res.status(201).json({ message: "Data added successfully", data: params.Item });
 
         // Send WebSocket update
         broadcastUpdate({ message: "Data added", data: params.Item });
@@ -134,6 +137,7 @@ app.post("/addStaffTask", async (req, res) => {
         res.status(500).send(`Error adding data: ${error.message}`);
     }
 });
+
 
 // Update Staff Task
 app.put("/updateStaffTask", async (req, res) => {
@@ -156,7 +160,7 @@ app.put("/updateStaffTask", async (req, res) => {
     const params = {
         TableName: "InsectProductionStaffTimes",
         Key: {
-            userName: userName,
+            userName: userName, // Pass full key with Date.now() part
         },
         UpdateExpression:
             "set #rn = :roomNumber, #s = :startTime, #et = :endTime, #t = :task, #wk = :working",
@@ -188,6 +192,7 @@ app.put("/updateStaffTask", async (req, res) => {
         res.status(500).send(`Error updating data: ${error.message}`);
     }
 });
+
 
 // Get Staff Task List
 app.get("/getStaffTaskList", async (req, res) => {

@@ -46,6 +46,7 @@ export class QRcodeComponent implements OnInit, OnDestroy {
   taskList: StaffTask[] = []; // List of tasks retrieved from the backend
   currentUserTask: StaffTask | null = null; // The current task for the logged-in user
   currentRoomNumber: number = 0; // Stores the currently scanned room number
+  uniqueUserName: string | null = null; // To store the unique username with Date.now() appended
 
   constructor(private apiService: ApiService, private router: Router) {}
 
@@ -139,7 +140,6 @@ export class QRcodeComponent implements OnInit, OnDestroy {
 
   // Fetch data for rooms 14 or 15 and their sub-rooms
   fetchSubRoomData(mainRoomNumber: number) {
-    // Define sub-room numbers for room 14 and 15
     const subRoomNumbers =
       mainRoomNumber === 14
         ? [14, 141, 142, 143]
@@ -147,39 +147,33 @@ export class QRcodeComponent implements OnInit, OnDestroy {
         ? [15, 151]
         : [];
 
-    // Create an array of promises to fetch data for each sub-room
     const roomRequests = subRoomNumbers.map((subRoomNum) =>
       this.apiService.getRoomData(subRoomNum).toPromise()
     );
 
-    // Use Promise.all to wait for all room data to be fetched
     Promise.all(roomRequests)
       .then((allRoomsData) => {
-        // Populate the roomData object with room and sub-room data
         this.roomData = {
           RoomNumber: mainRoomNumber,
           subRooms: allRoomsData.map((room) => ({
             ...room,
-            Stage: this.calculateStage(room.Date), // Custom logic to calculate stage
-            Scoops: this.calculateScoops(room.Date), // Custom logic for scoops
-            Bottles: this.calculateBottles(room.Date), // Custom logic for bottles
+            Stage: this.calculateStage(room.Date),
+            Scoops: this.calculateScoops(room.Date),
+            Bottles: this.calculateBottles(room.Date),
           })),
         };
 
-        // Reset timers for the rooms and indicate a successful scan
         this.resetTimers();
         this.scanSuccess = true;
         this.isScannerOpen = false;
       })
       .catch((error) => {
-        // Handle errors when fetching room data
         console.error('Error fetching room data:', error);
         this.scanError = true;
         this.scanErrorMessage = 'Error fetching room data. Please try again.';
       });
   }
 
-  // Fetch data for a single room
   fetchRoomData(roomNumber: number) {
     this.apiService.getRoomData(roomNumber).subscribe(
       (data) => {
@@ -190,8 +184,6 @@ export class QRcodeComponent implements OnInit, OnDestroy {
         }
 
         this.currentRoomNumber = roomNumber;
-
-        // Populate data for the room
         this.roomData = {
           ...data,
           Stage: this.calculateStage(data.Date),
@@ -239,7 +231,6 @@ export class QRcodeComponent implements OnInit, OnDestroy {
     );
   }
 
-  // Reset timer-related variables
   resetTimers() {
     if (this.foodTimer) {
       clearInterval(this.foodTimer);
@@ -260,7 +251,6 @@ export class QRcodeComponent implements OnInit, OnDestroy {
     this.status = 'Idle';
   }
 
-  // Toggle the food timer on or off
   toggleFoodTimer() {
     if (this.isFoodTimerRunning) {
       if (!this.currentUserTask) {
@@ -309,7 +299,8 @@ export class QRcodeComponent implements OnInit, OnDestroy {
       this.currentUserTask = params;
 
       this.apiService.addStaffTask(params).subscribe(
-        () => {
+        (response: any) => {
+          this.uniqueUserName = response.data.userName; // Store uniqueUserName
           this.startFoodTimer();
           this.updateStatus();
         },
@@ -320,7 +311,6 @@ export class QRcodeComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Start the food timer and update its elapsed time
   startFoodTimer() {
     this.foodStartTime = new Date();
     this.foodEndTime = null;
@@ -334,7 +324,6 @@ export class QRcodeComponent implements OnInit, OnDestroy {
     this.updateStatus();
   }
 
-  // Toggle the water timer on or off
   toggleWaterTimer() {
     if (this.isWaterTimerRunning) {
       if (!this.currentUserTask) {
@@ -379,7 +368,8 @@ export class QRcodeComponent implements OnInit, OnDestroy {
       this.currentUserTask = params;
 
       this.apiService.addStaffTask(params).subscribe(
-        () => {
+        (response: any) => {
+          this.uniqueUserName = response.data.userName; // Store uniqueUserName
           this.startWaterTimer();
         },
         (error) => {
@@ -389,7 +379,6 @@ export class QRcodeComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Start the water timer and update its elapsed time
   startWaterTimer() {
     this.waterStartTime = new Date();
     this.waterEndTime = null;
@@ -403,7 +392,6 @@ export class QRcodeComponent implements OnInit, OnDestroy {
     this.updateStatus();
   }
 
-  // Update the status based on the current task
   updateStatus() {
     if (this.isFoodTimerRunning) {
       this.status = 'Working';
@@ -415,13 +403,12 @@ export class QRcodeComponent implements OnInit, OnDestroy {
   }
 
   private calculateStage(stockDate?: string): string {
-    if (!stockDate) return '--'; // Return 'Unknown' if no date is provided
+    if (!stockDate) return '--';
 
-    const startDate = new Date(stockDate); // Convert stockDate to a Date object
-    const currentDate = new Date(); // Get the current date
-    const daysDiff = this.getDaysDifference(startDate, currentDate); // Calculate the difference in days
+    const startDate = new Date(stockDate);
+    const currentDate = new Date();
+    const daysDiff = this.getDaysDifference(startDate, currentDate);
 
-    // Determine the stage based on the days difference
     if (daysDiff < 3) return 'Babies';
     else if (daysDiff < 8) return 'Extra Small';
     else if (daysDiff < 14) return 'Small';
@@ -429,7 +416,7 @@ export class QRcodeComponent implements OnInit, OnDestroy {
     else if (daysDiff < 28) return 'Large';
     else if (daysDiff < 35) return 'Breeders';
     else if (daysDiff < 49) return 'Eggpots';
-    else return '-----'; // Return a placeholder if it doesn't match any stage
+    else return '-----';
   }
 
   private calculateScoops(stockDate?: string): string {
@@ -468,6 +455,7 @@ export class QRcodeComponent implements OnInit, OnDestroy {
     }
     return date;
   }
+
   goBack(): void {
     this.router.navigate(['/fyh']);
   }
