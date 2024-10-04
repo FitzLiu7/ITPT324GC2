@@ -134,6 +134,22 @@ loadStaffTaskList() {
   );
 }
 
+//method to empty the table and database
+clearAllTasks() {
+  if (confirm('Are you sure you want to clear all tasks? This action cannot be undone.')) {
+    this.apiService.clearAllTasks().subscribe(
+      (response) => {
+        console.log(response);
+        // Refresh or update your data as needed
+        this.refreshPage(); // Refresh the page or data if necessary
+      },
+      (error) => {
+        console.error('Error clearing tasks:', error);
+        alert('Failed to clear tasks. Please try again.');
+      }
+    );
+  }
+}
 
   // Method to refresh the page
   refreshPage() {

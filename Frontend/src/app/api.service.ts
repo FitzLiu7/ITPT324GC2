@@ -128,6 +128,10 @@ export class ApiService {
     return this.http.put<any>(`${this.apiUrl}/updateStaffTask`, obj);
   }
 
+  clearAllTasks(): Observable<any> {
+    return this.http.delete<any>(`${this.apiUrl}/clearAllTasks`);
+  }
+
   addRoomData(data: any): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/add-data`, data);
   }

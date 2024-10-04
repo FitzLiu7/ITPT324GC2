@@ -200,8 +200,6 @@ app.put("/updateStaffTask", async (req, res) => {
     }
 });
 
-
-
 // Get Staff Task List
 app.get("/getStaffTaskList", async (req, res) => {
     const params = {
@@ -224,6 +222,39 @@ app.get("/getStaffTaskList", async (req, res) => {
         res.status(500).json({ error: "Could not retrieve data" });
     }
 });
+
+// Clear All Tasks Endpoint
+app.delete('/clearAllTasks', async (req, res) => {
+    const tableName = "InsectProductionStaffTimes"; // Your DynamoDB table name
+    
+    try {
+      // Scan to get all items
+      const data = await dynamoDB.scan({ TableName: tableName }).promise();
+  
+      // If no items, return a message
+      if (!data.Items.length) {
+        return res.status(404).send('No tasks found in the database.');
+      }
+  
+      // Delete each item
+      const deletePromises = data.Items.map(item => {
+        const deleteParams = {
+          TableName: tableName,
+          Key: {
+            userName: item.userName
+          }
+        };
+        return dynamoDB.delete(deleteParams).promise();
+      });
+  
+      await Promise.all(deletePromises); // Wait for all deletions to complete
+  
+      res.status(200).send('All tasks cleared successfully.');
+    } catch (error) {
+      console.error("Error clearing tasks:", error);
+      res.status(500).send(`Error clearing tasks: ${error.message}`);
+    }
+  });
 
 // Add Data
 app.post("/add-data", async (req, res) => {
