@@ -134,13 +134,15 @@ loadStaffTaskList() {
   );
 }
 
-//method to empty the table and database
+// Method to clear all tasks from the database and refresh the UI
 clearAllTasks() {
+  // Prompt the user for confirmation
   if (confirm('Are you sure you want to clear all tasks? This action cannot be undone.')) {
     this.apiService.clearAllTasks().subscribe(
       (response) => {
-        console.log(response);
-        // Refresh or update your data as needed
+        // Extract the message from the response and show it to the user
+        const message = response.message || 'Tasks cleared successfully.';
+        alert(message); // Display the message in an alert or use any preferred method to show messages
         this.refreshPage(); // Refresh the page or data if necessary
       },
       (error) => {
@@ -150,6 +152,7 @@ clearAllTasks() {
     );
   }
 }
+
 
   // Method to refresh the page
   refreshPage() {

@@ -225,36 +225,34 @@ app.get("/getStaffTaskList", async (req, res) => {
 
 // Clear All Tasks Endpoint
 app.delete('/clearAllTasks', async (req, res) => {
-    const tableName = "InsectProductionStaffTimes"; // Your DynamoDB table name
-    
+    const tableName = "InsectProductionStaffTimes"; 
+
     try {
-      // Scan to get all items
-      const data = await dynamoDB.scan({ TableName: tableName }).promise();
-  
-      // If no items, return a message
-      if (!data.Items.length) {
-        return res.status(404).send('No tasks found in the database.');
-      }
-  
-      // Delete each item
-      const deletePromises = data.Items.map(item => {
-        const deleteParams = {
-          TableName: tableName,
-          Key: {
-            userName: item.userName
-          }
-        };
-        return dynamoDB.delete(deleteParams).promise();
-      });
-  
-      await Promise.all(deletePromises); // Wait for all deletions to complete
-  
-      res.status(200).send('All tasks cleared successfully.');
+        // Scan to get all items
+        const data = await dynamoDB.scan({ TableName: tableName }).promise();
+
+        // Proceed with deletion of each item
+        const deletePromises = data.Items.map(item => {
+            const deleteParams = {
+                TableName: tableName,
+                Key: {
+                    userName: item.userName
+                }
+            };
+            return dynamoDB.delete(deleteParams).promise();
+        });
+
+        await Promise.all(deletePromises); // Wait for all deletions to complete
+
+        // Send a JSON response after successful deletion
+        res.status(200).json({ message: 'All tasks cleared successfully.' });
     } catch (error) {
-      console.error("Error clearing tasks:", error);
-      res.status(500).send(`Error clearing tasks: ${error.message}`);
+        console.error("Error clearing tasks:", error);
+        res.status(500).json({ message: `Error clearing tasks: ${error.message}` });
     }
-  });
+});
+
+  
 
 // Add Data
 app.post("/add-data", async (req, res) => {

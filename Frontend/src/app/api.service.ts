@@ -129,8 +129,9 @@ export class ApiService {
   }
 
   clearAllTasks(): Observable<any> {
-    return this.http.delete<any>(`${this.apiUrl}/clearAllTasks`);
+    return this.http.delete<any>(`${this.apiUrl}/clearAllTasks`, { responseType: 'text' as 'json' });
   }
+  
 
   addRoomData(data: any): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/add-data`, data);
